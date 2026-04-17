@@ -1,0 +1,22 @@
+[package]
+name = "content"
+version = "0.0.1"
+edition = "2024"
+
+[dependencies]
+common.workspace = true
+serde.workspace = true
+
+mlua.workspace = true
+
+crc32fast.workspace = true
+indextree = "4.8.0"
+
+bevy.workspace = true
+
+[[test]]
+name = "simple"
+
+[[test]]
+name = "entity"
+

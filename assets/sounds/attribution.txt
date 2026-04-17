@@ -1,0 +1,32 @@
+The following sound effects here are taken from /tg/station main repository.
+Licensed under CC 3.0 BY-SA
+https://github.com/tgstation/tgstation
+commit b17233a5255a2c5f3042a043a63ac28e9dee97ec
+- bikehorn.ogg
+- component_drop.ogg
+- component_pickup.ogg
+- explosion.ogg
+- explosion2.ogg
+- hit1.ogg
+- hit2.ogg
+- hit3.ogg
+- hug.ogg
+- punch1.ogg
+- punch2.ogg
+- punch3.ogg
+- punch4.ogg
+- punchmiss.ogg
+- ratchet.ogg
+- screwdiver.ogg
+- smash.ogg
+- tatoralert.ogg
+- ui_togglecombat.ogg
+- ui_toggleoffcombat.ogg
+- welcome.ogg
+- welder.ogg
+- welder2.ogg
+- welderactivate.ogg
+- welderdeactive.ogg
+
+file bloop.ogg by Tim Khan
+(https://freesound.org/people/tim.kahn/sounds/130377/)

@@ -1,0 +1,29 @@
+[package]
+name = "shared"
+version = "0.0.1"
+edition = "2024"
+
+[dependencies]
+atmos.workspace = true
+common.workspace = true
+grid.workspace = true
+content.workspace = true
+
+mlua.workspace = true
+toml.workspace = true
+
+bevy_replicon.workspace = true 
+bevy_replicon_renet.workspace = true
+bevy_renet.workspace = true
+
+avian3d.workspace = true
+
+uom.workspace = true
+rand.workspace = true
+ron.workspace = true
+serde.workspace = true
+anyhow.workspace = true
+heapless.workspace = true
+
+bevy.workspace = true
+

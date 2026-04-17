@@ -1,0 +1,7 @@
+The following assets here from /tg/station sprites, and have been altered to 3D models. 
+Licensed under CC 3.0 BY-SA
+https://github.com/tgstation/tgstation
+commit b17233a5255a2c5f3042a043a63ac28e9dee97ec
+- floor.glb
+- girder.glb
+

@@ -1,0 +1,32 @@
+[package]
+name = "server"
+version = "0.0.1"
+edition = "2024"
+
+[lib]
+name = "server"
+path = "src/lib.rs"
+
+[[bin]]
+name = "server_bin"
+path = "src/main.rs"
+
+[dependencies]
+atmos.workspace = true
+common.workspace = true
+grid.workspace = true
+content.workspace = true
+
+shared.workspace = true
+
+bevy_replicon = { workspace = true, features = ["server"] }
+bevy_replicon_renet = { workspace = true, features = ["server"] }
+bevy_renet.workspace = true
+
+avian3d.workspace = true
+
+anyhow.workspace = true
+rand.workspace = true
+uom.workspace = true
+
+bevy = { workspace = true, features = ["dev"] }

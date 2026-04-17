@@ -1,0 +1,81 @@
+[workspace]
+resolver = "3"
+members = [
+    "crates/*", 
+    "client", 
+    "server", 
+    "shared"
+]
+
+[profile.dev]
+opt-level = 1
+
+[profile.dev.package."*"]
+opt-level = 3
+
+[profile.release]
+codegen-units = 1
+lto = "thin"
+
+[workspace.dependencies]
+atmos = { path = "crates/atmos" }
+common = { path = "crates/common" }
+grid = { path = "crates/grid" }
+content = { path = "crates/content" }
+
+shared = { path = "shared" }
+server = { path = "server" }
+
+# TODO wait for replicon to stop feature gating VisibilityFilter - waiting for update now.
+bevy_replicon = { version = "0.39.3", default-features = false, features = ["server"] }
+bevy_replicon_renet = { version = "0.15.0", default-features = false, features = ["renet_netcode"] }
+bevy_renet = { version = "4.0", default-features = false }
+
+avian3d = { version = "0.6.1", features = ["serialize"]}
+
+uom = { version = "0.38.0", default-features = false, features = [
+    "f32", 
+    "autoconvert", 
+    "si", 
+    "std", 
+    "serde"
+]}
+
+rand = "0.9.2"
+heapless = { version = "0.9.2", features = ["serde"]}
+smallvec = { version = "1.15.1", features = ["serde"]}
+crc32fast = "1.5.0"
+
+ron = "0.12.0" 
+toml = "1.0.2"
+anyhow = "1.0.100"
+serde = { version = "1.0.228", features = [ "derive" ]}
+
+indexmap = "2.13.0"
+
+# im deliberately not using luajit
+mlua = { version = "0.11.6", features = ["lua51", "vendored", "serde", "macros", "anyhow"] }
+
+criterion = { version = "0.8.2", features = ["html_reports"]}
+
+[workspace.dependencies.bevy]
+version = "0.18.1"
+default-features = false
+features = [
+# Default Features
+    "bevy_asset",
+    "bevy_color",
+    "bevy_gltf",
+    "bevy_log",
+    "bevy_state",
+    "bevy_scene",
+    "multi_threaded",
+    "sysinfo_plugin",
+    "reflect_auto_register",
+
+    "bevy_audio",
+
+    "serialize",
+    "default_font",
+]
+

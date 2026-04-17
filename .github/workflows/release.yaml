@@ -1,0 +1,160 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - '*'
+
+permissions:
+  contents: write
+
+env:
+  client_target: client
+  server_target: server
+  client_binary: client
+  server_binary: server_bin
+  add_binaries_to_github_release: true
+
+jobs:
+  # Build for Linux
+  release-linux:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: olegtarasov/get-tag@v2.1.2
+        id: get_version
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-unknown-linux-gnu
+          
+      - name: Cache crates
+        uses: Swatinem/rust-cache@v2
+
+      - name: install dependencies
+        run: |
+          sudo apt-get update; sudo apt-get install pkg-config libx11-dev libasound2-dev libudev-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev libwayland-dev
+
+      - name: Build Workspaces
+        run: |
+          cargo build --release --target x86_64-unknown-linux-gnu -p ${{ env.client_target }} -p ${{ env.server_target }}
+
+      - name: Prepare packages
+        run: |
+          mkdir linux-client linux-server
+          cp target/x86_64-unknown-linux-gnu/release/${{ env.client_binary }} linux-client/
+          cp target/x86_64-unknown-linux-gnu/release/${{ env.server_binary }} linux-server/
+          cp -r assets linux-client/ || true # Try to copy, but ignore if it can't copy if source directory does not exist
+          cp -r assets linux-server/ || true
+
+      - name: Package client as a zip
+        working-directory: ./linux-client
+        run: |
+          zip --recurse-paths ../${{ env.client_binary }}.zip .
+
+      - name: Package server as a zip
+        working-directory: ./linux-server
+        run: |
+          zip --recurse-paths ../${{ env.server_binary }}.zip .
+
+      - name: Upload client binaries to artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          path: ${{ env.client_binary }}.zip
+          name: linux-client
+          retention-days: 1
+
+      - name: Upload server binaries to artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          path: ${{ env.server_binary }}.zip
+          name: linux-server
+          retention-days: 1
+
+      - name: Upload client binaries to release
+        if: ${{ env.add_binaries_to_github_release == 'true' }}
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ${{ env.client_binary }}.zip
+          asset_name: ${{ env.client_binary }}-linux-${{ steps.get_version.outputs.tag }}.zip
+          tag: ${{ github.ref }}
+          overwrite: true
+
+      - name: Upload server binaries to release
+        if: ${{ env.add_binaries_to_github_release == 'true' }}
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ${{ env.server_binary }}.zip
+          asset_name: ${{ env.server_binary }}-linux-${{ steps.get_version.outputs.tag }}.zip
+          tag: ${{ github.ref }}
+          overwrite: true
+
+  # Build for Windows
+  release-windows:
+    runs-on: windows-latest
+
+    steps:
+      - uses: olegtarasov/get-tag@v2.1.2
+        id: get_version
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
+          
+      - name: Cache crates
+        uses: Swatinem/rust-cache@v2
+
+      - name: Build Workspaces
+        run: |
+          cargo build --release --target x86_64-pc-windows-msvc -p ${{ env.client_target }} -p ${{ env.server_target }}
+
+      - name: Prepare packages
+        run: |
+          mkdir windows-client
+          mkdir windows-server
+          cp target/x86_64-pc-windows-msvc/release/${{ env.client_binary }}.exe windows-client/
+          cp target/x86_64-pc-windows-msvc/release/${{ env.server_binary }}.exe windows-server/
+          mkdir assets -ea 0 # create the assets directory if it does not exist, it will get ignored in the zip if empty
+          cp -r assets windows-client/
+          cp -r assets windows-server/
+
+      - name: Package as zips
+        run: |
+          Compress-Archive -Path windows-client/* -DestinationPath ${{ env.client_binary }}.zip
+          Compress-Archive -Path windows-server/* -DestinationPath ${{ env.server_binary }}.zip
+
+      - name: Upload client binaries to artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          path: ${{ env.client_binary }}.zip
+          name: windows-client
+          retention-days: 1
+
+      - name: Upload server binaries to artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          path: ${{ env.server_binary }}.zip
+          name: windows-server
+          retention-days: 1
+
+      - name: Upload client binaries to release
+        if: ${{ env.add_binaries_to_github_release == 'true' }}
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ${{ env.client_binary }}.zip
+          asset_name: ${{ env.client_binary }}-windows-${{ steps.get_version.outputs.tag }}.zip
+          tag: ${{ github.ref }}
+          overwrite: true
+
+      - name: Upload server binaries to release
+        if: ${{ env.add_binaries_to_github_release == 'true' }}
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ${{ env.server_binary }}.zip
+          asset_name: ${{ env.server_binary }}-windows-${{ steps.get_version.outputs.tag }}.zip
+          tag: ${{ github.ref }}
+          overwrite: true

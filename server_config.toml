@@ -1,0 +1,21 @@
+# gameplay
+server_name = "playtest"
+tick_rate = 30
+max_players = 10 
+
+# atmos
+atmos_enabled = false
+
+# net
+port = 2197 
+address = "127.0.0.1"
+make_local_admin = true
+
+# Round settings
+lobby_timer = 10
+lobby_enabled = true
+round_end_timer = 60
+
+map_name = "bad_map"
+
+gamemode = "mafia"

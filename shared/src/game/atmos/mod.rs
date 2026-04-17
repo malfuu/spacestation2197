@@ -1,0 +1,152 @@
+use bevy::prelude::*;
+use mlua::prelude::*;
+
+use bevy_replicon::prelude::*;
+
+use common::PrototypeId;
+
+use atmos::{
+    engine::{AtmosphericsPlugin, active::Active, chunk::Mixtures},
+    prelude::*,
+};
+use content::prelude::*;
+use serde::{Deserialize, Serialize};
+use uom::si::{f32::*, molar_heat_capacity::joule_per_kelvin_mole};
+
+pub const PROTOTYPE_TYPE_GAS: &str = "gas";
+pub const PROTOTYPE_TYPE_MIXTURE: &str = "gas_mixture";
+pub const PROTOTYPE_TYPE_REACTION: &str = "reaction";
+
+pub(super) struct AtmosPlugin;
+
+impl Plugin for AtmosPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_plugins(AtmosphericsPlugin)
+            .prototype::<GasPrototype>(PROTOTYPE_TYPE_GAS, gas_parser)
+            .prototype::<ReactionPrototype>(PROTOTYPE_TYPE_REACTION, reaction_parser)
+            .prototype::<MixturePrototype>(PROTOTYPE_TYPE_MIXTURE, mixture_parser)
+            .replicate::<Active>()
+            .replicate::<Mixtures>()
+            .add_systems(Startup, load_gas_protos);
+    }
+}
+
+fn build_gas_list(prototype_list: &Prototypes) -> GasList {
+    let gas_prototypes = prototype_list
+        .iter_for_category::<GasPrototype>(PROTOTYPE_TYPE_GAS)
+        .map(|proto| Gas {
+            name: proto.id.clone(),
+            molar_heat_capacity: MolarHeatCapacity::new::<joule_per_kelvin_mole>(
+                proto.molar_heat_capacity,
+            ),
+        })
+        .collect();
+
+    GasList::new(gas_prototypes)
+}
+
+fn build_mixture_list(prototype_list: &Prototypes, gas_list: &GasList) -> MixtureList {
+    let mut mixture_list = MixtureList::new();
+
+    prototype_list
+        .iter_for_category::<MixturePrototype>(PROTOTYPE_TYPE_MIXTURE)
+        .for_each(|proto| {
+            let ratios = proto
+                .ratios
+                .iter()
+                .map(|(name, amount)| {
+                    let gas_id = gas_list.try_get_gas_id_by_name(name).unwrap_or_else(|| {
+                        panic!("Invalid gas name: {} found in mixture {}!", name, proto.id)
+                    });
+                    (gas_id, *amount)
+                })
+                .collect();
+
+            let blueprint =
+                MixtureBlueprint::new(proto.id.clone(), proto.pressure, proto.temperature, ratios);
+
+            mixture_list.add(blueprint);
+        });
+
+    mixture_list
+}
+
+fn build_reaction_list(prototype_list: &Prototypes) -> ReactionList {
+    let mut reaction_list = ReactionList::new();
+
+    prototype_list
+        .iter_for_category::<ReactionPrototype>(PROTOTYPE_TYPE_MIXTURE)
+        .for_each(|proto| {
+            let reaction = ();
+            reaction_list.add(proto.id.clone(), reaction);
+        });
+
+    reaction_list
+}
+
+pub(crate) fn load_gas_protos(mut commands: Commands, protos: Res<Prototypes>) {
+    let gas_list = build_gas_list(&protos);
+    let mixture_list = build_mixture_list(&protos, &gas_list);
+    let reaction_list = build_reaction_list(&protos);
+
+    commands.insert_resource(gas_list);
+    commands.insert_resource(mixture_list);
+    commands.insert_resource(reaction_list);
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct GasPrototype {
+    pub id: PrototypeId,
+    pub molar_heat_capacity: f32,
+    pub color: Srgba,
+}
+
+pub fn gas_parser(_: &Lua, table: LuaTable) -> ParseResult {
+    let proto = GasPrototype {
+        id: table.get("id")?,
+        molar_heat_capacity: table.get("molar_heat_capacity")?,
+        color: Srgba::new(1.0, 1.0, 1.0, 1.0),
+    };
+
+    Ok(Box::new(proto))
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct MixturePrototype {
+    pub id: PrototypeId,
+    pub pressure: f32,
+    pub temperature: f32,
+    pub ratios: Vec<(String, f32)>,
+}
+
+pub fn mixture_parser(_: &Lua, table: LuaTable) -> ParseResult {
+    let composition = table.get::<LuaTable>("composition")?;
+
+    let mut ratios = Vec::new();
+    for pair in composition.pairs::<String, f32>() {
+        let gas_and_ratio = pair?;
+        ratios.push(gas_and_ratio);
+    }
+
+    let proto = MixturePrototype {
+        id: table.get("id")?,
+        pressure: table.get("pressure")?,
+        temperature: table.get("temperature")?,
+        ratios,
+    };
+
+    Ok(Box::new(proto))
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ReactionPrototype {
+    pub id: PrototypeId,
+}
+
+pub fn reaction_parser(_: &Lua, table: LuaTable) -> ParseResult {
+    let proto = ReactionPrototype {
+        id: table.get("id")?,
+    };
+
+    Ok(Box::new(proto))
+}

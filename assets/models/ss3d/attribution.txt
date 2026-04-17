@@ -1,0 +1,7 @@
+All assets in this `ss3d` folder are licensed under the CC BY-NC-SA 4.0: Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International Public License.
+https://github.com/RE-SS3D/SS3D/blob/423f1d731f53b35d09d9e1a0b2b0a9e6477ebaa3/Documents/LICENSE-ASSETS.md
+
+Origin https://github.com/RE-SS3D/SS3D
+commit 423f1d731f53b35d09d9e1a0b2b0a9e6477ebaa3
+
+Additionally, they have been adapted.
