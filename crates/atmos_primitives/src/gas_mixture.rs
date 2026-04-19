@@ -16,7 +16,7 @@ pub type GasComposition = (ContentArray, f32);
 
 /// Base Gas Container type.
 #[derive(Copy, Clone, Serialize, Deserialize)]
-pub struct GasMixture {
+pub struct BasicGasMixture {
     /// Molar quantities of each gas type in the mixture.
     pub contents: ContentArray,
     /// How much energy in joules this mixture has.
@@ -47,14 +47,14 @@ pub fn ideal_gas_law_pressure(moles: f32, temperature_k: f32, volume_m3: f32) ->
     (moles * IDEAL_GAS_CONSTANT * temperature_k) / volume_m3
 }
 
-impl GasMixture {
+impl BasicGasMixture {
     /// Creates a new mixture with no gases and zero energy.
-    pub fn new_empty(volume_m3: f32) -> GasMixture {
+    pub fn new_empty(volume_m3: f32) -> BasicGasMixture {
         Self::splat(volume_m3, 0.0)
     }
 
     /// Creates a gas mixture with `amount_moles` of moles for all gases.
-    pub fn splat(volume_m3: f32, amount_moles: f32) -> GasMixture {
+    pub fn splat(volume_m3: f32, amount_moles: f32) -> BasicGasMixture {
         if !volume_m3.is_finite() || volume_m3 <= 0.0 {
             panic!("Volume given not finite positive number!");
         }
@@ -62,7 +62,7 @@ impl GasMixture {
         let contents = [amount_moles; MAX_NUMBER_OF_GASES];
         let energy = 0.0;
 
-        GasMixture {
+        BasicGasMixture {
             contents,
             energy,
             volume: volume_m3,
@@ -178,7 +178,7 @@ impl GasMixture {
     }
 
     /// Computes and returns the partial pressures of each gas in the mixture.
-    pub fn delta_pressures(&self, other: &GasMixture, gas_list: &GasList) -> PressureArray {
+    pub fn delta_pressures(&self, other: &BasicGasMixture, gas_list: &GasList) -> PressureArray {
         let pressure_self = self.partial_pressures(gas_list);
         let pressure_other = other.partial_pressures(gas_list);
 
@@ -188,7 +188,7 @@ impl GasMixture {
     }
 
     /// Equalizes both gas contents and energy in proportion to both volumes.
-    pub fn equalize(&mut self, other: &mut GasMixture) {
+    pub fn equalize(&mut self, other: &mut BasicGasMixture) {
         // BUG
         let total_volume = self.volume + other.volume;
         let self_factor = self.volume / total_volume;
@@ -207,7 +207,7 @@ impl GasMixture {
     }
 
     /// Equalizes the temperatures between two mixtures.
-    pub fn equalize_temperature(&mut self, other: &mut GasMixture, gas_list: &GasList) {
+    pub fn equalize_temperature(&mut self, other: &mut BasicGasMixture, gas_list: &GasList) {
         let self_heat_capacity = self.heat_capacity(gas_list);
         let other_heat_capacity = other.heat_capacity(gas_list);
         let total_heat_capacity = self_heat_capacity + other_heat_capacity;
@@ -265,7 +265,7 @@ impl GasMixture {
     }
 }
 
-impl TemplatableMixture for GasMixture {
+impl TemplatableMixture for BasicGasMixture {
     fn apply_template(&mut self, template: &MixtureTemplate, gas_list: &GasList) {
         self.clear();
 
@@ -284,11 +284,11 @@ impl TemplatableMixture for GasMixture {
 
 /// Debug wrapper for [`GasMixture`] that accesses the [`GasList`]
 pub struct GasMixtureDebugWrapper<'a> {
-    mixture: &'a GasMixture,
+    mixture: &'a BasicGasMixture,
     gas_list: &'a GasList,
 }
 
-impl GasMixture {
+impl BasicGasMixture {
     /// Helper method to create the wrapper for debugging.
     pub fn debug_with<'a>(&'a self, gas_list: &'a GasList) -> GasMixtureDebugWrapper<'a> {
         GasMixtureDebugWrapper {
@@ -332,7 +332,7 @@ mod tests {
     #[test]
     fn empty_container() {
         let volume_m3 = 1.0;
-        let mixture = GasMixture::new_empty(volume_m3);
+        let mixture = BasicGasMixture::new_empty(volume_m3);
 
         mixture.contents.iter().for_each(|moles| {
             assert_eq!(*moles, 0.0);

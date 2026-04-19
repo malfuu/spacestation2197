@@ -277,7 +277,7 @@ fn build_external_deltas(
     neighbors: Query<(&Mixtures, &ImpermeableChunk)>,
 ) {
     let zero_delta_pressures_pa = [0.0; MAX_NUMBER_OF_GASES];
-    let space_mixture = GasMixture::new_empty(2.5);
+    let space_mixture = BasicGasMixture::new_empty(2.5);
 
     for (chunk, current_mixtures, current_impermeable, deltas) in &mut active_chunks {
         let current_position = chunk.position();
@@ -481,7 +481,7 @@ fn apply_external_deltas(
                     for (i, _) in edge_deltas.iter().enumerate().take(CHUNK_SIZE) {
                         let i_u32 = i as u32;
                         let curr_pos = get_curr_pos(i_u32);
-                        let mut space_mixture = GasMixture::new_empty(space_volume_m3);
+                        let mut space_mixture = BasicGasMixture::new_empty(space_volume_m3);
 
                         let lhs_mixture = current_mixtures
                             .mixtures_mut()
@@ -523,8 +523,8 @@ fn cull_mixtures(active_chunks: Query<Mut<Mixtures>, With<Active>>) {
 
 fn exchange_with_deltas(
     gas_list: &GasList,
-    lhs: &mut GasMixture,
-    rhs: &mut GasMixture,
+    lhs: &mut BasicGasMixture,
+    rhs: &mut BasicGasMixture,
     deltas_pa: &Delta,
 ) {
     let molar_heat_capacities = gas_list.get_molar_heat_capacities();

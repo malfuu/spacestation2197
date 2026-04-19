@@ -10,14 +10,14 @@ use atmos_primitives::prelude::*;
 
 use crate::active::{Active, ProcessedTick};
 
-pub type MixtureChunk = BaseGrid<GasMixture>;
+pub type MixtureChunk = BaseGrid<BasicGasMixture>;
 pub type FlowChunk = BaseGrid<Vec2>;
 
 /// Gas Mixtures per tile.
 #[derive(Component, Serialize, Deserialize)]
 #[require(ChunkDeltas, SpaceChunk, ImpermeableChunk, ProcessedTick)]
 pub struct Mixtures {
-    pub(crate) mixtures: BaseGrid<GasMixture>,
+    pub(crate) mixtures: BaseGrid<BasicGasMixture>,
     pub(crate) flows: BaseGrid<Vec2>,
 }
 
@@ -29,7 +29,7 @@ impl Default for Mixtures {
 
 impl Mixtures {
     pub fn new() -> Self {
-        let tile_gas_mixture = GasMixture::new_empty(2.5);
+        let tile_gas_mixture = BasicGasMixture::new_empty(2.5);
         Self {
             mixtures: BaseGrid::from_value(tile_gas_mixture),
             flows: default(),
