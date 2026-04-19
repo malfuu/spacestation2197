@@ -3,7 +3,7 @@
 
 - [Website](https://www.spacestation2197.com)
 - [Documentation](https://docs.spacestation2197.com)
-- [Discord](https://discord.gg/MsV9Jg42XQ)
+- [Discord](https://discord.com/channels/691052431525675048/1495401185937461298) - Join [Bevy's discord](https://discord.gg/9TsWQARU6k) first!
 
 ## Development
 
