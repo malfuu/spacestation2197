@@ -3,17 +3,19 @@ use std::collections::HashMap;
 use bevy::prelude::Resource;
 use uom::{ConstZero, si::f32::MolarHeatCapacity};
 
-use crate::{Gas, GasId, MAX_NUMBER_OF_GASES, assert_gas_id};
+use crate::{Gas, GasId, MAX_NUMBER_OF_GASES};
 
+/// Molar Heat Capacity for each gas type.
 pub type MolarHeatCapacities = [MolarHeatCapacity; MAX_NUMBER_OF_GASES];
 
 /// Serves as a immutable lookup table for defined gases
 #[derive(Resource)]
 pub struct GasList {
+    /// Gas definitions, indexed by their [`crate::GasId`]
     gases: heapless::Vec<Gas, MAX_NUMBER_OF_GASES>,
     /// Cached Molar Heat Capacities at Constant Pressure.
     molar_heat_capacities: MolarHeatCapacities,
-    /// gas name to gas id look up table
+    /// Gas name to gas id look up table
     gas_names: HashMap<String, GasId>,
 }
 
@@ -50,43 +52,27 @@ impl GasList {
         }
     }
 
+    /// Returns the amount of gas definitions present in the list.
     pub fn len(&self) -> usize {
         self.gases.len()
     }
 
-    #[must_use]
-    pub fn is_empty(&self) -> bool {
-        self.gases.is_empty()
-    }
-
-    /// Get a Gas from the list
-    ///
-    /// # Safety
-    /// gas_id must be under len()
-    pub unsafe fn get_gas(&self, gas_id: GasId) -> &Gas {
-        assert_gas_id(gas_id);
-
-        // # Safety
-        // correct gas_id given by the caller
-        unsafe { self.gases.get_unchecked(gas_id) }
-    }
-
+    /// Retrieves a gas definition indexed by its ID.
     pub fn try_get_gas(&self, gas_id: GasId) -> Option<&Gas> {
         self.gases.get(gas_id)
     }
 
+    /// Iterates over all Gas definitions
     pub fn iter(&self) -> impl Iterator<Item = &Gas> {
         self.gases.iter()
     }
 
+    /// Returns a gas definition by its name.
     pub fn try_get_gas_id_by_name(&self, name: impl Into<String>) -> Option<GasId> {
         self.gas_names.get(&name.into()).copied()
     }
 
-    pub fn get_gas_names(&self) -> impl Iterator<Item = &String> {
-        self.gas_names.keys()
-    }
-
+    /// Retrieves the MolarHeatCapacities of each gas.
     pub fn get_molar_heat_capacities(&self) -> &MolarHeatCapacities {
         &self.molar_heat_capacities
     }
@@ -137,16 +123,6 @@ mod tests {
     }
 
     #[test]
-    fn unsafe_get_gas_succeeds() {
-        let gases = vec![make_gas("oxygen")];
-        let gas_list = GasList::new(gases);
-
-        let g0 = unsafe { gas_list.get_gas(0) };
-
-        assert_eq!(g0.name, "oxygen");
-    }
-
-    #[test]
     fn getting_a_gas_and_failing_returns_none() {
         let gases = vec![make_gas("helium")];
         let gas_list = GasList::new(gases);
@@ -161,14 +137,5 @@ mod tests {
         let gases = (0..size).map(|i| make_gas(&format!("g{}", i))).collect();
         let gas_list = GasList::new(gases);
         assert_eq!(gas_list.len(), size);
-    }
-
-    #[test]
-    fn test_empty() {
-        let gas_list = GasList::new(vec![]);
-        assert!(gas_list.is_empty());
-        assert_eq!(gas_list.len(), 0);
-        let collected: Vec<&Gas> = gas_list.iter().collect();
-        assert!(collected.is_empty());
     }
 }

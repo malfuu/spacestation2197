@@ -13,14 +13,21 @@ use crate::{
     gas_list::GasList,
 };
 
+/// Pressure for each gas type, used for partial pressures.
 pub type PressureArray = [Pressure; MAX_NUMBER_OF_GASES];
+/// Molar Quantity of each gas type.
 pub type ContentArray = [AmountOfSubstance; MAX_NUMBER_OF_GASES];
+/// Volumeless gas mixture.
 pub type GasComposition = (ContentArray, Energy);
 
+/// Base Gas Container type.
 #[derive(Copy, Clone, Serialize, Deserialize)]
 pub struct GasMixture {
+    /// Molar quantities of each gas type in the mixture.
     pub contents: ContentArray,
+    /// How much energy in joules this mixture has.
     pub energy: Energy,
+    /// The volume of the mixture.
     volume: Volume,
 }
 
@@ -61,10 +68,12 @@ pub fn ideal_gas_law_pressure(
 }
 
 impl GasMixture {
+    /// Creates a new mixture with no gases and zero energy.
     pub fn new_empty(volume: Volume) -> GasMixture {
         Self::splat(volume, AmountOfSubstance::ZERO)
     }
 
+    /// Creates a gas mixture with `amount` of moles for all gases.
     pub fn splat(volume: Volume, amount: AmountOfSubstance) -> GasMixture {
         if !volume.is_finite() || volume <= Volume::ZERO {
             panic!("Volume given not finite positive number!");
@@ -80,16 +89,19 @@ impl GasMixture {
         }
     }
 
+    /// Returns the volume of the gas mixture.
     #[inline]
     pub fn volume(&self) -> Volume {
         self.volume
     }
 
+    /// Returns the sum of all quantities of each gas.
     #[inline]
     pub fn total_moles(&self) -> AmountOfSubstance {
         self.contents.iter().copied().sum()
     }
 
+    /// Computes and returns the heat capacity for the gas.
     #[inline]
     pub fn heat_capacity(&self, gas_list: &GasList) -> HeatCapacity {
         let heat_capacities = gas_list.get_molar_heat_capacities();
@@ -102,6 +114,7 @@ impl GasMixture {
             .sum()
     }
 
+    /// Computes and returns the temperature of the gas mixture.
     #[inline]
     pub fn temperature(&self, gas_list: &GasList) -> ThermodynamicTemperature {
         let heat_capacity = self.heat_capacity(gas_list);
@@ -114,12 +127,14 @@ impl GasMixture {
         ThermodynamicTemperature::new::<kelvin>((self.energy / heat_capacity).value)
     }
 
+    /// Computes and returns the pressure of the gas mixture.
     pub fn pressure(&self, gas_list: &GasList) -> Pressure {
         let temperature = self.temperature(gas_list);
 
         ideal_gas_law_pressure(self.total_moles(), temperature, self.volume)
     }
 
+    /// Computes and returns the partial pressures of the gas mixture.
     pub fn partial_pressure(&self, gas_list: &GasList, gas_id: GasId) -> Pressure {
         let gas_moles = self
             .contents
@@ -170,6 +185,7 @@ impl GasMixture {
         self.contents[gas_id] = AmountOfSubstance::ZERO;
     }
 
+    /// Adds a molar quantity of a gas given its [`GasId`]
     pub fn add_gas(&mut self, gas_id: GasId, amount: AmountOfSubstance) {
         assert_gas_id(gas_id);
 
@@ -188,6 +204,7 @@ impl GasMixture {
         self.set_energy(energy);
     }
 
+    /// Computes and returns the partial pressures of each gas in the mixture.
     pub fn delta_pressures(&self, other: &GasMixture, gas_list: &GasList) -> PressureArray {
         let pressure_self = self.partial_pressures(gas_list);
         let pressure_other = other.partial_pressures(gas_list);
@@ -216,6 +233,7 @@ impl GasMixture {
         other.energy = energy;
     }
 
+    /// Equalizes the temperatures between two mixtures.
     pub fn equalize_temperature(&mut self, other: &mut GasMixture, gas_list: &GasList) {
         let self_heat_capacity = self.heat_capacity(gas_list);
         let other_heat_capacity = other.heat_capacity(gas_list);
@@ -237,6 +255,8 @@ impl GasMixture {
         other.energy = other.energy.max(Energy::ZERO);
     }
 
+    /// Takes and returns a ratio of the mixture.
+    /// It preserves the energy of the mixture.
     pub fn take_ratio(&mut self, ratio: f32) -> GasComposition {
         let ratio = ratio.clamp(0.0, 1.0);
 
@@ -256,6 +276,8 @@ impl GasMixture {
         (removed_contents, removed_energy)
     }
 
+    /// Takes and returns a ratio amount given by the volume of the mixture.
+    /// It preserves the energy of the mixture.
     pub fn take_volume(&mut self, volume: Volume) -> GasComposition {
         if volume <= Volume::ZERO {
             return ([AmountOfSubstance::ZERO; MAX_NUMBER_OF_GASES], Energy::ZERO);
@@ -271,6 +293,7 @@ impl GasMixture {
     }
 }
 
+/// Debug wrapper for [`GasMixture`] that accesses the [`GasList`]
 pub struct GasMixtureDebugWrapper<'a> {
     mixture: &'a GasMixture,
     gas_list: &'a GasList,
@@ -309,7 +332,6 @@ impl fmt::Debug for GasMixtureDebugWrapper<'_> {
             .collect();
 
         s.field("contents_by_id", &active_contents);
-
         s.finish()
     }
 }

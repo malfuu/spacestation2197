@@ -1,5 +1,11 @@
+//! Atmospheric primitives for simulation.
+#![deny(missing_docs)]
+
+/// Gas list management and registry storage.
 pub mod gas_list;
+/// Gas Mixture and some mathematical definitions.
 pub mod gas_mixture;
+/// Blueprints for spawning predefined gas mixtures.
 pub mod mixture_blueprint;
 
 #[doc(hidden)]
@@ -9,6 +15,7 @@ use bevy::prelude::*;
 
 use uom::si::{f32::*, molar_heat_capacity::joule_per_kelvin_mole};
 
+/// Ideal gas law constant at J K^-1 mol^-1
 pub const IDEAL_GAS_CONSTANT: f32 = 8.314_463;
 
 /// Controls the sizes of arrays in the entire simulation.
@@ -22,25 +29,34 @@ pub const NEWTONS_PER_KILOPASCAL: f32 = 30.0; // arbitrary btw
 /// Coefficient on the notion that air can travel 4 directions or remain still, ergo 5
 pub const BASE_DIFFUSION_COEFFICIENT: f32 = 1.0 / 5.0;
 
+/// A unique identifier for a specific gas type, represented as an index.
 pub type GasId = usize;
 
+/// Returns an iterator over all gas identifiers up to [`MAX_NUMBER_OF_GASES`].
+/// These gas identifiers might not map to an existing gas type.
 pub fn iter_gas_ids() -> impl Iterator<Item = usize> {
     0..MAX_NUMBER_OF_GASES
 }
 
+/// Asserts that a given [`GasId`] is within the valid range.
 pub fn assert_gas_id(gas_id: GasId) {
     assert!(gas_id < MAX_NUMBER_OF_GASES,);
 }
 
+/// Defines the properties of a gas type.
 #[derive(Debug, Clone)]
 pub struct Gas {
+    /// Name for the gas.
     pub name: String,
+    /// Molar Heat Capacity for the gas.
+    /// Bigger values require more energy to increase temperature by one Kelvin.
     pub molar_heat_capacity: MolarHeatCapacity,
 }
 
 impl Gas {
-    pub fn new(name: String, molar_heat_capacity: f32) -> Gas {
-        Gas {
+    /// Creates a new [`Gas`] instance.
+    pub fn new(name: String, molar_heat_capacity: f32) -> Self {
+        Self {
             name,
             molar_heat_capacity: MolarHeatCapacity::new::<joule_per_kelvin_mole>(
                 molar_heat_capacity,

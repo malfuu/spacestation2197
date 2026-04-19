@@ -9,10 +9,13 @@ use crate::{
     gas_mixture::{GasMixture, ideal_gas_law_moles},
 };
 
+/// Normalized fractions for each gas type.
 pub type FractionArray = [f32; MAX_NUMBER_OF_GASES];
 
+/// Predefined mixture registry.
 #[derive(Resource)]
 pub struct MixtureList {
+    /// Hashmap of mixtures indexed by their name.
     pub list: HashMap<String, MixtureBlueprint>,
 }
 
@@ -23,21 +26,26 @@ impl Default for MixtureList {
 }
 
 impl MixtureList {
+    /// Creates a new [`MixtureList`]
     pub fn new() -> Self {
         Self {
             list: HashMap::new(),
         }
     }
 
+    /// Adds a new blueprint to the list.
+    /// If a mixture with the name already existed, it will return the old one.
     pub fn add(&mut self, blueprint: MixtureBlueprint) -> Option<MixtureBlueprint> {
         self.list.insert(blueprint.name.clone(), blueprint)
     }
 
+    ///
     pub fn get(&self, name: &str) -> Option<&MixtureBlueprint> {
         self.list.get(name)
     }
 }
 
+/// Blueprint for a mixture.
 pub struct MixtureBlueprint {
     /// Identifying name
     pub name: String,
@@ -45,11 +53,12 @@ pub struct MixtureBlueprint {
     pub pressure: Pressure,
     /// Target temperature of the gas mixture
     pub temperature: ThermodynamicTemperature,
-    // Normalized mole fractions
+    /// Normalized mole fractions
     pub composition: FractionArray,
 }
 
 impl MixtureBlueprint {
+    /// Creates a new [`MixtureBlueprint`].
     pub fn new(
         name: impl Into<String>,
         pressure_kpa: f32,
@@ -80,12 +89,7 @@ impl MixtureBlueprint {
         }
     }
 
-    pub fn create_mixture(&self, volume: &Volume, gas_list: &GasList) {
-        let mut mixture = GasMixture::new_empty(*volume);
-
-        self.apply_to(&mut mixture, gas_list);
-    }
-
+    /// Applies a blueprint to a gas mixture.
     pub fn apply_to(&self, mixture: &mut GasMixture, gas_list: &GasList) {
         mixture.clear();
 
