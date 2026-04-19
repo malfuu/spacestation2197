@@ -28,6 +28,7 @@ impl Plugin for HandsPlugin {
             .replicate::<PlaySoundOnDrop>()
             .add_client_message::<DropInput>(Channel::Unreliable)
             .add_client_message::<UseInput>(Channel::Unreliable)
+            .add_client_message::<ThrowInput>(Channel::Unreliable)
             .add_client_message::<SwitchHandsInput>(Channel::Unreliable)
             .add_message::<UseInHandMessage>()
             .add_message::<PickupMessage>()
@@ -41,6 +42,11 @@ impl Plugin for HandsPlugin {
 
 #[derive(Message, Debug, Serialize, Deserialize, Clone, Copy)]
 pub struct DropInput;
+
+#[derive(Message, Debug, Serialize, Deserialize, Clone, Copy)]
+pub struct ThrowInput {
+    pub direction: Vec2,
+}
 
 #[derive(Message, Debug, Serialize, Deserialize, Clone, Copy)]
 pub struct UseInput;

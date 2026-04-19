@@ -6,7 +6,7 @@ use shared::{
     game::{
         GameplaySystems,
         containers::Contained,
-        hands::{DropInput, Hands, SwitchHandsInput, UseInput},
+        hands::{DropInput, Hands, ThrowInput, SwitchHandsInput, UseInput},
         interact::messages::{DroppedMessage, UseInHandMessage},
         mob::health::Dead,
     },
@@ -21,7 +21,7 @@ impl Plugin for HandsPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,
-            (read_input_drops, read_input_uses, read_input_switch_hands)
+            (read_input_drops, read_input_throws, read_input_uses, read_input_switch_hands)
                 .in_set(GameplaySystems::Inputs),
         );
     }
@@ -67,6 +67,15 @@ fn read_input_drops(
             user: mob_entity,
             target: item_entity,
         });
+    }
+}
+
+fn read_input_throws(
+    mut reader: MessageReader<FromClient<ThrowInput>>,
+) {
+    for input in reader.read() {
+        let _ = input;
+        // TODO
     }
 }
 
