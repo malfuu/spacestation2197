@@ -2,29 +2,25 @@ use std::collections::HashMap;
 
 use bevy::prelude::*;
 
-use crate::{
-    GasId, MAX_NUMBER_OF_GASES,
-    gas_list::GasList,
-    gas_mixture::{GasMixture, ideal_gas_law_moles},
-};
+use crate::{GasId, MAX_NUMBER_OF_GASES, gas_list::GasList};
 
 /// Normalized fractions for each gas type.
 pub type FractionArray = [f32; MAX_NUMBER_OF_GASES];
 
 /// Predefined mixture registry.
 #[derive(Resource)]
-pub struct MixtureList {
+pub struct MixtureTemplateList {
     /// Hashmap of mixtures indexed by their name.
-    pub list: HashMap<String, MixtureBlueprint>,
+    pub list: HashMap<String, MixtureTemplate>,
 }
 
-impl Default for MixtureList {
+impl Default for MixtureTemplateList {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl MixtureList {
+impl MixtureTemplateList {
     /// Creates a new [`MixtureList`]
     pub fn new() -> Self {
         Self {
@@ -32,20 +28,20 @@ impl MixtureList {
         }
     }
 
-    /// Adds a new blueprint to the list.
+    /// Adds a new template to the list.
     /// If a mixture with the name already existed, it will return the old one.
-    pub fn add(&mut self, blueprint: MixtureBlueprint) -> Option<MixtureBlueprint> {
-        self.list.insert(blueprint.name.clone(), blueprint)
+    pub fn add(&mut self, template: MixtureTemplate) -> Option<MixtureTemplate> {
+        self.list.insert(template.name.clone(), template)
     }
 
-    /// Gets a mixture blueprint by its name.
-    pub fn get(&self, name: &str) -> Option<&MixtureBlueprint> {
+    /// Gets a mixture template by its name.
+    pub fn get(&self, name: &str) -> Option<&MixtureTemplate> {
         self.list.get(name)
     }
 }
 
-/// Blueprint for a mixture.
-pub struct MixtureBlueprint {
+/// Template for a mixture.
+pub struct MixtureTemplate {
     /// Identifying name
     pub name: String,
     /// Target pressure of the gas mixture in Pascals
@@ -56,8 +52,8 @@ pub struct MixtureBlueprint {
     pub composition: FractionArray,
 }
 
-impl MixtureBlueprint {
-    /// Creates a new [`MixtureBlueprint`].
+impl MixtureTemplate {
+    /// Creates a new [`MixtureTemplate`].
     pub fn new(
         name: impl Into<String>,
         pressure_kpa: f32,
@@ -86,20 +82,10 @@ impl MixtureBlueprint {
             composition: normalized,
         }
     }
+}
 
-    /// Applies a blueprint to a gas mixture.
-    pub fn apply_to(&self, mixture: &mut GasMixture, gas_list: &GasList) {
-        mixture.clear();
-
-        let total_moles =
-            ideal_gas_law_moles(self.pressure_pa, mixture.volume(), self.temperature_k);
-
-        for (gas_id, &frac) in self.composition.iter().enumerate() {
-            if frac > 0.0 {
-                mixture.contents[gas_id] = total_moles * frac;
-            }
-        }
-
-        mixture.energy = self.temperature_k * mixture.heat_capacity(gas_list);
-    }
+/// A gas mixture that can have [`MixtureTemplate`] applied to it.
+pub trait TemplatableMixture {
+    /// Applies the [`MixtureTemplate`] into the mixture.
+    fn apply_template(&mut self, template: &MixtureTemplate, gas_list: &GasList);
 }

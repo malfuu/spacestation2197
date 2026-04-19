@@ -36,7 +36,7 @@ with internal energy and a fixed volume.
 ### `Reaction`
 Reactions currently are expressed as simple linear equations, where they transform gases into other gases,
 given conditions are met.
-### `MixtureBlueprint`
+### `MixtureTemplate`
 Predefined mixtures that can be applied to GasMixtures. Good for setting known mixtures such as space station air or cold room airs.
 
 ## Environmental Process

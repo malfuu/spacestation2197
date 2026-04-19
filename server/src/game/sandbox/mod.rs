@@ -40,7 +40,7 @@ pub(crate) fn is_sandboxer(client_id: ClientId, admins: &Query<&Sandboxer, Playe
 #[derive(SystemParam)]
 struct SandboxData<'w, 's> {
     gas_list: Res<'w, GasList>,
-    mixture_list: Res<'w, MixtureList>,
+    mixture_list: Res<'w, MixtureTemplateList>,
 
     admins: Query<'w, 's, &'static Sandboxer, PlayerFilter>,
     entities: Query<'w, 's, Entity, With<EntityTag>>,
@@ -108,10 +108,11 @@ fn read_sandbox_commands(
 
                 match mixture_id {
                     Some(id) => {
-                        let Some(blueprint) = sandbox_data.mixture_list.get(id.as_str()) else {
+                        let Some(template) = sandbox_data.mixture_list.get(id.as_str()) else {
                             continue;
                         };
-                        blueprint.apply_to(mix, &sandbox_data.gas_list);
+
+                        mix.apply_template(template, &sandbox_data.gas_list);
                     }
                     None => {
                         mix.clear();

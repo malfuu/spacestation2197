@@ -3,7 +3,8 @@ use std::{array, fmt};
 
 use crate::{
     GasId, IDEAL_GAS_CONSTANT, MAX_NUMBER_OF_GASES, MINIMUM_AMOUNT_OF_SUBSTANCE, PerGasArray,
-    assert_gas_id, gas_list::GasList, per_gas_array,
+    assert_gas_id, gas_list::GasList, mixture_template::TemplatableMixture, per_gas_array,
+    prelude::MixtureTemplate,
 };
 
 /// Pressure (in Pascals) for each gas type, used for partial pressures.
@@ -261,6 +262,23 @@ impl GasMixture {
         };
 
         self.take_ratio(ratio)
+    }
+}
+
+impl TemplatableMixture for GasMixture {
+    fn apply_template(&mut self, template: &MixtureTemplate, gas_list: &GasList) {
+        self.clear();
+
+        let total_moles =
+            ideal_gas_law_moles(template.pressure_pa, self.volume(), template.temperature_k);
+
+        for (gas_id, &frac) in template.composition.iter().enumerate() {
+            if frac > 0.0 {
+                self.contents[gas_id] = total_moles * frac;
+            }
+        }
+
+        self.energy = template.temperature_k * self.heat_capacity(gas_list);
     }
 }
 

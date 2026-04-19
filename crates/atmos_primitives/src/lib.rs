@@ -5,8 +5,8 @@
 pub mod gas_list;
 /// Gas Mixture and some mathematical definitions.
 pub mod gas_mixture;
-/// Blueprints for spawning predefined gas mixtures.
-pub mod mixture_blueprint;
+/// Gas Templates for spawning predefined gas mixtures.
+pub mod mixture_template;
 
 #[doc(hidden)]
 pub mod prelude;

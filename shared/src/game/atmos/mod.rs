@@ -40,8 +40,8 @@ fn build_gas_list(prototype_list: &Prototypes) -> GasList {
     GasList::new(gas_prototypes)
 }
 
-fn build_mixture_list(prototype_list: &Prototypes, gas_list: &GasList) -> MixtureList {
-    let mut mixture_list = MixtureList::new();
+fn build_mixture_list(prototype_list: &Prototypes, gas_list: &GasList) -> MixtureTemplateList {
+    let mut mixture_list = MixtureTemplateList::new();
 
     prototype_list
         .iter_for_category::<MixturePrototype>(PROTOTYPE_TYPE_MIXTURE)
@@ -57,10 +57,10 @@ fn build_mixture_list(prototype_list: &Prototypes, gas_list: &GasList) -> Mixtur
                 })
                 .collect();
 
-            let blueprint =
-                MixtureBlueprint::new(proto.id.clone(), proto.pressure, proto.temperature, ratios);
+            let template =
+                MixtureTemplate::new(proto.id.clone(), proto.pressure, proto.temperature, ratios);
 
-            mixture_list.add(blueprint);
+            mixture_list.add(template);
         });
 
     mixture_list
