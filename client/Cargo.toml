@@ -26,7 +26,6 @@ bevy-inspector-egui = "0.36"
 # bevy_rich_text3d = "0.5.1"
 
 anyhow.workspace = true
-uom.workspace = true
 rand.workspace = true
 
 bevy = { 

@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 
 use bevy::prelude::*;
-use uom::si::{f32::*, pressure::kilopascal, thermodynamic_temperature::kelvin};
 
 use crate::{
     GasId, MAX_NUMBER_OF_GASES,
@@ -39,7 +38,7 @@ impl MixtureList {
         self.list.insert(blueprint.name.clone(), blueprint)
     }
 
-    ///
+    /// Gets a mixture blueprint by its name.
     pub fn get(&self, name: &str) -> Option<&MixtureBlueprint> {
         self.list.get(name)
     }
@@ -49,10 +48,10 @@ impl MixtureList {
 pub struct MixtureBlueprint {
     /// Identifying name
     pub name: String,
-    /// Target pressure of the gas mixture
-    pub pressure: Pressure,
-    /// Target temperature of the gas mixture
-    pub temperature: ThermodynamicTemperature,
+    /// Target pressure of the gas mixture in Pascals
+    pub pressure_pa: f32,
+    /// Target temperature of the gas mixture in Kelvin
+    pub temperature_k: f32,
     /// Normalized mole fractions
     pub composition: FractionArray,
 }
@@ -71,8 +70,7 @@ impl MixtureBlueprint {
             composition[id] = value;
         }
 
-        let pressure = Pressure::new::<kilopascal>(pressure_kpa);
-        let temperature = ThermodynamicTemperature::new::<kelvin>(temperature_k);
+        let pressure_pa = pressure_kpa * 1000.0;
 
         let sum: f32 = composition.iter().sum();
         let normalized: FractionArray = if sum > 0.0 {
@@ -83,8 +81,8 @@ impl MixtureBlueprint {
 
         Self {
             name: name.into(),
-            pressure,
-            temperature,
+            pressure_pa,
+            temperature_k,
             composition: normalized,
         }
     }
@@ -93,7 +91,8 @@ impl MixtureBlueprint {
     pub fn apply_to(&self, mixture: &mut GasMixture, gas_list: &GasList) {
         mixture.clear();
 
-        let total_moles = ideal_gas_law_moles(self.pressure, mixture.volume(), self.temperature);
+        let total_moles =
+            ideal_gas_law_moles(self.pressure_pa, mixture.volume(), self.temperature_k);
 
         for (gas_id, &frac) in self.composition.iter().enumerate() {
             if frac > 0.0 {
@@ -101,6 +100,6 @@ impl MixtureBlueprint {
             }
         }
 
-        mixture.energy = self.temperature * mixture.heat_capacity(gas_list);
+        mixture.energy = self.temperature_k * mixture.heat_capacity(gas_list);
     }
 }

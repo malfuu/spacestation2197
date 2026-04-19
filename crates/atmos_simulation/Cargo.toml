@@ -13,7 +13,6 @@ grid.workspace = true
 
 heapless.workspace = true
 anyhow.workspace = true
-uom.workspace = true
 serde.workspace = true
 rand.workspace = true
 

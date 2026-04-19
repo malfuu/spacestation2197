@@ -13,13 +13,8 @@ pub mod prelude;
 
 use bevy::prelude::*;
 
-use uom::si::{f32::*, molar_heat_capacity::joule_per_kelvin_mole};
-
 /// Ideal gas law constant at J K^-1 mol^-1
 pub const IDEAL_GAS_CONSTANT: f32 = 8.314_463;
-
-/// Controls the sizes of arrays in the entire simulation.
-pub const MAX_NUMBER_OF_GASES: usize = 16;
 /// Required moles to avoid being culled.
 pub const MINIMUM_AMOUNT_OF_SUBSTANCE: f32 = 1e-4;
 /// In kilopascals
@@ -31,6 +26,16 @@ pub const BASE_DIFFUSION_COEFFICIENT: f32 = 1.0 / 5.0;
 
 /// A unique identifier for a specific gas type, represented as an index.
 pub type GasId = usize;
+
+/// Controls the sizes of arrays in the entire simulation.
+pub const MAX_NUMBER_OF_GASES: usize = 16;
+/// Arrays that contain a property per [`Gas`] indexed by [`GasId`]
+pub type PerGasArray = [f32; MAX_NUMBER_OF_GASES];
+
+/// Creates a [`PerGasArray`] given an amount.
+pub fn per_gas_array(amount: f32) -> PerGasArray {
+    [amount; MAX_NUMBER_OF_GASES]
+}
 
 /// Returns an iterator over all gas identifiers up to [`MAX_NUMBER_OF_GASES`].
 /// These gas identifiers might not map to an existing gas type.
@@ -48,9 +53,9 @@ pub fn assert_gas_id(gas_id: GasId) {
 pub struct Gas {
     /// Name for the gas.
     pub name: String,
-    /// Molar Heat Capacity for the gas.
+    /// Molar Heat Capacity for the gas, in joule per mole kelvin
     /// Bigger values require more energy to increase temperature by one Kelvin.
-    pub molar_heat_capacity: MolarHeatCapacity,
+    pub molar_heat_capacity: f32,
 }
 
 impl Gas {
@@ -58,9 +63,7 @@ impl Gas {
     pub fn new(name: String, molar_heat_capacity: f32) -> Self {
         Self {
             name,
-            molar_heat_capacity: MolarHeatCapacity::new::<joule_per_kelvin_mole>(
-                molar_heat_capacity,
-            ),
+            molar_heat_capacity,
         }
     }
 }

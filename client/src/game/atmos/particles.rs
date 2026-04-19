@@ -14,7 +14,6 @@ use bevy_hanabi::{
 
 use grid::CHUNK_SIZE;
 use shared::defines::TILE_CUBOID;
-use uom::si::pressure::kilopascal;
 
 use crate::base::grid::ChunkEntities;
 
@@ -207,7 +206,7 @@ pub(super) fn update_mixture_particles(
                 }
 
                 let mixture = mixtures.mixtures().get(local_pos).unwrap();
-                let pressure_kpa = mixture.pressure(&gas_list).get::<kilopascal>();
+                let pressure_kpa = mixture.pressure(&gas_list) / 1000.0;
 
                 let strength = if pressure_kpa < MIN_PRESSURE_KPA {
                     0.0

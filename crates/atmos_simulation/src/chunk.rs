@@ -5,7 +5,6 @@ use bevy::{
 use serde::{Deserialize, Serialize};
 
 use grid::{BaseGrid, BooleanChunk, CHUNK_SIZE, grid::UnsizedBaseGrid};
-use uom::si::{f32::Volume, volume::cubic_meter};
 
 use atmos_primitives::prelude::*;
 
@@ -30,7 +29,7 @@ impl Default for Mixtures {
 
 impl Mixtures {
     pub fn new() -> Self {
-        let tile_gas_mixture = GasMixture::new_empty(Volume::new::<cubic_meter>(2.5));
+        let tile_gas_mixture = GasMixture::new_empty(2.5);
         Self {
             mixtures: BaseGrid::from_value(tile_gas_mixture),
             flows: default(),
@@ -54,7 +53,7 @@ impl Mixtures {
     }
 }
 
-/// Differences in pressures between tiles.
+/// Differences in pressures (Pascals) between tiles.
 pub(crate) type Delta = PressureArray;
 pub(crate) type InterchunkDeltas = [Delta; CHUNK_SIZE];
 

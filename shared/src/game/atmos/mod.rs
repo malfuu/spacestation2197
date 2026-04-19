@@ -9,7 +9,6 @@ use atmos_primitives::prelude::*;
 use atmos_simulation::prelude::*;
 use content::prelude::*;
 use serde::{Deserialize, Serialize};
-use uom::si::{f32::*, molar_heat_capacity::joule_per_kelvin_mole};
 
 pub const PROTOTYPE_TYPE_GAS: &str = "gas";
 pub const PROTOTYPE_TYPE_MIXTURE: &str = "gas_mixture";
@@ -34,9 +33,7 @@ fn build_gas_list(prototype_list: &Prototypes) -> GasList {
         .iter_for_category::<GasPrototype>(PROTOTYPE_TYPE_GAS)
         .map(|proto| Gas {
             name: proto.id.clone(),
-            molar_heat_capacity: MolarHeatCapacity::new::<joule_per_kelvin_mole>(
-                proto.molar_heat_capacity,
-            ),
+            molar_heat_capacity: proto.molar_heat_capacity,
         })
         .collect();
 

@@ -28,6 +28,5 @@ avian3d.workspace = true
 
 anyhow.workspace = true
 rand.workspace = true
-uom.workspace = true
 
 bevy = { workspace = true, features = ["dev"] }

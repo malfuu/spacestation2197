@@ -8,12 +8,6 @@ pub mod prelude;
 use bevy::{ecs::query::QueryFilter, prelude::*};
 
 use grid::{CHUNK_SIZE, Chunk, Grid};
-use uom::{
-    ConstZero,
-    si::{
-        amount_of_substance::AmountOfSubstance, f32::*, pressure::kilopascal, volume::cubic_meter,
-    },
-};
 
 use atmos_primitives::{
     BASE_DIFFUSION_COEFFICIENT, MAX_NUMBER_OF_GASES, MINIMUM_DELTA_PRESSURE,
@@ -102,7 +96,7 @@ fn build_internal_deltas(
         With<Active>,
     >,
 ) {
-    let zero_delta_pressures = [Pressure::ZERO; MAX_NUMBER_OF_GASES];
+    let zero_delta_pressures_pa = per_gas_array(0.0);
 
     for (mixtures, space, _impermeable, _) in active_chunks.iter() {
         let chunk = mixtures;
@@ -113,7 +107,7 @@ fn build_internal_deltas(
                 // position valid within chunk via iter_with_pos()
                 unsafe {
                     let mix = chunk.mixtures.get_unchecked(pos);
-                    if mix.energy != Energy::ZERO {
+                    if mix.energy != 0.0 {
                         panic!();
                     }
                 }
@@ -132,18 +126,18 @@ fn build_internal_deltas(
 
                 let impermeable = *impermeable.get(lhs).expect("pos valid")
                     || *impermeable.get(rhs).expect("pos valid");
-                let deltas = if impermeable {
-                    zero_delta_pressures
+                let deltas_pa = if impermeable {
+                    zero_delta_pressures_pa
                 } else {
                     let (l, r) = mixtures.mixtures().get_two(lhs, rhs).expect("pos valid");
                     l.delta_pressures(r, &gas_list)
                 };
 
-                chunk_deltas.horizontals.set(lhs, deltas);
+                chunk_deltas.horizontals.set(lhs, deltas_pa);
             }
         }
 
-        // horizontal deltas
+        // vertical deltas
         for y in 0..DELTAS_LENGTH {
             let y = y as u32;
             for x in 0..CHUNK_SIZE {
@@ -153,14 +147,14 @@ fn build_internal_deltas(
 
                 let impermeable = *impermeable.get(lhs).expect("pos valid")
                     || *impermeable.get(rhs).expect("pos valid");
-                let deltas = if impermeable {
-                    zero_delta_pressures
+                let deltas_pa = if impermeable {
+                    zero_delta_pressures_pa
                 } else {
                     let (l, r) = mixtures.mixtures().get_two(lhs, rhs).expect("pos valid");
                     l.delta_pressures(r, &gas_list)
                 };
 
-                chunk_deltas.verticals.set(lhs, deltas);
+                chunk_deltas.verticals.set(lhs, deltas_pa);
             }
         }
     }
@@ -179,7 +173,7 @@ fn apply_internal_deltas(
                 // position valid within chunk via iter_with_pos()
                 unsafe {
                     let mix = chunk.mixtures.get_unchecked(pos);
-                    if mix.energy != Energy::ZERO {
+                    if mix.energy != 0.0 {
                         panic!();
                     }
                 }
@@ -196,10 +190,12 @@ fn apply_internal_deltas(
                 let lhs = uvec2(x, y);
                 let rhs = uvec2(x + 1, y);
 
-                let deltas = chunk_deltas.horizontals.get(lhs).expect("pos valid");
-                let deltas_abs = deltas.map(|d| d.abs());
-                let deltas_abs_sum: Pressure = deltas_abs.iter().copied().sum();
-                if deltas_abs_sum < Pressure::new::<kilopascal>(MINIMUM_DELTA_PRESSURE) {
+                let deltas_pa = chunk_deltas.horizontals.get(lhs).expect("pos valid");
+                let deltas_abs = deltas_pa.map(|d| d.abs());
+                let deltas_abs_sum: f32 = deltas_abs.iter().copied().sum();
+
+                // MINIMUM_DELTA_PRESSURE assumes kPa, multiply by 1000 for Pascals
+                if deltas_abs_sum < MINIMUM_DELTA_PRESSURE * 1000.0 {
                     continue;
                 }
                 // dirty.0 = true;
@@ -209,22 +205,23 @@ fn apply_internal_deltas(
                     .mixtures_mut()
                     .get_two_mut(lhs, rhs)
                     .expect("pos valid");
-                exchange_with_deltas(&gas_list, mix_lhs, mix_rhs, deltas);
+                exchange_with_deltas(&gas_list, mix_lhs, mix_rhs, deltas_pa);
 
-                // perhaps flows can be applied parellel.
+                // perhaps flows can be applied parallel.
                 let (flow_lhs, flow_rhs) = mixtures
                     .flows_mut()
                     .get_two_mut(lhs, rhs)
                     .expect("pos valid");
                 let flow_direction = Vec2::X;
-                let deltas_sum: Pressure = deltas.iter().copied().sum();
-                let force = NEWTONS_PER_KILOPASCAL * deltas_sum.get::<kilopascal>();
+                let deltas_sum: f32 = deltas_pa.iter().copied().sum();
+
+                let force = NEWTONS_PER_KILOPASCAL * (deltas_sum / 1000.0);
                 *flow_lhs += flow_direction * force;
                 *flow_rhs += flow_direction * force;
             }
         }
 
-        // horizontal deltas
+        // vertical deltas
         for y in 0..DELTAS_LENGTH {
             let y = y as u32;
             for x in 0..CHUNK_SIZE {
@@ -232,10 +229,11 @@ fn apply_internal_deltas(
                 let lhs = uvec2(x, y);
                 let rhs = uvec2(x, y + 1);
 
-                let deltas = chunk_deltas.verticals.get(lhs).expect("pos valid");
-                let deltas_abs = deltas.map(|d| d.abs());
-                let deltas_abs_sum: Pressure = deltas_abs.iter().copied().sum();
-                if deltas_abs_sum < Pressure::new::<kilopascal>(MINIMUM_DELTA_PRESSURE) {
+                let deltas_pa = chunk_deltas.verticals.get(lhs).expect("pos valid");
+                let deltas_abs = deltas_pa.map(|d| d.abs());
+                let deltas_abs_sum: f32 = deltas_abs.iter().copied().sum();
+
+                if deltas_abs_sum < MINIMUM_DELTA_PRESSURE * 1000.0 {
                     continue;
                 }
 
@@ -244,16 +242,17 @@ fn apply_internal_deltas(
                     .mixtures_mut()
                     .get_two_mut(lhs, rhs)
                     .expect("pos valid");
-                exchange_with_deltas(&gas_list, mix_lhs, mix_rhs, deltas);
+                exchange_with_deltas(&gas_list, mix_lhs, mix_rhs, deltas_pa);
 
-                // perhaps flows can be applied parellel.
+                // perhaps flows can be applied parallel.
                 let (flow_lhs, flow_rhs) = mixtures
                     .flows_mut()
                     .get_two_mut(lhs, rhs)
                     .expect("pos valid");
                 let flow_direction = Vec2::Y;
-                let deltas_sum: Pressure = deltas.iter().copied().sum();
-                let force = NEWTONS_PER_KILOPASCAL * deltas_sum.get::<kilopascal>();
+                let deltas_sum: f32 = deltas_pa.iter().copied().sum();
+
+                let force = NEWTONS_PER_KILOPASCAL * (deltas_sum / 1000.0);
                 *flow_lhs += flow_direction * force;
                 *flow_rhs += flow_direction * force;
             }
@@ -277,8 +276,8 @@ fn build_external_deltas(
     >,
     neighbors: Query<(&Mixtures, &ImpermeableChunk)>,
 ) {
-    let zero_delta_pressures = [Pressure::ZERO; MAX_NUMBER_OF_GASES];
-    let space_mixture = GasMixture::new_empty(Volume::new::<cubic_meter>(2.5));
+    let zero_delta_pressures_pa = [0.0; MAX_NUMBER_OF_GASES];
+    let space_mixture = GasMixture::new_empty(2.5);
 
     for (chunk, current_mixtures, current_impermeable, deltas) in &mut active_chunks {
         let current_position = chunk.position();
@@ -322,7 +321,7 @@ fn build_external_deltas(
                 let curr_wall = *current_impermeable.get(curr_pos).expect("pos valid");
 
                 if curr_wall {
-                    *delta_array_i = zero_delta_pressures;
+                    *delta_array_i = zero_delta_pressures_pa;
                     continue;
                 }
 
@@ -340,7 +339,7 @@ fn build_external_deltas(
                     let neighbor_wall = *neighbor_impermeable.get(neighbor_pos).expect("pos valid");
 
                     if neighbor_wall {
-                        *delta_array_i = zero_delta_pressures;
+                        *delta_array_i = zero_delta_pressures_pa;
                     } else {
                         let rhs_mixture = neighbor_mixtures
                             .mixtures()
@@ -373,13 +372,13 @@ fn apply_external_deltas(
     mut processed_ticks: Query<&mut ProcessedTick>,
     mut chunks: Query<Mut<Mixtures>>,
 ) {
-    let space_volume = Volume::new::<cubic_meter>(2.5);
+    let space_volume_m3 = 2.5;
     let current_tick = atmos_res.current_tick;
 
     let is_edge_active = |edge_deltas: &InterchunkDeltas| -> bool {
-        edge_deltas.iter().any(|deltas| {
-            let deltas_abs_sum: Pressure = deltas.map(|d| d.abs()).iter().copied().sum();
-            deltas_abs_sum >= Pressure::new::<kilopascal>(MINIMUM_DELTA_PRESSURE)
+        edge_deltas.iter().any(|deltas_pa| {
+            let deltas_abs_sum: f32 = deltas_pa.map(|d| d.abs()).iter().copied().sum();
+            deltas_abs_sum >= MINIMUM_DELTA_PRESSURE * 1000.0
         })
     };
 
@@ -469,8 +468,8 @@ fn apply_external_deltas(
                             .get_mut(neighbor_pos)
                             .expect("pos valid");
 
-                        let deltas_sum: Pressure = edge_deltas[i].iter().copied().sum();
-                        let force = NEWTONS_PER_KILOPASCAL * deltas_sum.get::<kilopascal>();
+                        let deltas_sum: f32 = edge_deltas[i].iter().copied().sum();
+                        let force = NEWTONS_PER_KILOPASCAL * (deltas_sum / 1000.0);
 
                         *flow_lhs += flow_dir * force;
                         *flow_rhs += flow_dir * force;
@@ -482,7 +481,7 @@ fn apply_external_deltas(
                     for (i, _) in edge_deltas.iter().enumerate().take(CHUNK_SIZE) {
                         let i_u32 = i as u32;
                         let curr_pos = get_curr_pos(i_u32);
-                        let mut space_mixture = GasMixture::new_empty(space_volume);
+                        let mut space_mixture = GasMixture::new_empty(space_volume_m3);
 
                         let lhs_mixture = current_mixtures
                             .mixtures_mut()
@@ -500,8 +499,9 @@ fn apply_external_deltas(
                             .flows_mut()
                             .get_mut(curr_pos)
                             .expect("pos valid");
-                        let deltas_sum: Pressure = edge_deltas[i].iter().copied().sum();
-                        let force = NEWTONS_PER_KILOPASCAL * deltas_sum.get::<kilopascal>();
+
+                        let deltas_sum: f32 = edge_deltas[i].iter().copied().sum();
+                        let force = NEWTONS_PER_KILOPASCAL * (deltas_sum / 1000.0);
 
                         *flow_lhs += flow_dir * force;
                     }
@@ -525,25 +525,25 @@ fn exchange_with_deltas(
     gas_list: &GasList,
     lhs: &mut GasMixture,
     rhs: &mut GasMixture,
-    deltas: &Delta,
+    deltas_pa: &Delta,
 ) {
     let molar_heat_capacities = gas_list.get_molar_heat_capacities();
-    let lhs_temp = lhs.temperature(gas_list);
-    let rhs_temp = rhs.temperature(gas_list);
+    let lhs_temp_k = lhs.temperature(gas_list);
+    let rhs_temp_k = rhs.temperature(gas_list);
 
-    let lhs_to_rhs = deltas.map(|dp| dp > Pressure::ZERO);
-    let mut moved_moles = [AmountOfSubstance::ZERO; MAX_NUMBER_OF_GASES];
+    let lhs_to_rhs = deltas_pa.map(|dp| dp > 0.0);
+    let mut moved_moles = per_gas_array(0.0);
 
     for gas_id in iter_gas_ids() {
         let lhs_to_rhs = lhs_to_rhs[gas_id];
-        let delta_pressure = deltas[gas_id];
+        let delta_pressure_pa = deltas_pa[gas_id];
 
-        let source_temp = if lhs_to_rhs { lhs_temp } else { rhs_temp };
+        let source_temp_k = if lhs_to_rhs { lhs_temp_k } else { rhs_temp_k };
 
-        let volume = lhs.volume(); // lhs & rhs volume should be the same
+        let volume_m3 = lhs.volume(); // lhs & rhs volume should be the same
 
         // NOTE: denominator on this function could be shared.
-        let moles_to_move = ideal_gas_law_moles(delta_pressure.abs(), volume, source_temp);
+        let moles_to_move = ideal_gas_law_moles(delta_pressure_pa.abs(), volume_m3, source_temp_k);
         let amount = moles_to_move * BASE_DIFFUSION_COEFFICIENT;
 
         moved_moles[gas_id] = if lhs_to_rhs {
@@ -559,21 +559,21 @@ fn exchange_with_deltas(
         rhs.contents[gas_id] += n;
     }
 
-    let mut total_energy_transfer: Energy = Energy::ZERO;
+    let mut total_energy_transfer_j: f32 = 0.0;
     for gas_id in iter_gas_ids() {
         let moles_to_move = moved_moles[gas_id];
         let lhs_to_rhs = lhs_to_rhs[gas_id];
 
         let molar_heat_capacity = molar_heat_capacities[gas_id];
-        let temperature = if lhs_to_rhs { lhs_temp } else { rhs_temp };
+        let temperature_k = if lhs_to_rhs { lhs_temp_k } else { rhs_temp_k };
 
-        let delta_energy = moles_to_move * molar_heat_capacity * temperature;
+        let delta_energy_j = moles_to_move * molar_heat_capacity * temperature_k;
 
-        total_energy_transfer += delta_energy;
+        total_energy_transfer_j += delta_energy_j;
     }
 
-    lhs.energy -= total_energy_transfer;
-    rhs.energy += total_energy_transfer;
+    lhs.energy -= total_energy_transfer_j;
+    rhs.energy += total_energy_transfer_j;
 }
 
 fn update_space_clear(mut chunks: Query<(Mut<Mixtures>, &SpaceChunk), With<Active>>) {
@@ -596,7 +596,7 @@ fn update_space_clear(mut chunks: Query<(Mut<Mixtures>, &SpaceChunk), With<Activ
                 //
                 // position valid within chunk via iter_with_pos()
                 let mix = unsafe { chunk.mixtures.get_unchecked(pos) };
-                if mix.energy != Energy::ZERO {
+                if mix.energy != 0.0 {
                     panic!();
                 }
             }

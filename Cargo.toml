@@ -34,14 +34,6 @@ bevy_renet = { version = "4.0", default-features = false }
 
 avian3d = { version = "0.6.1", features = ["serialize"]}
 
-uom = { version = "0.38.0", default-features = false, features = [
-    "f32", 
-    "autoconvert", 
-    "si", 
-    "std", 
-    "serde"
-]}
-
 rand = "0.9.2"
 heapless = { version = "0.9.2", features = ["serde"]}
 smallvec = { version = "1.15.1", features = ["serde"]}

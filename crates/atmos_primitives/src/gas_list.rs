@@ -1,12 +1,11 @@
 use std::collections::HashMap;
 
 use bevy::prelude::Resource;
-use uom::{ConstZero, si::f32::MolarHeatCapacity};
 
-use crate::{Gas, GasId, MAX_NUMBER_OF_GASES};
+use crate::{Gas, GasId, MAX_NUMBER_OF_GASES, PerGasArray, per_gas_array};
 
-/// Molar Heat Capacity for each gas type.
-pub type MolarHeatCapacities = [MolarHeatCapacity; MAX_NUMBER_OF_GASES];
+/// Molar Heat Capacity in joule per kelvin mole for each gas type.
+pub type MolarHeatCapacities = PerGasArray;
 
 /// Serves as a immutable lookup table for defined gases
 #[derive(Resource)]
@@ -29,7 +28,7 @@ impl GasList {
 
         let mut gases = heapless::Vec::new();
 
-        let mut molar_heat_capacities = [MolarHeatCapacity::ZERO; MAX_NUMBER_OF_GASES];
+        let mut molar_heat_capacities = per_gas_array(0.0);
         let mut gas_names = HashMap::<String, GasId>::default();
 
         for (gas_id, gas) in new_gases.iter().enumerate() {
@@ -50,6 +49,11 @@ impl GasList {
             molar_heat_capacities,
             gas_names,
         }
+    }
+
+    /// Returns true if the list has no defined gases.
+    pub fn is_empty(&self) -> bool {
+        self.gases.is_empty()
     }
 
     /// Returns the amount of gas definitions present in the list.
@@ -91,12 +95,11 @@ impl std::fmt::Debug for GasList {
 mod tests {
     use super::*;
     use bevy::prelude::*;
-    use uom::si::molar_heat_capacity::joule_per_kelvin_mole;
 
     fn make_gas(name: &str) -> Gas {
         Gas {
             name: name.to_string(),
-            molar_heat_capacity: MolarHeatCapacity::new::<joule_per_kelvin_mole>(1.0),
+            molar_heat_capacity: 1.0,
         }
     }
 
