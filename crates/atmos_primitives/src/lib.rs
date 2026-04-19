@@ -29,7 +29,9 @@ pub type GasId = usize;
 
 /// Controls the sizes of arrays in the entire simulation.
 pub const MAX_NUMBER_OF_GASES: usize = 16;
+
 /// Arrays that contain a property per [`Gas`] indexed by [`GasId`]
+// NOTE: this will most likely be where the drop in replacement for a f32x16 type will ocurr.
 pub type PerGasArray = [f32; MAX_NUMBER_OF_GASES];
 
 /// Creates a [`PerGasArray`] given an amount.

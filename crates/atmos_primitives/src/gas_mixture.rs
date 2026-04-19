@@ -14,6 +14,31 @@ pub type ContentArray = PerGasArray;
 /// Volumeless gas mixture (Contents in moles, Energy in joules).
 pub type GasComposition = (ContentArray, f32);
 
+/// A data type that implements required to represent a gas made up for multiple partial gases.
+pub trait GasMixture {
+    // TODO: remove gas list as required parameter fro all parameters in this trait.
+    // as it should be the user's responsibility
+
+    /// Molar quantities of each gas type in the mixture.
+    fn moles(&self) -> PerGasArray;
+    /// Returns the sum of all quantities of each gas in moles.
+    fn total_moles(&self) -> f32;
+
+    /// Returns the partial heat capacity for each gas in J/K.
+    fn partial_heat_capacities(&self, gas_list: &GasList) -> PerGasArray;
+    /// Returns the heat capacity for the gas in J/K.
+    fn heat_capacity(&self, gas_list: &GasList) -> f32;
+
+    /// Computes and returns the temperature of the gas mixture in Kelvin.
+    fn temperature(&self, gas_list: &GasList) -> f32;
+}
+
+/// A mixture that has properties that require volume to compute.
+pub trait MixtureContainer {
+    /// Returns the volume of the gas mixture in cubic meters.
+    fn volume(&self) -> f32;
+}
+
 /// Base Gas Container type.
 #[derive(Copy, Clone, Serialize, Deserialize)]
 pub struct BasicGasMixture {
@@ -67,43 +92,6 @@ impl BasicGasMixture {
             energy,
             volume: volume_m3,
         }
-    }
-
-    /// Returns the volume of the gas mixture in cubic meters.
-    #[inline]
-    pub fn volume(&self) -> f32 {
-        self.volume
-    }
-
-    /// Returns the sum of all quantities of each gas in moles.
-    #[inline]
-    pub fn total_moles(&self) -> f32 {
-        self.contents.iter().copied().sum()
-    }
-
-    /// Computes and returns the heat capacity for the gas in J/K.
-    #[inline]
-    pub fn heat_capacity(&self, gas_list: &GasList) -> f32 {
-        let heat_capacities = gas_list.get_molar_heat_capacities();
-
-        self.contents
-            .iter()
-            .copied()
-            .zip(heat_capacities.iter())
-            .map(|(quantity, &c_v)| c_v * quantity)
-            .sum()
-    }
-
-    /// Computes and returns the temperature of the gas mixture in Kelvin.
-    #[inline]
-    pub fn temperature(&self, gas_list: &GasList) -> f32 {
-        let heat_capacity = self.heat_capacity(gas_list);
-
-        if heat_capacity <= 0.0 {
-            return 0.0; // is absolute 0 even physically possible?
-        }
-
-        self.energy / heat_capacity
     }
 
     /// Computes and returns the pressure of the gas mixture in Pascals.
@@ -255,13 +243,48 @@ impl BasicGasMixture {
             return ([0.0; MAX_NUMBER_OF_GASES], 0.0);
         }
 
-        let ratio = if volume_m3 >= self.volume {
+        let ratio = if volume_m3 >= self.volume() {
             1.0
         } else {
             volume_m3 / self.volume
         };
 
         self.take_ratio(ratio)
+    }
+}
+
+impl GasMixture for BasicGasMixture {
+    fn moles(&self) -> PerGasArray {
+        self.contents
+    }
+
+    fn total_moles(&self) -> f32 {
+        self.moles().iter().copied().sum()
+    }
+
+    fn partial_heat_capacities(&self, gas_list: &GasList) -> PerGasArray {
+        let molar_caps = gas_list.get_molar_heat_capacities();
+        std::array::from_fn(|i| self.contents[i] * molar_caps[i])
+    }
+
+    fn heat_capacity(&self, gas_list: &GasList) -> f32 {
+        self.partial_heat_capacities(gas_list).iter().sum()
+    }
+
+    fn temperature(&self, gas_list: &GasList) -> f32 {
+        let heat_capacity = self.heat_capacity(gas_list);
+
+        if heat_capacity <= 0.0 {
+            return 0.0; // is absolute 0 even physically possible?
+        }
+
+        self.energy / heat_capacity
+    }
+}
+
+impl MixtureContainer for BasicGasMixture {
+    fn volume(&self) -> f32 {
+        self.volume
     }
 }
 

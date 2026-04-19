@@ -69,6 +69,8 @@ pub(crate) struct ChunkDeltas {
 
     // because I cant express deltas in between sparse chunks in a clean data structure
     // each chunk will contain deltas to neighboring chunks in itself.
+    // this of course will introduce duplicated data for two neighboring chunks
+    // yipee!!
     pub(crate) left: InterchunkDeltas,
     pub(crate) right: InterchunkDeltas,
     pub(crate) up: InterchunkDeltas,
