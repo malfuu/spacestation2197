@@ -58,24 +58,24 @@ mlua = { version = "0.11.6", features = ["lua51", "vendored", "serde", "macros",
 
 criterion = { version = "0.8.2", features = ["html_reports"]}
 
-[workspace.dependencies.bevy]
-version = "0.18.1"
-default-features = false
-features = [
-# Default Features
-    "bevy_asset",
-    "bevy_color",
-    "bevy_gltf",
-    "bevy_log",
-    "bevy_state",
-    "bevy_scene",
-    "multi_threaded",
-    "sysinfo_plugin",
-    "reflect_auto_register",
+bevy = {
+    version = "0.18.1",
+    default-features = false,
+    features = [
+        "bevy_asset",
+        "bevy_color",
+        "bevy_gltf",
+        "bevy_log",
+        "bevy_state",
+        "bevy_scene",
+        "multi_threaded",
+        "sysinfo_plugin",
+        "reflect_auto_register",
 
-    "bevy_audio",
+        "bevy_audio",
 
-    "serialize",
-    "default_font",
-]
+        "serialize",
+        "default_font",
+    ]
+}
 

@@ -1,0 +1,507 @@
+(
+    name: "showmap",
+    grid_data: (
+        palette: [
+            "wall",
+            "floor",
+        ],
+        palette_gas: [],
+        chunks: {
+            (-1, 0): (
+                tiles: [0, 0, 0, 1, 2, 2, 2, 2, 0, 0, 0, 1, 2, 2, 2, 2, 0, 0, 0, 1, 2, 2, 2, 2, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                mixtures: [],
+            ),
+            (0, -1): (
+                tiles: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 2, 2, 2, 2, 1, 0, 0, 0, 2, 2, 2, 2, 1, 0, 0, 0, 2, 2, 2, 2, 1, 0, 0, 0, 2, 2, 2, 2, 1, 0, 0, 0],
+                mixtures: [],
+            ),
+            (0, 0): (
+                tiles: [2, 2, 2, 2, 1, 0, 0, 0, 2, 2, 2, 2, 1, 0, 0, 0, 2, 2, 2, 2, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                mixtures: [],
+            ),
+            (-1, -1): (
+                tiles: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 2, 2, 2, 2, 0, 0, 0, 1, 2, 2, 2, 2, 0, 0, 0, 1, 2, 2, 2, 2, 0, 0, 0, 1, 2, 2, 2, 2],
+                mixtures: [],
+            ),
+        },
+    ),
+    entities: [
+        (
+            entity: 4294966585,
+            tag: "iron",
+            transform: (
+                translation: (-1.7619884, -0.00000047683716, -2.1895635),
+                rotation: (0.0, 0.0, 0.0, 1.0),
+                scale: (1.0, 1.0, 1.0),
+            ),
+        ),
+        (
+            entity: 4294966581,
+            tag: "iron",
+            transform: (
+                translation: (-3.2969713, 0.0, -0.9620733),
+                rotation: (0.0, 0.0, 0.0, 1.0),
+                scale: (1.0, 1.0, 1.0),
+            ),
+        ),
+        (
+            entity: 4294966577,
+            tag: "iron",
+            transform: (
+                translation: (-3.2954993, -0.00000047683716, -0.12821245),
+                rotation: (0.0, 0.0, 0.0, 1.0),
+                scale: (1.0, 1.0, 1.0),
+            ),
+        ),
+        (
+            entity: 4294966573,
+            tag: "iron",
+            transform: (
+                translation: (-3.1546636, 0.0, 1.0120068),
+                rotation: (0.0, 0.0, 0.0, 1.0),
+                scale: (1.0, 1.0, 1.0),
+            ),
+        ),
+        (
+            entity: 4294966569,
+            tag: "iron",
+            transform: (
+                translation: (-2.8190923, 0.0, 1.6434779),
+                rotation: (0.0, 0.0, 0.0, 1.0),
+                scale: (1.0, 1.0, 1.0),
+            ),
+        ),
+        (
+            entity: 4294966565,
+            tag: "iron",
+            transform: (
+                translation: (-2.4022806, 0.0, 0.9751091),
+                rotation: (0.0, 0.0, 0.0, 1.0),
+                scale: (1.0, 1.0, 1.0),
+            ),
+        ),
+        (
+            entity: 4294966561,
+            tag: "iron",
+            transform: (
+                translation: (-2.0862498, 0.0, 0.382339),
+                rotation: (0.0, 0.0, 0.0, 1.0),
+                scale: (1.0, 1.0, 1.0),
+            ),
+        ),
+        (
+            entity: 4294966557,
+            tag: "iron",
+            transform: (
+                translation: (-2.07882, 0.00000047683716, -0.53029466),
+                rotation: (0.0, 0.0, 0.0, 1.0),
+                scale: (1.0, 1.0, 1.0),
+            ),
+        ),
+        (
+            entity: 4294966553,
+            tag: "iron",
+            transform: (
+                translation: (-1.8420146, 0.0, -1.4220612),
+                rotation: (0.0, 0.0, 0.0, 1.0),
+                scale: (1.0, 1.0, 1.0),
+            ),
+        ),
+        (
+            entity: 4294966549,
+            tag: "iron",
+            transform: (
+                translation: (-2.042718, -0.00000047683716, -1.1989963),
+                rotation: (0.0, 0.0, 0.0, 1.0),
+                scale: (1.0, 1.0, 1.0),
+            ),
+        ),
+        (
+            entity: 4294966545,
+            tag: "iron",
+            transform: (
+                translation: (-1.9769373, 0.0, 0.029594898),
+                rotation: (0.0, 0.0, 0.0, 1.0),
+                scale: (1.0, 1.0, 1.0),
+            ),
+        ),
+        (
+            entity: 4294966541,
+            tag: "iron",
+            transform: (
+                translation: (-1.1782765, 0.0, 0.9113939),
+                rotation: (0.0, 0.0, 0.0, 1.0),
+                scale: (1.0, 1.0, 1.0),
+            ),
+        ),
+        (
+            entity: 4294966537,
+            tag: "iron",
+            transform: (
+                translation: (-0.18744102, 0.0, 1.2346022),
+                rotation: (0.0, 0.0, 0.0, 1.0),
+                scale: (1.0, 1.0, 1.0),
+            ),
+        ),
+        (
+            entity: 4294966533,
+            tag: "iron",
+            transform: (
+                translation: (-0.019474179, 0.0, 1.6569438),
+                rotation: (0.0, 0.0, 0.0, 1.0),
+                scale: (1.0, 1.0, 1.0),
+            ),
+        ),
+        (
+            entity: 4294966529,
+            tag: "iron",
+            transform: (
+                translation: (1.0278145, 0.0, 0.98052764),
+                rotation: (0.0, 0.0, 0.0, 1.0),
+                scale: (1.0, 1.0, 1.0),
+            ),
+        ),
+        (
+            entity: 4294966525,
+            tag: "iron",
+            transform: (
+                translation: (0.6783614, 0.0, 0.68456197),
+                rotation: (0.0, 0.0, 0.0, 1.0),
+                scale: (1.0, 1.0, 1.0),
+            ),
+        ),
+        (
+            entity: 4294966521,
+            tag: "iron",
+            transform: (
+                translation: (-0.44520158, 0.0, 0.53658104),
+                rotation: (0.0, 0.0, 0.0, 1.0),
+                scale: (1.0, 1.0, 1.0),
+            ),
+        ),
+        (
+            entity: 4294966517,
+            tag: "iron",
+            transform: (
+                translation: (-1.1535964, 0.0, -0.237427),
+                rotation: (0.0, 0.0, 0.0, 1.0),
+                scale: (1.0, 1.0, 1.0),
+            ),
+        ),
+        (
+            entity: 4294966513,
+            tag: "iron",
+            transform: (
+                translation: (-0.26413655, 0.0, -0.6645324),
+                rotation: (0.0, 0.0, 0.0, 1.0),
+                scale: (1.0, 1.0, 1.0),
+            ),
+        ),
+        (
+            entity: 4294966509,
+            tag: "iron",
+            transform: (
+                translation: (0.53096586, 0.0, -0.22061968),
+                rotation: (0.0, 0.0, 0.0, 1.0),
+                scale: (1.0, 1.0, 1.0),
+            ),
+        ),
+        (
+            entity: 4294966505,
+            tag: "iron",
+            transform: (
+                translation: (1.4960853, 0.0, 0.53326774),
+                rotation: (0.0, 0.0, 0.0, 1.0),
+                scale: (1.0, 1.0, 1.0),
+            ),
+        ),
+        (
+            entity: 4294966501,
+            tag: "iron",
+            transform: (
+                translation: (2.1975749, 0.0, 1.2770197),
+                rotation: (0.0, 0.0, 0.0, 1.0),
+                scale: (1.0, 1.0, 1.0),
+            ),
+        ),
+        (
+            entity: 4294966497,
+            tag: "iron",
+            transform: (
+                translation: (1.8984563, 0.0, 2.2160673),
+                rotation: (0.0, 0.0, 0.0, 1.0),
+                scale: (1.0, 1.0, 1.0),
+            ),
+        ),
+        (
+            entity: 4294966493,
+            tag: "iron",
+            transform: (
+                translation: (1.5404141, 0.0, 1.8039687),
+                rotation: (0.0, 0.0, 0.0, 1.0),
+                scale: (1.0, 1.0, 1.0),
+            ),
+        ),
+        (
+            entity: 4294966489,
+            tag: "iron",
+            transform: (
+                translation: (0.67722225, 0.0, 1.5080054),
+                rotation: (0.0, 0.0, 0.0, 1.0),
+                scale: (1.0, 1.0, 1.0),
+            ),
+        ),
+        (
+            entity: 4294966485,
+            tag: "iron",
+            transform: (
+                translation: (2.9467053, 0.0, 1.7680957),
+                rotation: (0.0, 0.0, 0.0, 1.0),
+                scale: (1.0, 1.0, 1.0),
+            ),
+        ),
+        (
+            entity: 4294966481,
+            tag: "iron",
+            transform: (
+                translation: (3.4385042, 0.0, 0.92901397),
+                rotation: (0.0, 0.0, 0.0, 1.0),
+                scale: (1.0, 1.0, 1.0),
+            ),
+        ),
+        (
+            entity: 4294966477,
+            tag: "iron",
+            transform: (
+                translation: (2.628527, 0.0, 0.048177958),
+                rotation: (0.0, 0.0, 0.0, 1.0),
+                scale: (1.0, 1.0, 1.0),
+            ),
+        ),
+        (
+            entity: 4294966473,
+            tag: "iron",
+            transform: (
+                translation: (1.8919203, 0.0, 0.3235643),
+                rotation: (0.0, 0.0, 0.0, 1.0),
+                scale: (1.0, 1.0, 1.0),
+            ),
+        ),
+        (
+            entity: 4294966469,
+            tag: "iron",
+            transform: (
+                translation: (2.5225818, 0.0, 0.14797091),
+                rotation: (0.0, 0.0, 0.0, 1.0),
+                scale: (1.0, 1.0, 1.0),
+            ),
+        ),
+        (
+            entity: 4294966465,
+            tag: "iron",
+            transform: (
+                translation: (2.4931965, 0.0, -0.9230683),
+                rotation: (0.0, 0.0, 0.0, 1.0),
+                scale: (1.0, 1.0, 1.0),
+            ),
+        ),
+        (
+            entity: 4294966461,
+            tag: "iron",
+            transform: (
+                translation: (2.580033, 0.00000047683716, -1.4143989),
+                rotation: (0.0, 0.0, 0.0, 1.0),
+                scale: (1.0, 1.0, 1.0),
+            ),
+        ),
+        (
+            entity: 4294966457,
+            tag: "iron",
+            transform: (
+                translation: (2.3340926, 0.0, -0.740011),
+                rotation: (0.0, 0.0, 0.0, 1.0),
+                scale: (1.0, 1.0, 1.0),
+            ),
+        ),
+        (
+            entity: 4294966453,
+            tag: "iron",
+            transform: (
+                translation: (1.2983701, 0.0, -0.81917286),
+                rotation: (0.0, 0.0, 0.0, 1.0),
+                scale: (1.0, 1.0, 1.0),
+            ),
+        ),
+        (
+            entity: 4294966449,
+            tag: "iron",
+            transform: (
+                translation: (1.2168006, 0.0, -1.9900396),
+                rotation: (0.0, 0.0, 0.0, 1.0),
+                scale: (1.0, 1.0, 1.0),
+            ),
+        ),
+        (
+            entity: 4294966445,
+            tag: "iron",
+            transform: (
+                translation: (1.5630487, -0.00000047683716, -2.8733242),
+                rotation: (0.0, 0.0, 0.0, 1.0),
+                scale: (1.0, 1.0, 1.0),
+            ),
+        ),
+        (
+            entity: 4294966441,
+            tag: "iron",
+            transform: (
+                translation: (0.6418191, -0.00000047683716, -3.4072149),
+                rotation: (0.0, 0.0, 0.0, 1.0),
+                scale: (1.0, 1.0, 1.0),
+            ),
+        ),
+        (
+            entity: 4294966437,
+            tag: "iron",
+            transform: (
+                translation: (-0.25575346, 0.0, -2.661447),
+                rotation: (0.0, 0.0, 0.0, 1.0),
+                scale: (1.0, 1.0, 1.0),
+            ),
+        ),
+        (
+            entity: 4294966433,
+            tag: "iron",
+            transform: (
+                translation: (-0.2190477, 0.0, -2.160799),
+                rotation: (0.0, 0.0, 0.0, 1.0),
+                scale: (1.0, 1.0, 1.0),
+            ),
+        ),
+        (
+            entity: 4294966429,
+            tag: "iron",
+            transform: (
+                translation: (-0.63292557, 0.00000047683716, -1.6177924),
+                rotation: (0.0, 0.0, 0.0, 1.0),
+                scale: (1.0, 1.0, 1.0),
+            ),
+        ),
+        (
+            entity: 4294966425,
+            tag: "iron",
+            transform: (
+                translation: (-1.1986854, 0.0, -1.7473922),
+                rotation: (0.0, 0.0, 0.0, 1.0),
+                scale: (1.0, 1.0, 1.0),
+            ),
+        ),
+        (
+            entity: 4294966602,
+            tag: "plant14",
+            transform: (
+                translation: (-8.848484, 0.0, 9.191128),
+                rotation: (0.0, 0.0, 0.0, 1.0),
+                scale: (1.0, 1.0, 1.0),
+            ),
+        ),
+        (
+            entity: 4294966598,
+            tag: "plant14",
+            transform: (
+                translation: (-3.2375717, 0.0, -3.0252235),
+                rotation: (0.0, 0.0, 0.0, 1.0),
+                scale: (1.0, 1.0, 1.0),
+            ),
+        ),
+        (
+            entity: 4294966594,
+            tag: "foamtank",
+            transform: (
+                translation: (-1.4780552, 0.0, -3.4997878),
+                rotation: (0.0, 0.0, 0.0, 1.0),
+                scale: (1.0, 1.0, 1.0),
+            ),
+        ),
+        (
+            entity: 4294966589,
+            tag: "platformcart",
+            transform: (
+                translation: (2.9995058, 0.0, -3.3595457),
+                rotation: (0.0, 0.0, 0.0, 1.0),
+                scale: (1.0, 1.0, 1.0),
+            ),
+        ),
+        (
+            entity: 4294966421,
+            tag: "plant36",
+            transform: (
+                translation: (8.410005, 0.0, 6.265412),
+                rotation: (0.0, 0.0, 0.0, 1.0),
+                scale: (1.0, 1.0, 1.0),
+            ),
+        ),
+        (
+            entity: 4294966417,
+            tag: "plant36",
+            transform: (
+                translation: (2.0294971, 0.00000047683716, -3.6438477),
+                rotation: (0.0, 0.0, 0.0, 1.0),
+                scale: (1.0, 1.0, 1.0),
+            ),
+        ),
+        (
+            entity: 4294966409,
+            tag: "plantsapling",
+            transform: (
+                translation: (-2.7508297, 0.0, -3.5393782),
+                rotation: (0.0, 0.0, 0.0, 1.0),
+                scale: (1.0, 1.0, 1.0),
+            ),
+        ),
+        (
+            entity: 4294966716,
+            tag: "spawner_human",
+            transform: (
+                translation: (-0.031806167, 0.0, -0.59868383),
+                rotation: (0.0, 0.0, 0.0, 1.0),
+                scale: (1.0, 1.0, 1.0),
+            ),
+        ),
+        (
+            entity: 4294966712,
+            tag: "spawner_human",
+            transform: (
+                translation: (3.5952718, 0.00000047683716, -1.821279),
+                rotation: (0.0, 0.0, 0.0, 1.0),
+                scale: (1.0, 1.0, 1.0),
+            ),
+        ),
+        (
+            entity: 4294966703,
+            tag: "scrubber",
+            transform: (
+                translation: (1.4890553, 0.0, 0.47740674),
+                rotation: (0.0, 0.0, 0.0, 1.0),
+                scale: (1.0, 1.0, 1.0),
+            ),
+        ),
+        (
+            entity: 4294966413,
+            tag: "crowbar",
+            transform: (
+                translation: (3.076662, 0.0, -0.6507218),
+                rotation: (0.0, 0.0, 0.0, 1.0),
+                scale: (1.0, 1.0, 1.0),
+            ),
+        ),
+        (
+            entity: 4294966708,
+            tag: "vent",
+            transform: (
+                translation: (-1.5295928, 0.00000047683716, -0.51769614),
+                rotation: (0.0, 0.0, 0.0, 1.0),
+                scale: (1.0, 1.0, 1.0),
+            ),
+        ),
+    ],
+)

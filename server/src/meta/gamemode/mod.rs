@@ -98,10 +98,14 @@ fn on_round_start(
 fn check_round_end(
     gamemode: Single<&Gamemode>,
     mut commands: Commands,
-    manager: Res<TaskManager>,
+    manager: Option<Res<TaskManager>>,
     traitors: Query<Entity, (With<Traitor>, MobFilter)>,
     crewmembers: Query<Entity, (Without<Traitor>, MobFilter)>,
 ) {
+    let Some(manager) = manager else {
+        return;
+    };
+
     match **gamemode {
         Gamemode::Extended | Gamemode::Sandbox => {}
         Gamemode::Mafia => {

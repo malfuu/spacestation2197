@@ -7,5 +7,4 @@ edition = "2024"
 heapless.workspace = true
 serde.workspace = true
 
-[dependencies.bevy]
-workspace = true
+bevy.workspace = true

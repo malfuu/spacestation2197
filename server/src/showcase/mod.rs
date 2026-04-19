@@ -54,8 +54,12 @@ fn read_interact_task(
     mut reader: MessageReader<InteractHandMessage>,
     mut commands: Commands,
     tasks: Query<Entity, With<SimpleTask>>,
-    mut manager: ResMut<TaskManager>,
+    manager: Option<ResMut<TaskManager>>,
 ) {
+    let Some(mut manager) = manager else {
+        return;
+    };
+
     for msg in reader.read() {
         if !tasks.contains(msg.target) {
             continue;

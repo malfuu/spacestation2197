@@ -1,4 +1,4 @@
-//! All [`crate::networking::Player`] to [`crate::archetypes::Mob`] Mind related.
+//! All [`crate::game::player::Player`] to [`crate::game::mob::Mob`] Mind related.
 use bevy::{ecs::entity::MapEntities, prelude::*};
 use serde::{Deserialize, Serialize};
 
@@ -29,7 +29,7 @@ impl TakeOverMessage {
     }
 }
 
-/// Informs a player client what entity it now controls or none
+/// Server to client message of what entity the player now controls (or does not)
 #[derive(Message, Deref, Serialize, Deserialize, Clone, Copy)]
 pub struct OwnMobMessage(pub Option<Entity>);
 

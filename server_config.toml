@@ -16,6 +16,6 @@ lobby_timer = 10
 lobby_enabled = true
 round_end_timer = 60
 
-map_name = "bad_map"
+map_name = "showmap"
 
-gamemode = "mafia"
+gamemode = "extended"

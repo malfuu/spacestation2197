@@ -10,5 +10,4 @@ heapless.workspace = true
 serde.workspace = true
 anyhow.workspace = true
 
-[dependencies.bevy]
-workspace = true
+bevy.workspace = true
