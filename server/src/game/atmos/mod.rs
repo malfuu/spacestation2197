@@ -1,7 +1,7 @@
 use avian3d::prelude::*;
 use bevy::{ecs::query::QueryFilter, prelude::*};
 
-use atmos::engine::chunk::Mixtures;
+use atmos_simulation::chunk::Mixtures;
 use grid::{Grid, world_to_chunk_and_local};
 
 use shared::{

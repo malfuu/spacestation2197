@@ -2,7 +2,7 @@ use std::time::Instant;
 
 use bevy::{ecs::schedule::ScheduleLabel, prelude::*};
 
-use crate::engine::AtmosphericsResource;
+use crate::AtmosphericsResource;
 
 #[derive(ScheduleLabel, Clone, Debug, PartialEq, Eq, Hash, Default)]
 pub struct AtmosSchedule;

@@ -1,0 +1,21 @@
+[package]
+name = "atmos_simulation"
+version = "0.0.1"
+edition = "2024"
+
+[dependencies]
+atmos_primitives.workspace = true
+
+bevy.workspace = true
+
+common.workspace = true
+grid.workspace = true
+
+heapless.workspace = true
+anyhow.workspace = true
+uom.workspace = true
+serde.workspace = true
+rand.workspace = true
+
+[dev-dependencies]
+criterion.workspace = true

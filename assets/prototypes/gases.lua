@@ -32,3 +32,16 @@ define {
     molar_heat_capacity = 300.0,
 }
 
+-- mixtures
+
+define {
+    "gas_mixture",
+    id = "air",
+    pressure = 101.325,
+    temperature = 295,
+    ratios = {
+        oxygen = 0.21,
+        nitrogen = 0.79,
+    }
+}
+

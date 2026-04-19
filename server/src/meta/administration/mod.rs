@@ -1,8 +1,9 @@
-use atmos::engine::AtmosphericsResource;
 use avian3d::prelude::{Physics, PhysicsTime};
 use bevy::{ecs::system::SystemParam, prelude::*};
 use bevy_renet::RenetServer;
 use bevy_replicon::{prelude::*, shared::backend::connected_client::NetworkId};
+
+use atmos_simulation::prelude::*;
 
 use shared::{
     meta::{

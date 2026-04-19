@@ -7,7 +7,7 @@ use common::PrototypeId;
 use content::prelude::*;
 use grid::{BooleanChunk, CHUNK_SIZE, Chunk, Grid, world_to_chunk_and_local};
 
-use atmos::engine::chunk::{ImpermeableChunk, Mixtures, SpaceChunk};
+use atmos_simulation::chunk::{ImpermeableChunk, Mixtures, SpaceChunk};
 use serde::{Deserialize, Serialize};
 
 use crate::{defines::PROTOTYPE_TYPE_TILE, game::GameplaySystems, utils::filters::ChunkFilter};

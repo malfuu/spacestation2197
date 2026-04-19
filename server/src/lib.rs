@@ -7,9 +7,10 @@ mod meta;
 
 mod showcase;
 
-use atmos::engine::AtmosphericsResource;
 use bevy::prelude::*;
 use bevy_replicon::prelude::*;
+
+use atmos_simulation::prelude::*;
 
 use common::EntityTag;
 use shared::{

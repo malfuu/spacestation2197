@@ -100,26 +100,3 @@ impl MixtureBlueprint {
         mixture.energy = self.temperature * mixture.heat_capacity(gas_list);
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use uom::si::volume::cubic_meter;
-
-    use super::*;
-    use crate::tests::create_generic_gas_list;
-
-    #[test]
-    fn blueprint_mixture() {
-        let gas_list = create_generic_gas_list();
-
-        let blueprint =
-            MixtureBlueprint::new("foo", 101.325, 21., vec![(0, 21.0), (1, 78.0), (2, 1.0)]);
-
-        let mut mixture = GasMixture::new_empty(Volume::new::<cubic_meter>(2.5));
-
-        blueprint.apply_to(&mut mixture, &gas_list);
-    }
-
-    #[test]
-    fn blueprint_with_invalid_gas_id() {}
-}

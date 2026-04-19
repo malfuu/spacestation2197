@@ -1,7 +1,8 @@
 use bevy::{ecs::system::SystemParam, prelude::*};
 use bevy_replicon::prelude::*;
 
-use atmos::{engine::chunk::Mixtures, prelude::*};
+use atmos_primitives::prelude::*;
+use atmos_simulation::prelude::*;
 use common::EntityTag;
 use content::prelude::*;
 use grid::{Grid, world_to_chunk_and_local};

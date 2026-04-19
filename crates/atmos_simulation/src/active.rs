@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use serde::{Deserialize, Serialize};
 
-use crate::engine::AtmosTick;
+use crate::AtmosTick;
 
 /// Marker for active chunks in simulation.
 /// A chunk that is active will:

@@ -5,10 +5,8 @@ use bevy_replicon::prelude::*;
 
 use common::PrototypeId;
 
-use atmos::{
-    engine::{AtmosphericsPlugin, active::Active, chunk::Mixtures},
-    prelude::*,
-};
+use atmos_primitives::prelude::*;
+use atmos_simulation::prelude::*;
 use content::prelude::*;
 use serde::{Deserialize, Serialize};
 use uom::si::{f32::*, molar_heat_capacity::joule_per_kelvin_mole};
@@ -71,27 +69,12 @@ fn build_mixture_list(prototype_list: &Prototypes, gas_list: &GasList) -> Mixtur
     mixture_list
 }
 
-fn build_reaction_list(prototype_list: &Prototypes) -> ReactionList {
-    let mut reaction_list = ReactionList::new();
-
-    prototype_list
-        .iter_for_category::<ReactionPrototype>(PROTOTYPE_TYPE_MIXTURE)
-        .for_each(|proto| {
-            let reaction = ();
-            reaction_list.add(proto.id.clone(), reaction);
-        });
-
-    reaction_list
-}
-
 pub(crate) fn load_gas_protos(mut commands: Commands, protos: Res<Prototypes>) {
     let gas_list = build_gas_list(&protos);
     let mixture_list = build_mixture_list(&protos, &gas_list);
-    let reaction_list = build_reaction_list(&protos);
 
     commands.insert_resource(gas_list);
     commands.insert_resource(mixture_list);
-    commands.insert_resource(reaction_list);
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -120,10 +103,10 @@ pub struct MixturePrototype {
 }
 
 pub fn mixture_parser(_: &Lua, table: LuaTable) -> ParseResult {
-    let composition = table.get::<LuaTable>("composition")?;
+    let ratios_table = table.get::<LuaTable>("ratios")?;
 
     let mut ratios = Vec::new();
-    for pair in composition.pairs::<String, f32>() {
+    for pair in ratios_table.pairs::<String, f32>() {
         let gas_and_ratio = pair?;
         ratios.push(gas_and_ratio);
     }

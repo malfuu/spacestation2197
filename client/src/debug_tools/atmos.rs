@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use atmos::engine::{active::Active, chunk::Mixtures};
+use atmos_simulation::prelude::*;
 use grid::{Chunk, chunk_and_local_to_world};
 
 use crate::debug_tools::{AppDebugOptionExt, DebugGizmos, option_enabled};

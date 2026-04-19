@@ -3,13 +3,15 @@
 
 use bevy::prelude::*;
 
-use atmos::engine::chunk::Mixtures;
-use atmos::prelude::*;
+use atmos_primitives::prelude::*;
+use atmos_simulation::prelude::*;
+
 use bevy_hanabi::{
     AccelModifier, Attribute, ColorOverLifetimeModifier, EffectAsset, EffectMaterial,
     EffectProperties, ExprWriter, HanabiPlugin, OrientMode, OrientModifier, ParticleEffect,
     ParticleTextureModifier, ScalarType, SetAttributeModifier, SpawnerSettings, Value, VectorType,
 };
+
 use grid::CHUNK_SIZE;
 use shared::defines::TILE_CUBOID;
 use uom::si::pressure::kilopascal;

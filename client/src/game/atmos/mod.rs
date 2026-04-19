@@ -2,8 +2,9 @@ mod particles;
 
 use bevy::prelude::*;
 
+use atmos_simulation::prelude::*;
+
 use crate::game::atmos::particles::ClientAtmosParticlesPlugin;
-use atmos::engine::AtmosphericsResource;
 
 pub(super) struct ClientAtmosPlugin;
 

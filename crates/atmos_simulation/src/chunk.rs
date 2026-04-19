@@ -7,11 +7,9 @@ use serde::{Deserialize, Serialize};
 use grid::{BaseGrid, BooleanChunk, CHUNK_SIZE, grid::UnsizedBaseGrid};
 use uom::si::{f32::Volume, volume::cubic_meter};
 
-use crate::{
-    engine::active::{Active, ProcessedTick},
-    gas_mixture::PressureArray,
-    prelude::*,
-};
+use atmos_primitives::prelude::*;
+
+use crate::active::{Active, ProcessedTick};
 
 pub type MixtureChunk = BaseGrid<GasMixture>;
 pub type FlowChunk = BaseGrid<Vec2>;

@@ -1,15 +1,9 @@
-pub mod engine;
-pub(crate) mod gas_list;
-pub(crate) mod gas_mixture;
-pub(crate) mod mixture_blueprint;
-pub(crate) mod reactions;
+pub mod gas_list;
+pub mod gas_mixture;
+pub mod mixture_blueprint;
 
 #[doc(hidden)]
 pub mod prelude;
-
-#[doc(hidden)]
-#[cfg(test)]
-pub(crate) mod tests;
 
 use bevy::prelude::*;
 
@@ -18,7 +12,7 @@ use uom::si::{f32::*, molar_heat_capacity::joule_per_kelvin_mole};
 pub const IDEAL_GAS_CONSTANT: f32 = 8.314_463;
 
 /// Controls the sizes of arrays in the entire simulation.
-const MAX_NUMBER_OF_GASES: usize = 16;
+pub const MAX_NUMBER_OF_GASES: usize = 16;
 /// Required moles to avoid being culled.
 pub const MINIMUM_AMOUNT_OF_SUBSTANCE: f32 = 1e-4;
 /// In kilopascals
