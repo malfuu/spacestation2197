@@ -169,7 +169,7 @@ pub fn apply_component_inheritance(
                     max_child_index = idx;
                 }
             }
-            (Value::String(comp_name), Value::Table(_)) => {
+            (Value::String(comp_name), _) => {
                 existing_child_components.insert(comp_name.to_str()?.to_string());
             }
             _ => {}
@@ -189,11 +189,11 @@ pub fn apply_component_inheritance(
                     existing_child_components.insert(name_str);
                 }
             }
-            (Value::String(comp_name), Value::Table(comp_table)) => {
+            (Value::String(comp_name), comp_value) => {
                 let name_str = comp_name.to_str()?.to_string();
 
                 if !existing_child_components.contains(&name_str) {
-                    child_components.set(comp_name, comp_table)?;
+                    child_components.set(comp_name, comp_value)?;
                     existing_child_components.insert(name_str);
                 }
             }
