@@ -1,24 +1,24 @@
-use bevy::{
-    ecs::{query::QueryData, system::lifetimeless::Read},
-    prelude::*,
-};
+use bevy::prelude::*;
 use serde::{Deserialize, Serialize};
 
 use grid::{BaseGrid, BooleanChunk, CHUNK_SIZE, grid::UnsizedBaseGrid};
 
 use atmos_primitives::prelude::*;
 
-use crate::active::{Active, ProcessedTick};
+use crate::active::ProcessedTick;
 
 pub type MixtureChunk = BaseGrid<BasicGasMixture>;
 pub type FlowChunk = BaseGrid<Vec2>;
 
+#[derive(Component, Deref, DerefMut, Default, Serialize, Deserialize)]
+pub struct Flows(pub FlowChunk);
+
 /// Gas Mixtures per tile.
 #[derive(Component, Serialize, Deserialize)]
-#[require(ChunkDeltas, SpaceChunk, ImpermeableChunk, ProcessedTick)]
+#[require(ChunkDeltas, Flows, SpaceChunk, ImpermeableChunk, ProcessedTick)]
 pub struct Mixtures {
-    pub(crate) mixtures: BaseGrid<BasicGasMixture>,
-    pub(crate) flows: BaseGrid<Vec2>,
+    pub(crate) mixtures: MixtureChunk,
+    // pub(crate) flows: BaseGrid<Vec2>,
 }
 
 impl Default for Mixtures {
@@ -32,7 +32,6 @@ impl Mixtures {
         let tile_gas_mixture = BasicGasMixture::new_empty(2.5);
         Self {
             mixtures: BaseGrid::from_value(tile_gas_mixture),
-            flows: default(),
         }
     }
 
@@ -42,14 +41,6 @@ impl Mixtures {
 
     pub fn mixtures_mut(&mut self) -> &mut MixtureChunk {
         &mut self.mixtures
-    }
-
-    pub fn flows(&self) -> &FlowChunk {
-        &self.flows
-    }
-
-    pub fn flows_mut(&mut self) -> &mut FlowChunk {
-        &mut self.flows
     }
 }
 
@@ -88,24 +79,3 @@ impl Default for SpaceChunk {
 
 #[derive(Component, Default, Clone, Copy, Deref, DerefMut)]
 pub struct ImpermeableChunk(pub BooleanChunk);
-
-#[derive(QueryData)]
-pub struct MixturesQuery {
-    mixtures: Read<Mixtures>,
-    flows: Read<Mixtures>,
-    is_active: Has<Active>,
-}
-
-impl MixturesQueryItem<'_, '_> {
-    pub fn mixtures(&self) -> &MixtureChunk {
-        &self.mixtures.mixtures
-    }
-
-    pub fn flows(&self) -> &FlowChunk {
-        &self.flows.flows
-    }
-
-    pub fn is_active(&self) -> bool {
-        self.is_active
-    }
-}

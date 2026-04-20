@@ -25,12 +25,12 @@ fn ui_mixture_information() {}
 
 fn draw_wind_vectors(
     mut gizmos: Gizmos<DebugGizmos>,
-    chunks: Query<(&Chunk, &Mixtures), With<Active>>,
+    chunks: Query<(&Chunk, &Flows), With<Active>>,
 ) {
-    for (chunk, mixtures) in chunks.iter() {
+    for (chunk, flows) in chunks.iter() {
         let chunk_position = chunk.position();
 
-        for (tile_position, flow) in mixtures.flows().iter_with_pos() {
+        for (tile_position, flow) in flows.iter_with_pos() {
             let flow_len = flow.length();
             if flow_len <= f32::EPSILON {
                 continue;

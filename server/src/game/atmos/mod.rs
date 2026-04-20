@@ -1,7 +1,7 @@
 use avian3d::prelude::*;
 use bevy::{ecs::query::QueryFilter, prelude::*};
 
-use atmos_simulation::chunk::Mixtures;
+use atmos_simulation::prelude::*;
 use grid::{Grid, world_to_chunk_and_local};
 
 use shared::{
@@ -25,7 +25,7 @@ struct PushableFilter {
 fn wind_push(
     mut entities: Query<(&Transform, &CollisionLayers, Forces), PushableFilter>,
     grid: Single<&Grid>,
-    chunks: Query<&Mixtures, ChunkFilter>,
+    chunks: Query<&Flows, ChunkFilter>,
 ) {
     for (transform, layers, mut forces) in entities.iter_mut() {
         if !layers.interacts_with(NORMAL_LAYER) {
@@ -39,11 +39,8 @@ fn wind_push(
             continue;
         };
 
-        let atmos = chunks.get(chunk_entity).expect("Chunk should exist.");
-        let wind_force = atmos
-            .flows()
-            .get(local_position)
-            .expect("Local position is valid.");
+        let flows = chunks.get(chunk_entity).expect("Chunk should exist.");
+        let wind_force = flows.get(local_position).expect("Local position is valid.");
         if wind_force.length_squared() < 0.01 {
             continue;
         }

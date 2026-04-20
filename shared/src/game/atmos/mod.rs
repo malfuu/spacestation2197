@@ -24,6 +24,7 @@ impl Plugin for AtmosPlugin {
             .prototype::<MixturePrototype>(PROTOTYPE_TYPE_MIXTURE, mixture_parser)
             .replicate::<Active>()
             .replicate::<Mixtures>()
+            .replicate::<Flows>()
             .add_systems(Startup, load_gas_protos);
     }
 }

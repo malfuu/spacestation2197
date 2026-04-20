@@ -17,7 +17,8 @@ use atmos_primitives::{
 use crate::{
     active::{Active, ProcessedTick},
     chunk::{
-        ChunkDeltas, DELTAS_LENGTH, Delta, ImpermeableChunk, InterchunkDeltas, Mixtures, SpaceChunk,
+        ChunkDeltas, DELTAS_LENGTH, Delta, Flows, ImpermeableChunk, InterchunkDeltas, Mixtures,
+        SpaceChunk,
     },
     schedule::{AtmosSchedule, run_atmos_schedule},
 };
@@ -79,13 +80,9 @@ pub(crate) enum AtmosSystems {
     AtmosTick,
 }
 
-fn reset_flows(active_chunks: Query<Mut<Mixtures>, With<Active>>) {
-    for mut chunk in active_chunks {
-        chunk
-            .bypass_change_detection()
-            .flows_mut()
-            .iter_mut()
-            .for_each(|f| *f = Vec2::ZERO);
+fn reset_flows(active_chunks: Query<Mut<Flows>, With<Active>>) {
+    for mut flows in active_chunks {
+        flows.iter_mut().for_each(|f| *f = Vec2::ZERO);
     }
 }
 
@@ -162,9 +159,9 @@ fn build_internal_deltas(
 
 fn apply_internal_deltas(
     gas_list: Res<GasList>,
-    active_chunks: Query<(Mut<Mixtures>, &ChunkDeltas, &SpaceChunk), With<Active>>,
+    active_chunks: Query<(Mut<Mixtures>, Mut<Flows>, &ChunkDeltas, &SpaceChunk), With<Active>>,
 ) {
-    for (mixtures, _, space) in active_chunks.iter() {
+    for (mixtures, _, _, space) in active_chunks.iter() {
         let chunk = mixtures;
         space.iter_with_pos().for_each(|(pos, is_space)| {
             if *is_space {
@@ -181,7 +178,7 @@ fn apply_internal_deltas(
         });
     }
 
-    for (mut mixtures, chunk_deltas, _) in active_chunks {
+    for (mut mixtures, mut flows, chunk_deltas, _) in active_chunks {
         // horizontal deltas
         for y in 0..CHUNK_SIZE {
             let y = y as u32;
@@ -208,10 +205,7 @@ fn apply_internal_deltas(
                 exchange_with_deltas(&gas_list, mix_lhs, mix_rhs, deltas_pa);
 
                 // perhaps flows can be applied parallel.
-                let (flow_lhs, flow_rhs) = mixtures
-                    .flows_mut()
-                    .get_two_mut(lhs, rhs)
-                    .expect("pos valid");
+                let (flow_lhs, flow_rhs) = flows.get_two_mut(lhs, rhs).expect("pos valid");
                 let flow_direction = Vec2::X;
                 let deltas_sum: f32 = deltas_pa.iter().copied().sum();
 
@@ -245,10 +239,7 @@ fn apply_internal_deltas(
                 exchange_with_deltas(&gas_list, mix_lhs, mix_rhs, deltas_pa);
 
                 // perhaps flows can be applied parallel.
-                let (flow_lhs, flow_rhs) = mixtures
-                    .flows_mut()
-                    .get_two_mut(lhs, rhs)
-                    .expect("pos valid");
+                let (flow_lhs, flow_rhs) = flows.get_two_mut(lhs, rhs).expect("pos valid");
                 let flow_direction = Vec2::Y;
                 let deltas_sum: f32 = deltas_pa.iter().copied().sum();
 
@@ -370,7 +361,7 @@ fn apply_external_deltas(
     grid: Single<&Grid>,
     active_chunks: Query<(Entity, &Chunk, &ChunkDeltas), With<Active>>,
     mut processed_ticks: Query<&mut ProcessedTick>,
-    mut chunks: Query<Mut<Mixtures>>,
+    mut chunks: Query<(Mut<Mixtures>, Mut<Flows>)>,
 ) {
     let space_volume_m3 = 2.5;
     let current_tick = atmos_res.current_tick;
@@ -440,8 +431,12 @@ fn apply_external_deltas(
 
             if let Some(neighbor_entity) = neighbor_chunk_opt {
                 // neighbor exists in this case
-                if let Ok([mut current_mixtures, mut neighbor_mixtures]) =
-                    chunks.get_many_mut([current_entity, neighbor_entity])
+                if let Ok(
+                    [
+                        (mut current_mixtures, mut current_flows),
+                        (mut neighbor_mixtures, mut neighbor_flows),
+                    ],
+                ) = chunks.get_many_mut([current_entity, neighbor_entity])
                 {
                     for (i, _) in edge_deltas.iter().enumerate().take(CHUNK_SIZE) {
                         let i_u32 = i as u32;
@@ -459,14 +454,8 @@ fn apply_external_deltas(
 
                         exchange_with_deltas(&gas_list, lhs_mixture, rhs_mixture, &edge_deltas[i]);
 
-                        let flow_lhs = current_mixtures
-                            .flows_mut()
-                            .get_mut(curr_pos)
-                            .expect("pos valid");
-                        let flow_rhs = neighbor_mixtures
-                            .flows_mut()
-                            .get_mut(neighbor_pos)
-                            .expect("pos valid");
+                        let flow_lhs = current_flows.get_mut(curr_pos).expect("pos valid");
+                        let flow_rhs = neighbor_flows.get_mut(neighbor_pos).expect("pos valid");
 
                         let deltas_sum: f32 = edge_deltas[i].iter().copied().sum();
                         let force = NEWTONS_PER_KILOPASCAL * (deltas_sum / 1000.0);
@@ -477,7 +466,9 @@ fn apply_external_deltas(
                 }
             } else {
                 // neighbor does not exist in this case
-                if let Ok(mut current_mixtures) = chunks.get_mut(current_entity) {
+                if let Ok((mut current_mixtures, mut current_flows)) =
+                    chunks.get_mut(current_entity)
+                {
                     for (i, _) in edge_deltas.iter().enumerate().take(CHUNK_SIZE) {
                         let i_u32 = i as u32;
                         let curr_pos = get_curr_pos(i_u32);
@@ -495,10 +486,7 @@ fn apply_external_deltas(
                             &edge_deltas[i],
                         );
 
-                        let flow_lhs = current_mixtures
-                            .flows_mut()
-                            .get_mut(curr_pos)
-                            .expect("pos valid");
+                        let flow_lhs = current_flows.get_mut(curr_pos).expect("pos valid");
 
                         let deltas_sum: f32 = edge_deltas[i].iter().copied().sum();
                         let force = NEWTONS_PER_KILOPASCAL * (deltas_sum / 1000.0);
