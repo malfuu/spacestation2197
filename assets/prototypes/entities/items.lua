@@ -6,7 +6,7 @@ define {
         "Item",
         "RigidBody",
         "ItemCollider",
-        Mass = 10,
+        Mass = 4,
         "Interactable",
         Weapon = {
             damage = 20,

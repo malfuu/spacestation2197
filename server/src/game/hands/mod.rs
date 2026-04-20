@@ -6,7 +6,7 @@ use shared::{
     game::{
         GameplaySystems,
         containers::Contained,
-        hands::{DropInput, Hands, ThrowInput, SwitchHandsInput, UseInput},
+        hands::{DropInput, Hands, SwitchHandsInput, ThrowInput, UseInput},
         interact::messages::{DroppedMessage, UseInHandMessage},
         mob::health::Dead,
     },
@@ -21,7 +21,12 @@ impl Plugin for HandsPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,
-            (read_input_drops, read_input_throws, read_input_uses, read_input_switch_hands)
+            (
+                read_input_drops,
+                read_input_throws,
+                read_input_uses,
+                read_input_switch_hands,
+            )
                 .in_set(GameplaySystems::Inputs),
         );
     }
@@ -72,10 +77,55 @@ fn read_input_drops(
 
 fn read_input_throws(
     mut reader: MessageReader<FromClient<ThrowInput>>,
+    mut commands: Commands,
+    clients: Query<&Controls, PlayerFilter>,
+    mut mobs: Query<(&Transform, Mut<Hands>), AliveMobFilter>,
+    mut item_physics: Query<(Option<&Mass>, Forces)>,
 ) {
     for input in reader.read() {
-        let _ = input;
-        // TODO
+        let ClientId::Client(client_entity) = input.client_id else {
+            continue;
+        };
+
+        let Ok(owner) = clients.get(client_entity) else {
+            continue;
+        };
+
+        let Some(mob_entity) = owner.iter().next() else {
+            continue;
+        };
+
+        let Ok((transform, mut hands)) = mobs.get_mut(mob_entity) else {
+            continue;
+        };
+
+        let Some(item_entity) = std::mem::take(hands.get_active_mut()) else {
+            continue; // nothing in hands to throw
+        };
+
+        let throw_direction = input.direction.normalize_or_zero();
+
+        let throw_spawn_distance = 0.25;
+        let throw_spawn_offset =
+            vec3(throw_direction.x, 0.0, throw_direction.y) * throw_spawn_distance + Vec3::Y;
+        let spawn_position = transform.translation + throw_spawn_offset;
+
+        commands.entity(item_entity).remove::<Contained>().insert((
+            Transform::from_translation(spawn_position),
+            Position::from(spawn_position),
+            RigidBody::Dynamic,
+        ));
+
+        if let Ok((mass_opt, mut forces)) = item_physics.get_mut(item_entity) {
+            let mass = mass_opt.map(|m| m.0).unwrap_or(1.1); // mass or 1kg
+            let throw_energy = 40.0;
+
+            // kinetic energy to momentum
+            let momentum = (2.0 * mass * throw_energy).sqrt();
+            let throw_impulse = vec3(throw_direction.x, 0.0, throw_direction.y) * momentum;
+
+            forces.apply_linear_impulse(throw_impulse);
+        }
     }
 }
 

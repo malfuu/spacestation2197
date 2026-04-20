@@ -1,8 +1,11 @@
 use bevy::prelude::*;
 use common::EntityTag;
-use shared::game::hands::{DropInput, Hand, Hands, SwitchHandsInput, UseInput};
+use shared::game::hands::{DropInput, Hand, Hands, SwitchHandsInput, ThrowInput, UseInput};
 
-use crate::game::mind::{Controlling, MindState};
+use crate::{
+    base::input::ExtraInputs,
+    game::mind::{Controlling, MindState},
+};
 
 pub const HAND_ACTIVE_COLOR: Color = Color::srgb(1., 1., 0.);
 
@@ -27,9 +30,27 @@ struct HandsRootNode;
 #[derive(Component)]
 struct HandText(Hand);
 
-fn hands_input(mut commands: Commands, keys: Res<ButtonInput<KeyCode>>) {
+fn hands_input(
+    mut commands: Commands,
+    keys: Res<ButtonInput<KeyCode>>,
+    inputs: Res<ExtraInputs>,
+    mob_transform: Single<&Transform, With<Controlling>>,
+    transforms: Query<&Transform>,
+) {
     if keys.just_pressed(KeyCode::KeyQ) {
         commands.write_message(DropInput);
+    }
+
+    if keys.just_pressed(KeyCode::KeyR)
+        && let Some(mouse_positions) = inputs.mouse_positions()
+    {
+        let mob_xz = mob_transform.translation.xz();
+        let target_xz = mouse_positions.midair_plane_position.xz();
+
+        let direction = (target_xz - mob_xz).normalize_or_zero();
+
+        let throw_input = ThrowInput { direction };
+        commands.write_message(throw_input);
     }
 
     if keys.just_pressed(KeyCode::KeyZ) {
