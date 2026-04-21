@@ -39,7 +39,7 @@ fn draw_wind_vectors(
             let global_position = chunk_and_local_to_world(chunk_position, tile_position).as_vec2();
             let start = Vec3::new(global_position.x + 0.5, 0.01, global_position.y + 0.5);
 
-            let display_len = flow_len.tanh();
+            let display_len = (flow_len / 32.0).tanh();
 
             let flow_dir = flow.normalize();
             let flow_offset = Vec3::new(flow_dir.x, 0.0, flow_dir.y) * display_len;
