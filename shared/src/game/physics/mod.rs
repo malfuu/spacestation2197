@@ -4,6 +4,9 @@ use bevy::prelude::*;
 use bevy_replicon::prelude::*;
 use content::prelude::*;
 
+const MAX_LINEAR_SPEED: f32 = 100.0; // arbitrary
+const MAX_ANGULAR_SPEED: f32 = 314.15; // arbitrary
+
 pub(super) struct PhysicsPlugin;
 
 impl Plugin for PhysicsPlugin {
@@ -14,7 +17,9 @@ impl Plugin for PhysicsPlugin {
             .prototype_component::<CollisionLayers>()
             .replicate::<RigidBody>()
             .replicate::<Collider>()
-            .replicate::<CollisionLayers>();
+            .replicate::<CollisionLayers>()
+            .add_observer(add_max_velocities)
+        ;
     }
 }
 
@@ -43,3 +48,13 @@ pub const GHOST_LAYER: CollisionLayers =
 
 /// Game boundary layers (e.g. floor & ceiling)
 pub const BOUNDARY_LAYER: CollisionLayers = CollisionLayers::ALL;
+
+fn add_max_velocities(
+    add: On<Add, RigidBody>,
+    mut commands: Commands,
+) {
+    commands.entity(add.entity).insert((
+        MaxLinearSpeed(MAX_LINEAR_SPEED),
+        MaxAngularSpeed(MAX_ANGULAR_SPEED)
+    ));
+}
