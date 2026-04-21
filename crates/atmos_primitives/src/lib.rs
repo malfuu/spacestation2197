@@ -47,7 +47,7 @@ pub fn iter_gas_ids() -> impl Iterator<Item = usize> {
 
 /// Asserts that a given [`GasId`] is within the valid range.
 pub fn assert_gas_id(gas_id: GasId) {
-    assert!(gas_id < MAX_NUMBER_OF_GASES,);
+    assert!(gas_id < MAX_NUMBER_OF_GASES);
 }
 
 /// Defines the properties of a gas type.

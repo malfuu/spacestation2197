@@ -2,10 +2,10 @@ use std::collections::HashMap;
 
 use bevy::prelude::*;
 
-use crate::{GasId, MAX_NUMBER_OF_GASES, gas_list::GasList};
+use crate::{GasId, MAX_NUMBER_OF_GASES, PerGasArray, gas_list::GasList};
 
 /// Normalized fractions for each gas type.
-pub type FractionArray = [f32; MAX_NUMBER_OF_GASES];
+pub type FractionArray = PerGasArray;
 
 /// Predefined mixture registry.
 #[derive(Resource)]
