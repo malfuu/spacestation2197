@@ -7,7 +7,7 @@ use common::PrototypeId;
 use content::prelude::*;
 use grid::{BooleanChunk, CHUNK_SIZE, Chunk, Grid, world_to_chunk_and_local};
 
-use atmos_simulation::chunk::{ImpermeableChunk, Mixtures, SpaceChunk};
+use atmos_simulation::prelude::*;
 use serde::{Deserialize, Serialize};
 
 use crate::{defines::PROTOTYPE_TYPE_TILE, game::GameplaySystems, utils::filters::ChunkFilter};
@@ -143,9 +143,14 @@ pub(super) fn on_chunk_add(add: On<Add, Chunk>, mut commands: Commands, chunks: 
         Transform::from_translation(translation),
         Replicated,
         RigidBody::Static,
-        Mixtures::new(),
+        ChunkMixtures::default(),
+        Flows::default(),
         SubfloorChunk::default(),
         SolidChunk::default(),
+        atmos_simulation::chunk::ChunkDeltas::default(),
+        SpaceChunk::default(),
+        ImpermeableChunk::default(),
+        atmos_simulation::active::ProcessedTick::default(),
     ));
 }
 

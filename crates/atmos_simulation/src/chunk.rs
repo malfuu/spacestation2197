@@ -5,44 +5,77 @@ use grid::{BaseGrid, BooleanChunk, CHUNK_SIZE, grid::UnsizedBaseGrid};
 
 use atmos_primitives::prelude::*;
 
-use crate::active::ProcessedTick;
+use crate::tile_mixture::{TileEnergy, TileMixtureView, TileMixtureViewMut, TileMoles};
 
-pub type MixtureChunk = BaseGrid<BasicGasMixture>;
+#[derive(Default, Serialize, Deserialize)]
+pub struct ChunkMoles(pub BaseGrid<TileMoles>);
+
+#[derive(Default, Serialize, Deserialize)]
+pub struct ChunkEnergy(pub BaseGrid<TileEnergy>);
+
+#[derive(Component, Default, Serialize, Deserialize)]
+pub struct ChunkMixtures {
+    moles: ChunkMoles,
+    energy: ChunkEnergy,
+}
+
+impl ChunkMixtures {
+    pub fn tile_view(&self, pos: UVec2) -> Option<TileMixtureView<'_>> {
+        let moles = self.moles.0.get(pos)?;
+        let energy = self.energy.0.get(pos)?;
+        Some(TileMixtureView::new(moles, energy))
+    }
+
+    pub fn tile_view_two(
+        &self,
+        pos_a: UVec2,
+        pos_b: UVec2,
+    ) -> Option<(TileMixtureView<'_>, TileMixtureView<'_>)> {
+        let (moles_a, moles_b) = self.moles.0.get_two(pos_a, pos_b)?;
+        let (energy_a, energy_b) = self.energy.0.get_two(pos_a, pos_b)?;
+        Some((
+            TileMixtureView::new(moles_a, energy_a),
+            TileMixtureView::new(moles_b, energy_b),
+        ))
+    }
+
+    pub fn tile_view_mut(&mut self, pos: UVec2) -> Option<TileMixtureViewMut<'_>> {
+        let moles = self.moles.0.get_mut(pos)?;
+        let energy = self.energy.0.get_mut(pos)?;
+        Some(TileMixtureViewMut::new(moles, energy))
+    }
+
+    pub fn tile_view_two_mut(
+        &mut self,
+        pos_a: UVec2,
+        pos_b: UVec2,
+    ) -> Option<(TileMixtureViewMut<'_>, TileMixtureViewMut<'_>)> {
+        let (moles_a, moles_b) = self.moles.0.get_two_mut(pos_a, pos_b)?;
+        let (energy_a, energy_b) = self.energy.0.get_two_mut(pos_a, pos_b)?;
+        Some((
+            TileMixtureViewMut::new(moles_a, energy_a),
+            TileMixtureViewMut::new(moles_b, energy_b),
+        ))
+    }
+
+    pub fn iter_tile_views_mut(&mut self) -> impl Iterator<Item = TileMixtureViewMut<'_>> {
+        self.moles
+            .0
+            .iter_mut()
+            .zip(self.energy.0.iter_mut())
+            .map(|(moles, energy)| TileMixtureViewMut::new(moles, energy))
+    }
+
+    pub fn cull(&mut self) {
+        self.iter_tile_views_mut().for_each(|mut m| m.cull());
+    }
+}
+
+// pub type MixtureChunk = BaseGrid<BasicGasMixture>;
 pub type FlowChunk = BaseGrid<Vec2>;
 
 #[derive(Component, Deref, DerefMut, Default, Serialize, Deserialize)]
 pub struct Flows(pub FlowChunk);
-
-/// Gas Mixtures per tile.
-#[derive(Component, Serialize, Deserialize)]
-#[require(ChunkDeltas, Flows, SpaceChunk, ImpermeableChunk, ProcessedTick)]
-pub struct Mixtures {
-    pub(crate) mixtures: MixtureChunk,
-    // pub(crate) flows: BaseGrid<Vec2>,
-}
-
-impl Default for Mixtures {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-impl Mixtures {
-    pub fn new() -> Self {
-        let tile_gas_mixture = BasicGasMixture::new_empty(2.5);
-        Self {
-            mixtures: BaseGrid::from_value(tile_gas_mixture),
-        }
-    }
-
-    pub fn mixtures(&self) -> &MixtureChunk {
-        &self.mixtures
-    }
-
-    pub fn mixtures_mut(&mut self) -> &mut MixtureChunk {
-        &mut self.mixtures
-    }
-}
 
 /// Differences in pressures (Pascals) between tiles.
 pub(crate) type Delta = PressureArray;
@@ -54,7 +87,7 @@ pub const DELTAS_LENGTH: usize = CHUNK_SIZE - 1;
 pub const DELTAS_AREA: usize = DELTAS_LENGTH * CHUNK_SIZE;
 
 #[derive(Component, Default, Clone, Copy)]
-pub(crate) struct ChunkDeltas {
+pub struct ChunkDeltas {
     pub(crate) horizontals: UnsizedBaseGrid<Delta, CHUNK_SIZE, DELTAS_LENGTH, DELTAS_AREA>,
     pub(crate) verticals: UnsizedBaseGrid<Delta, DELTAS_LENGTH, CHUNK_SIZE, DELTAS_AREA>,
 

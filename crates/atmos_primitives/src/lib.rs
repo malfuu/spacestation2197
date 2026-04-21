@@ -1,11 +1,8 @@
 //! Atmospheric primitives for simulation.
 #![deny(missing_docs)]
 
-/// Gas list management and registry storage.
 pub mod gas_list;
-/// Gas Mixture and some mathematical definitions.
 pub mod gas_mixture;
-/// Gas Templates for spawning predefined gas mixtures.
 pub mod mixture_template;
 
 #[doc(hidden)]
@@ -35,6 +32,7 @@ pub const MAX_NUMBER_OF_GASES: usize = 16;
 pub type PerGasArray = [f32; MAX_NUMBER_OF_GASES];
 
 /// Creates a [`PerGasArray`] given an amount.
+#[inline]
 pub fn per_gas_array(amount: f32) -> PerGasArray {
     [amount; MAX_NUMBER_OF_GASES]
 }

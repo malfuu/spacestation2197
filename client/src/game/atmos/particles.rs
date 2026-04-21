@@ -3,16 +3,12 @@
 
 use bevy::prelude::*;
 
-use atmos_primitives::prelude::*;
-use atmos_simulation::prelude::*;
-
 use bevy_hanabi::{
-    AccelModifier, Attribute, ColorOverLifetimeModifier, EffectAsset, EffectMaterial,
-    EffectProperties, ExprWriter, HanabiPlugin, OrientMode, OrientModifier, ParticleEffect,
-    ParticleTextureModifier, ScalarType, SetAttributeModifier, SpawnerSettings, Value, VectorType,
+    AccelModifier, Attribute, ColorOverLifetimeModifier, EffectAsset, EffectMaterial, ExprWriter,
+    HanabiPlugin, OrientMode, OrientModifier, ParticleEffect, ParticleTextureModifier, ScalarType,
+    SetAttributeModifier, SpawnerSettings, Value, VectorType,
 };
 
-use grid::CHUNK_SIZE;
 use shared::defines::TILE_CUBOID;
 
 use crate::base::grid::ChunkEntities;
@@ -182,44 +178,44 @@ fn build_air_particles(
     });
 }
 
-pub(super) fn update_mixture_particles(
-    gas_list: Res<GasList>,
-    mut chunks: Query<(Ref<Mixtures>, &ChunkEntities)>,
-    mut particle_query: Query<&mut EffectProperties>,
-) {
-    for (mixtures, chunk_entities) in chunks {
-        if !mixtures.is_changed() {
-            continue;
-        }
-
-        for x in 0..CHUNK_SIZE as u32 {
-            for y in 0..CHUNK_SIZE as u32 {
-                let local_pos = UVec2::new(x, y);
-
-                let tile_entity = *chunk_entities
-                    .entities
-                    .get(local_pos)
-                    .expect("Entity grid should be complete.");
-
-                if tile_entity == Entity::PLACEHOLDER {
-                    continue;
-                }
-
-                let mixture = mixtures.mixtures().get(local_pos).unwrap();
-                let pressure_kpa = mixture.pressure(&gas_list) / 1000.0;
-
-                let strength = if pressure_kpa < MIN_PRESSURE_KPA {
-                    0.0
-                } else {
-                    let normalized = (pressure_kpa - MIN_PRESSURE_KPA)
-                        / (STANDARD_ATMOSPHERE_KPA - MIN_PRESSURE_KPA);
-                    (normalized.powf(1.2) * 0.5).min(1.0)
-                };
-
-                if let Ok(mut props) = particle_query.get_mut(tile_entity) {
-                    props.set(PARTICLE_PROPERTY_STRENGTH, strength.into());
-                }
-            }
-        }
-    }
-}
+// pub(super) fn update_mixture_particles(
+//     gas_list: Res<GasList>,
+//     mut chunks: Query<(Ref<Mixtures>, &ChunkEntities)>,
+//     mut particle_query: Query<&mut EffectProperties>,
+// ) {
+//     for (mixtures, chunk_entities) in chunks {
+//         if !mixtures.is_changed() {
+//             continue;
+//         }
+//
+//         for x in 0..CHUNK_SIZE as u32 {
+//             for y in 0..CHUNK_SIZE as u32 {
+//                 let local_pos = UVec2::new(x, y);
+//
+//                 let tile_entity = *chunk_entities
+//                     .entities
+//                     .get(local_pos)
+//                     .expect("Entity grid should be complete.");
+//
+//                 if tile_entity == Entity::PLACEHOLDER {
+//                     continue;
+//                 }
+//
+//                 let mixture = mixtures.tile_view(local_pos).unwrap();
+//                 let pressure_kpa = mixture.pressure(&gas_list) / 1000.0;
+//
+//                 let strength = if pressure_kpa < MIN_PRESSURE_KPA {
+//                     0.0
+//                 } else {
+//                     let normalized = (pressure_kpa - MIN_PRESSURE_KPA)
+//                         / (STANDARD_ATMOSPHERE_KPA - MIN_PRESSURE_KPA);
+//                     (normalized.powf(1.2) * 0.5).min(1.0)
+//                 };
+//
+//                 if let Ok(mut props) = particle_query.get_mut(tile_entity) {
+//                     props.set(PARTICLE_PROPERTY_STRENGTH, strength.into());
+//                 }
+//             }
+//         }
+//     }
+// }

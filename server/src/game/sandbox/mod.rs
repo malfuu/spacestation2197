@@ -46,7 +46,7 @@ struct SandboxData<'w, 's> {
     entities: Query<'w, 's, Entity, With<EntityTag>>,
 
     grid: Single<'w, 's, &'static Grid>,
-    chunks: Query<'w, 's, &'static mut Mixtures>,
+    chunk_mixtures: Query<'w, 's, &'static mut ChunkMixtures>,
 }
 
 fn read_sandbox_commands(
@@ -97,13 +97,12 @@ fn read_sandbox_commands(
                 };
 
                 let mut chunk = sandbox_data
-                    .chunks
+                    .chunk_mixtures
                     .get_mut(*chunk_entity)
                     .expect("chunk should exist with air");
 
-                let mix = chunk
-                    .mixtures_mut()
-                    .get_mut(local_position)
+                let mut mix = chunk
+                    .tile_view_mut(local_position)
                     .expect("pos should be within grid");
 
                 match mixture_id {

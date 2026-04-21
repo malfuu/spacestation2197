@@ -1,3 +1,4 @@
+//! Gas Templates for spawning predefined gas mixtures.
 use std::collections::HashMap;
 
 use bevy::prelude::*;
@@ -84,7 +85,7 @@ impl MixtureTemplate {
     }
 }
 
-/// A gas mixture that can have [`MixtureTemplate`] applied to it.
+/// A Mixture that can have [`MixtureTemplate`] applied to it.
 pub trait TemplatableMixture {
     /// Applies the [`MixtureTemplate`] into the mixture.
     fn apply_template(&mut self, template: &MixtureTemplate, gas_list: &GasList);

@@ -1,3 +1,4 @@
+//! Gas list management and registry storage.
 use std::collections::HashMap;
 
 use bevy::prelude::Resource;

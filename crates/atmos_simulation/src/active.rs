@@ -6,9 +6,7 @@ use crate::AtmosTick;
 /// Marker for active chunks in simulation.
 /// A chunk that is active will:
 /// - perform exchanges internally and on neighboring chunks.
-/// - perform reactions
-/// - update hotspots
-/// - space tiles
+/// - spaces tiles
 #[derive(Component, Default, Debug, Serialize, Deserialize)]
 #[component(storage = "SparseSet")]
 pub struct Active {
@@ -16,7 +14,7 @@ pub struct Active {
 }
 
 #[derive(Component)]
-pub(crate) struct ProcessedTick(pub u32);
+pub struct ProcessedTick(pub u32);
 
 impl Default for ProcessedTick {
     fn default() -> Self {
