@@ -18,8 +18,7 @@ impl Plugin for PhysicsPlugin {
             .replicate::<RigidBody>()
             .replicate::<Collider>()
             .replicate::<CollisionLayers>()
-            .add_observer(add_max_velocities)
-        ;
+            .add_observer(add_max_velocities);
     }
 }
 
@@ -49,12 +48,9 @@ pub const GHOST_LAYER: CollisionLayers =
 /// Game boundary layers (e.g. floor & ceiling)
 pub const BOUNDARY_LAYER: CollisionLayers = CollisionLayers::ALL;
 
-fn add_max_velocities(
-    add: On<Add, RigidBody>,
-    mut commands: Commands,
-) {
+fn add_max_velocities(add: On<Add, RigidBody>, mut commands: Commands) {
     commands.entity(add.entity).insert((
         MaxLinearSpeed(MAX_LINEAR_SPEED),
-        MaxAngularSpeed(MAX_ANGULAR_SPEED)
+        MaxAngularSpeed(MAX_ANGULAR_SPEED),
     ));
 }

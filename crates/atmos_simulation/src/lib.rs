@@ -157,9 +157,16 @@ fn build_internal_deltas(
     }
 }
 
+type ActiveChunkData<'w> = (
+    Mut<'w, Mixtures>,
+    Mut<'w, Flows>,
+    &'static ChunkDeltas,
+    &'static SpaceChunk,
+);
+
 fn apply_internal_deltas(
     gas_list: Res<GasList>,
-    active_chunks: Query<(Mut<Mixtures>, Mut<Flows>, &ChunkDeltas, &SpaceChunk), With<Active>>,
+    active_chunks: Query<ActiveChunkData, With<Active>>,
 ) {
     for (mixtures, _, _, space) in active_chunks.iter() {
         let chunk = mixtures;

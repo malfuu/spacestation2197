@@ -1,9 +1,9 @@
 use serde::{Deserialize, Serialize};
-use std::{fmt};
+use std::fmt;
 
 use crate::{
-    GasId, IDEAL_GAS_CONSTANT, MAX_NUMBER_OF_GASES, MINIMUM_AMOUNT_OF_SUBSTANCE, PerGasArray,
-    assert_gas_id, gas_list::GasList, mixture_template::TemplatableMixture, per_gas_array,
+    IDEAL_GAS_CONSTANT, MAX_NUMBER_OF_GASES, MINIMUM_AMOUNT_OF_SUBSTANCE, PerGasArray,
+    gas_list::GasList, mixture_template::TemplatableMixture, per_gas_array,
     prelude::MixtureTemplate,
 };
 
@@ -37,7 +37,6 @@ pub trait ThermodynamicMixture {
 
     /// Computes and returns the temperature of the gas mixture in Kelvin.
     fn temperature(&self, gas_list: &GasList) -> f32;
-
 }
 
 /// A mixture that has properties that require volume to compute.
@@ -53,13 +52,15 @@ pub trait VolumetricMixture {
 
     /// Computes and returns the difference in partial pressures in pascals
     /// between this mixture and another volumetric mixture.
-    fn delta_pressures<T: VolumetricMixture>(&self, other: &T, gas_list: &GasList) -> PressureArray {
+    fn delta_pressures<T: VolumetricMixture>(
+        &self,
+        other: &T,
+        gas_list: &GasList,
+    ) -> PressureArray {
         let pressure_self = self.partial_pressures(gas_list);
         let pressure_other = other.partial_pressures(gas_list);
 
-        std::array::from_fn(|idx| {
-            pressure_self[idx] - pressure_other[idx]
-        })
+        std::array::from_fn(|idx| pressure_self[idx] - pressure_other[idx])
     }
 }
 
@@ -128,7 +129,6 @@ impl BasicGasMixture {
         self.contents = per_gas_array(0.0);
         self.energy = 0.0;
     }
-
 }
 
 impl ThermodynamicMixture for BasicGasMixture {
@@ -248,4 +248,3 @@ impl fmt::Debug for GasMixtureDebugWrapper<'_> {
         s.finish()
     }
 }
-
