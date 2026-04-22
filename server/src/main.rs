@@ -7,6 +7,7 @@ use bevy::{
     },
 };
 
+use content::prelude::*;
 use server::{ServerPlugin, start_game_instance};
 use shared::SharedPlugin;
 
@@ -49,4 +50,9 @@ fn main() {
 
 fn loadup(mut commands: Commands) {
     commands.run_system_cached(start_game_instance);
+    commands.run_system_cached(log_content_hash);
+}
+
+fn log_content_hash(content_hash: Res<ContentHash>) {
+    info!("Context Hash: {}", content_hash.into_inner());
 }

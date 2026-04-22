@@ -5,6 +5,8 @@ mod join_menu;
 use bevy::prelude::*;
 use bevy_egui::prelude::*;
 
+use content::prelude::*;
+
 use crate::base::{
     menus::main_menu::{
         editor_menu::{load_available_maps, ui_editor_menu},
@@ -32,7 +34,26 @@ impl Plugin for ClientMainMenuPlugin {
             .add_systems(
                 EguiPrimaryContextPass,
                 ui_editor_menu.run_if(in_state(MainMenuState::Editor)),
-            );
+            )
+            // context hash text
+            // NOTE: ApplyDeferred because entity needs to be present at show_content
+            // and we do show_content because spawn_content_hash_text happens before
+            // OnEnter(AppState::Menu)
+            .add_systems(
+                Startup,
+                (
+                    spawn_content_hash_text,
+                    ApplyDeferred,
+                    show_content_hash_text,
+                )
+                    .chain(),
+            )
+            .add_systems(
+                PostStartup,
+                update_content_hash_text.after(LoadContentSystems),
+            )
+            .add_systems(OnEnter(AppState::Menu), show_content_hash_text)
+            .add_systems(OnExit(AppState::Menu), hide_content_hash_text);
     }
 }
 
@@ -44,6 +65,9 @@ enum MainMenuState {
     Join,
     Editor,
 }
+
+#[derive(Component)]
+struct ContentHashText;
 
 fn ui_main_menu(mut contexts: EguiContexts, mut commands: Commands) -> Result {
     egui::Window::new("Space Station 2197")
@@ -75,4 +99,41 @@ fn ui_main_menu(mut contexts: EguiContexts, mut commands: Commands) -> Result {
         });
 
     Ok(())
+}
+
+fn spawn_content_hash_text(mut commands: Commands) {
+    commands.spawn((
+        Node {
+            position_type: PositionType::Absolute,
+            left: px(10.0),
+            bottom: px(10.0),
+            ..default()
+        },
+        Text("Content not loaded.".to_string()),
+        Visibility::Hidden,
+        ContentHashText,
+    ));
+}
+
+fn update_content_hash_text(
+    mut query: Query<&mut Text, With<ContentHashText>>,
+    content_hash: Res<ContentHash>,
+) {
+    let mut text = query
+        .single_mut()
+        .expect("There should be a single context hash text.");
+    *text = Text(format!("{}", content_hash.into_inner()));
+}
+
+fn show_content_hash_text(mut query: Query<&mut Visibility, With<ContentHashText>>) {
+    if let Ok(mut visibility) = query.single_mut() {
+        *visibility = Visibility::Inherited;
+    }
+}
+
+fn hide_content_hash_text(mut query: Query<&mut Visibility, With<ContentHashText>>) {
+    let mut visibility = query
+        .single_mut()
+        .expect("There should be a single context hash text.");
+    *visibility = Visibility::Hidden;
 }

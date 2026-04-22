@@ -15,6 +15,7 @@ mod runtime;
 
 pub mod prelude;
 
+use std::fmt;
 use std::path::Path;
 
 use bevy::prelude::*;
@@ -49,15 +50,23 @@ impl Plugin for ContentPlugin {
     fn build(&self, app: &mut App) {
         app.init_non_send_resource::<ParserRegistry>()
             .insert_resource(ContentEntryPointPath(self.script.clone()))
-            .add_systems(PreStartup, load);
+            .add_systems(PreStartup, load.in_set(LoadContentSystems));
 
         app.add_plugins(ContentEntityPlugin);
     }
 }
 
-#[derive(Resource, Deref)]
+#[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
+pub struct LoadContentSystems;
+
+#[derive(Resource, Deref, Debug)]
 pub struct ContentHash(u32);
 
+impl fmt::Display for ContentHash {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "0x{:08x}", self.0)
+    }
+}
 
 #[derive(Resource, Clone)]
 struct ContentEntryPointPath(String);
