@@ -12,10 +12,10 @@ address = "127.0.0.1"
 make_local_admin = true
 
 # Round settings
-lobby_timer = 10
+lobby_timer = 3
 lobby_enabled = true
 round_end_timer = 60
 
-map_name = "showmap"
+map_name = "empty_map"
 
 gamemode = "extended"
