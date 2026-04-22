@@ -1,6 +1,13 @@
-//! Content Loading in Space Station 2197
-//! Done with assistance of lua.
-//! Wallahi, in the future, we can fully switch to bsn
+//! Content Loading of user-defined prototypes.
+//! Content is done manually with the [`load`] function,
+//! Performing a stop-the-world load by running lua scripts [``] to collect all prototype
+//! definitions. Lua script entry point by default is set to [`DEFAULT_SCRIPT`].
+//! In the context of the project overall, despite the fact that both `server` and `client` load
+//! files, only the `server` spawns prototyped entities, meaning any client side defined component
+//! is not added to spawned to replicated entities.
+//! Also, we have a [`ContentHash`] to verify the state of what prototype definitions were loaded.
+//! (not the asset files themselves)
+//! Wallahi, in the future, we can fully switch to dynamic BSN.
 pub mod entity;
 mod environment;
 pub mod prototype;
@@ -41,7 +48,7 @@ impl Default for ContentPlugin {
 impl Plugin for ContentPlugin {
     fn build(&self, app: &mut App) {
         app.init_non_send_resource::<ParserRegistry>()
-            .insert_resource(ContentPath(self.script.clone()))
+            .insert_resource(ContentEntryPointPath(self.script.clone()))
             .add_systems(PreStartup, load);
 
         app.add_plugins(ContentEntityPlugin);
@@ -51,11 +58,12 @@ impl Plugin for ContentPlugin {
 #[derive(Resource, Deref)]
 pub struct ContentHash(u32);
 
+
 #[derive(Resource, Clone)]
-struct ContentPath(String);
+struct ContentEntryPointPath(String);
 
 fn load(world: &mut World) {
-    let path_str = world.resource::<ContentPath>().0.clone();
+    let path_str = world.resource::<ContentEntryPointPath>().0.clone();
     let path = Path::new(&path_str);
 
     let parser_registry = world
