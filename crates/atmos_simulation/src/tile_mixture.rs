@@ -14,14 +14,6 @@ impl<'a> TileMixtureView<'a> {
     pub fn new(moles: &'a TileMoles, energy: &'a TileEnergy) -> Self {
         Self { moles, energy }
     }
-
-    pub fn contents(&self) -> &'a ContentArray {
-        self.moles
-    }
-
-    pub fn energy(&self) -> f32 {
-        *self.energy
-    }
 }
 
 impl ThermodynamicMixture for TileMixtureView<'_> {
@@ -50,13 +42,6 @@ impl<'a> TileMixtureViewMut<'a> {
         Self { moles, energy }
     }
 
-    pub fn as_view(&self) -> TileMixtureView<'_> {
-        TileMixtureView {
-            moles: self.moles,
-            energy: self.energy,
-        }
-    }
-
     pub fn clear(&mut self) {
         *self.moles = per_gas_array(0.0);
         *self.energy = 0.0;
@@ -70,7 +55,7 @@ impl<'a> TileMixtureViewMut<'a> {
         }
     }
 
-    pub fn moles_mut(&mut self) -> &mut PerGasArray {
+    pub fn moles_mut(&mut self) -> &mut ContentArray {
         self.moles
     }
 
@@ -80,7 +65,7 @@ impl<'a> TileMixtureViewMut<'a> {
 }
 
 impl ThermodynamicMixture for TileMixtureViewMut<'_> {
-    fn moles(&self) -> &PerGasArray {
+    fn moles(&self) -> &ContentArray {
         self.moles
     }
 

@@ -1,10 +1,13 @@
 //! Gas Mixture and some mathematical definitions.
 use crate::{IDEAL_GAS_CONSTANT, PerGasArray, gas_list::GasList};
 
-/// Pressure (in Pascals) for each gas type, used for partial pressures.
-pub type PressureArray = PerGasArray;
 /// Molar Quantity in moles of each gas type.
 pub type ContentArray = PerGasArray;
+/// Heat capacity in joule per kelvin in a mixture for each gas type.
+pub type HeatCapacityArray = PerGasArray;
+/// Partial pressure for each gas type in pascals.
+pub type PressureArray = PerGasArray;
+
 /// Volumeless gas mixture (Contents in moles, Energy in joules).
 pub type GasComposition = (ContentArray, f32);
 
@@ -14,7 +17,7 @@ pub trait ThermodynamicMixture {
     // as it should be the user's responsibility
 
     /// Molar quantities of each gas type in the mixture.
-    fn moles(&self) -> &PerGasArray;
+    fn moles(&self) -> &ContentArray;
 
     /// Returns the internal energy of the mixture in joules.
     fn energy(&self) -> &f32;
@@ -25,7 +28,7 @@ pub trait ThermodynamicMixture {
     }
 
     /// Returns the partial heat capacity for each gas in J/K.
-    fn partial_heat_capacities(&self, gas_list: &GasList) -> PerGasArray {
+    fn partial_heat_capacities(&self, gas_list: &GasList) -> HeatCapacityArray {
         let moles = self.moles();
         let molar_caps = gas_list.get_molar_heat_capacities();
         std::array::from_fn(|i| moles[i] * molar_caps[i])
