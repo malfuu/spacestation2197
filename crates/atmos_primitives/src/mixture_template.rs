@@ -22,7 +22,7 @@ impl Default for MixtureTemplateList {
 }
 
 impl MixtureTemplateList {
-    /// Creates a new [`MixtureList`]
+    /// Creates a new [`MixtureTemplateList`]
     pub fn new() -> Self {
         Self {
             list: HashMap::new(),

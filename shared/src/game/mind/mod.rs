@@ -13,7 +13,7 @@ impl Plugin for MindPlugin {
     }
 }
 
-/// Deferred Message to delay [`OwnMob`].
+/// Deferred Message to delay [`OwnMobMessage`].
 #[derive(Message, Debug)]
 pub struct TakeOverMessage {
     pub client_entity: Entity,

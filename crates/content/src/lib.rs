@@ -1,5 +1,5 @@
 //! Content Loading of user-defined prototypes.
-//! Content is done manually with the [`load`] function,
+//! Content is done manually at [`PreStartup`],
 //! Performing a stop-the-world load by running lua scripts [``] to collect all prototype
 //! definitions. Lua script entry point by default is set to [`DEFAULT_SCRIPT`].
 //! In the context of the project overall, despite the fact that both `server` and `client` load
@@ -26,7 +26,7 @@ use crate::{
     runtime::load_content,
 };
 
-const DEFAULT_SCRIPT: &str = "assets/data.lua";
+pub const DEFAULT_SCRIPT: &str = "assets/data.lua";
 
 pub struct ContentPlugin {
     script: String,

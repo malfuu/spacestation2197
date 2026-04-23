@@ -62,7 +62,7 @@ pub enum Hand {
     Right,
 }
 
-/// Entities that are held go hand in hand with [`Contained`].
+/// Entities that are held go hand in hand with [`crate::game::containers::Contained`].
 #[derive(Component, Reflect, Clone, Debug, Default, Serialize, Deserialize)]
 #[reflect(Component, Default)]
 pub struct Hands {

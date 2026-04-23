@@ -5,7 +5,7 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 /// A statically sized 2D grid, mostly for chunks
 /// sigh... AFAIK you must manually insert and ensure A = R * C
-/// until https://github.com/rust-lang/rust/issues/76560 drops.
+/// until <https://github.com/rust-lang/rust/issues/76560> drops.
 #[derive(Debug, Clone)]
 pub struct UnsizedBaseGrid<T, const R: usize, const C: usize, const A: usize> {
     // The flat array living on the stack
