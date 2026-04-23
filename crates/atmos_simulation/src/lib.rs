@@ -8,7 +8,7 @@ pub mod tile_mixture;
 
 use bevy::{ecs::query::QueryFilter, prelude::*};
 
-use grid::{CHUNK_SIZE, Chunk, Grid};
+use tile_grid::{CHUNK_SIZE, Chunk, Grid};
 
 use atmos_primitives::{
     BASE_DIFFUSION_COEFFICIENT, MINIMUM_DELTA_PRESSURE, NEWTONS_PER_KILOPASCAL,

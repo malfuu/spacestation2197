@@ -7,7 +7,6 @@ edition = "2024"
 bevy.workspace = true
 
 common.workspace = true
-grid.workspace = true
 
 heapless.workspace = true
 anyhow.workspace = true

@@ -5,7 +5,7 @@ use mlua::prelude::*;
 
 use common::PrototypeId;
 use content::prelude::*;
-use grid::{BooleanChunk, CHUNK_SIZE, Chunk, Grid, world_to_chunk_and_local};
+use tile_grid::{BooleanChunk, CHUNK_SIZE, Chunk, Grid, world_to_chunk_and_local};
 
 use atmos_simulation::prelude::*;
 use serde::{Deserialize, Serialize};

@@ -5,7 +5,7 @@ use atmos_primitives::prelude::*;
 use atmos_simulation::prelude::*;
 use common::EntityTag;
 use content::prelude::*;
-use grid::{Grid, world_to_chunk_and_local};
+use tile_grid::{Grid, world_to_chunk_and_local};
 
 use shared::{
     game::{

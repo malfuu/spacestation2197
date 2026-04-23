@@ -10,7 +10,7 @@ shared.workspace = true
 atmos_primitives.workspace = true
 atmos_simulation.workspace = true
 common.workspace = true
-grid.workspace = true
+tile_grid.workspace = true
 content.workspace = true
 
 bevy_replicon = { workspace = true, features = ["client"] }

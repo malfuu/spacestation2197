@@ -3,7 +3,7 @@
 
 use bevy::{ecs::query::QueryFilter, prelude::*};
 
-use grid::{Chunk, Grid};
+use tile_grid::{Chunk, Grid};
 
 use crate::{
     game::{items::Item, markers::Marker, mob::Mob, player::Player},

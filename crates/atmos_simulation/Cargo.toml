@@ -9,7 +9,7 @@ atmos_primitives.workspace = true
 bevy.workspace = true
 
 common.workspace = true
-grid.workspace = true
+tile_grid.workspace = true
 
 heapless.workspace = true
 anyhow.workspace = true

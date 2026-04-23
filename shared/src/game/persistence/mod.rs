@@ -11,7 +11,7 @@ use ron::{
 use serde::{Deserialize, Serialize};
 
 use common::{EntityTag, PrototypeId};
-use grid::{CHUNK_AREA, CHUNK_SIZE, Chunk, Grid, chunk_and_local_to_world};
+use tile_grid::{CHUNK_AREA, CHUNK_SIZE, Chunk, Grid, chunk_and_local_to_world};
 
 use content::{entity::PrototypeEntityCommandsExt, prelude::*};
 

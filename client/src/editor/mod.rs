@@ -10,11 +10,11 @@ use std::{
 use bevy::prelude::*;
 use common::{EntityTag, PrototypeId, TileTag};
 use content::entity::PrototypeEntityCommandsExt;
-use grid::Grid;
 use shared::game::{
     grid::GridCommandsExt,
     persistence::{MapInformation, load_grid},
 };
+use tile_grid::Grid;
 
 use crate::{
     base::{

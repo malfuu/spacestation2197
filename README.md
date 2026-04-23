@@ -25,7 +25,7 @@ Start off by joining the [Discord](https://discord.gg/MsV9Jg42XQ) or picking one
 |--------------------|--------------------------------------------------|
 | atmos              | Atmospheric simulation code                      |
 | common             | Common components + messages, should be deleted soon|
-| grid               | Tilemap grid implementation + grid relations     |
+| tile_grid          | Tilemap grid implementation + grid relations     |
 | scripting          | Prototype scripting w/ Lua         |
 | shared             | Shared code between client and server, mostly definitions |
 | client             | Client executable                                |

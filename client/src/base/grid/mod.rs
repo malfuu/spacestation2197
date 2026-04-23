@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use content::prelude::*;
-use grid::{CHUNK_SIZE, Chunk, EntityChunk, chunk_and_local_to_world};
+use tile_grid::{CHUNK_SIZE, Chunk, EntityChunk, chunk_and_local_to_world};
 
 use shared::{defines::PROTOTYPE_TYPE_TILE, game::grid::TilePrototype};
 

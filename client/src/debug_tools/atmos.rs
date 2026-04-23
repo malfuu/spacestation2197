@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use atmos_simulation::prelude::*;
-use grid::{Chunk, chunk_and_local_to_world};
+use tile_grid::{Chunk, chunk_and_local_to_world};
 
 use crate::debug_tools::{AppDebugOptionExt, DebugGizmos, option_enabled};
 

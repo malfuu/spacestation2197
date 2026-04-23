@@ -21,7 +21,7 @@ lto = "thin"
 atmos_primitives = { path = "crates/atmos_primitives" }
 atmos_simulation = { path = "crates/atmos_simulation" }
 common = { path = "crates/common" }
-grid = { path = "crates/grid" }
+tile_grid = { path = "crates/tile_grid" }
 content = { path = "crates/content" }
 
 shared = { path = "shared" }

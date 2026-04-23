@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use grid::{CHUNK_SIZE, Chunk};
+use tile_grid::{CHUNK_SIZE, Chunk};
 
 use crate::debug_tools::{AppDebugOptionExt, DebugGizmos, option_enabled};
 

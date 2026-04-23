@@ -2,7 +2,7 @@ use avian3d::prelude::*;
 use bevy::{ecs::query::QueryFilter, prelude::*};
 
 use atmos_simulation::prelude::*;
-use grid::{Grid, world_to_chunk_and_local};
+use tile_grid::{Grid, world_to_chunk_and_local};
 
 use shared::{
     game::{GameplaySystems, physics::NORMAL_LAYER},
