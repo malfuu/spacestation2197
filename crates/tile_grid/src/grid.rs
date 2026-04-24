@@ -35,16 +35,6 @@ impl<T, const R: usize, const C: usize, const A: usize> UnsizedBaseGrid<T, R, C,
         Self { data: [value; A] }
     }
 
-    /// Unsafe because position might not necessarily correspond to a real index.
-    /// # Safety
-    ///
-    /// pos must be bounded within columns() and rows()
-    #[inline]
-    #[must_use]
-    unsafe fn position_to_index_unchecked(pos: UVec2) -> usize {
-        (pos.y as usize * C) + pos.x as usize
-    }
-
     #[inline]
     #[must_use]
     fn position_to_index(pos: UVec2) -> Option<usize> {
@@ -61,28 +51,6 @@ impl<T, const R: usize, const C: usize, const A: usize> UnsizedBaseGrid<T, R, C,
         let x = (index % C) as u32;
         let y = (index / C) as u32;
         UVec2::new(x, y)
-    }
-
-    /// # Safety
-    ///
-    /// pos must be bounded within columns() and rows()
-    #[must_use]
-    pub unsafe fn get_unchecked(&self, pos: UVec2) -> &T {
-        unsafe {
-            let index = Self::position_to_index_unchecked(pos);
-            self.data.get_unchecked(index)
-        }
-    }
-
-    /// # Safety
-    ///
-    /// pos must be bounded within columns() and rows()
-    #[must_use]
-    pub unsafe fn get_unchecked_mut(&mut self, pos: UVec2) -> &mut T {
-        unsafe {
-            let index = Self::position_to_index_unchecked(pos);
-            self.data.get_unchecked_mut(index)
-        }
     }
 
     #[must_use]
