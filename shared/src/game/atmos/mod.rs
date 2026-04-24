@@ -22,7 +22,7 @@ impl Plugin for AtmosPlugin {
             .prototype::<GasPrototype>(PROTOTYPE_TYPE_GAS, gas_parser)
             .prototype::<ReactionPrototype>(PROTOTYPE_TYPE_REACTION, reaction_parser)
             .prototype::<MixturePrototype>(PROTOTYPE_TYPE_MIXTURE, mixture_parser)
-            .replicate::<Active>()
+            .replicate::<Excited>()
             .replicate::<ChunkMixtures>()
             .replicate::<Flows>()
             .add_systems(Startup, load_gas_protos);

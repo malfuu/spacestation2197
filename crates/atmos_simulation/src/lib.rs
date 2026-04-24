@@ -1,5 +1,5 @@
-pub mod active;
 pub mod chunk;
+pub mod excited;
 pub(crate) mod schedule;
 
 #[doc(hidden)]
@@ -16,11 +16,11 @@ use atmos_primitives::{
 };
 
 use crate::{
-    active::{Active, ProcessedTick},
     chunk::{
         ChunkDeltas, ChunkMixtures, DELTAS_LENGTH, Delta, Flows, ImpermeableChunk,
         InterchunkDeltas, SpaceChunk,
     },
+    excited::{Excited, ProcessedTick},
     schedule::{AtmosSchedule, run_atmos_schedule},
     tile_mixture::{TileMixtureView, TileMixtureViewMut},
 };
@@ -77,7 +77,7 @@ pub(crate) enum AtmosSystems {
     AtmosTick,
 }
 
-fn reset_flows(active_chunks: Query<Mut<Flows>, With<Active>>) {
+fn reset_flows(active_chunks: Query<Mut<Flows>, With<Excited>>) {
     for mut flows in active_chunks {
         flows.iter_mut().for_each(|f| *f = Vec2::ZERO);
     }
@@ -85,7 +85,7 @@ fn reset_flows(active_chunks: Query<Mut<Flows>, With<Active>>) {
 
 fn build_internal_deltas(
     gas_list: Res<GasList>,
-    active_chunks: Query<(&ChunkMixtures, &ImpermeableChunk, &mut ChunkDeltas), With<Active>>,
+    active_chunks: Query<(&ChunkMixtures, &ImpermeableChunk, &mut ChunkDeltas), With<Excited>>,
 ) {
     let zero_delta_pressures_pa = per_gas_array(0.0);
 
@@ -129,7 +129,7 @@ type ActiveChunkData<'w> = (
 
 fn apply_internal_deltas(
     gas_list: Res<GasList>,
-    active_chunks: Query<ActiveChunkData, With<Active>>,
+    active_chunks: Query<ActiveChunkData, With<Excited>>,
 ) {
     for (mut mixtures, mut flows, chunk_deltas, _) in active_chunks {
         // horizontal deltas
@@ -207,7 +207,7 @@ fn build_external_deltas(
     grid: Single<&Grid>,
     mut active_chunks: Query<
         (&Chunk, &ChunkMixtures, &ImpermeableChunk, &mut ChunkDeltas),
-        With<Active>,
+        With<Excited>,
     >,
     neighbors: Query<(&ChunkMixtures, &ImpermeableChunk)>,
 ) {
@@ -302,7 +302,7 @@ fn apply_external_deltas(
     gas_list: Res<GasList>,
     atmos_res: Res<AtmosphericsResource>,
     grid: Single<&Grid>,
-    active_chunks: Query<(Entity, &Chunk, &ChunkDeltas), With<Active>>,
+    active_chunks: Query<(Entity, &Chunk, &ChunkDeltas), With<Excited>>,
     mut processed_ticks: Query<&mut ProcessedTick>,
     mut chunks: Query<(Mut<ChunkMixtures>, Mut<Flows>)>,
 ) {
@@ -440,7 +440,7 @@ fn apply_external_deltas(
     }
 }
 
-fn cull_mixtures(active_chunks: Query<Mut<ChunkMixtures>, With<Active>>) {
+fn cull_mixtures(active_chunks: Query<Mut<ChunkMixtures>, With<Excited>>) {
     for mut chunk in active_chunks {
         let chunk = chunk.bypass_change_detection();
         chunk.cull();
@@ -502,7 +502,7 @@ fn exchange_with_deltas(
     *rhs.energy_mut() += total_energy_transfer_j;
 }
 
-fn update_space_clear(mut chunks: Query<(Mut<ChunkMixtures>, &SpaceChunk), With<Active>>) {
+fn update_space_clear(mut chunks: Query<(Mut<ChunkMixtures>, &SpaceChunk), With<Excited>>) {
     for (mut chunk, space) in chunks.iter_mut() {
         let chunk = chunk.bypass_change_detection();
         space.iter_with_pos().for_each(|(pos, is_space)| {
@@ -515,7 +515,7 @@ fn update_space_clear(mut chunks: Query<(Mut<ChunkMixtures>, &SpaceChunk), With<
 
 #[derive(QueryFilter)]
 struct ChangingChunks {
-    no_actives: Without<Active>,
+    no_actives: Without<Excited>,
     or_changed: Or<(
         Changed<ChunkMixtures>,
         Changed<SpaceChunk>,
@@ -530,7 +530,7 @@ fn wake_chunks(
     query: Query<Entity, ChangingChunks>,
 ) {
     for entity in &query {
-        commands.entity(entity).insert(Active {
+        commands.entity(entity).insert(Excited {
             last_active_tick: resource.current_tick,
         });
     }
@@ -539,7 +539,7 @@ fn wake_chunks(
 /// Refreshes the sleep timer for active chunks that had gas movement this tick.
 fn update_active_ticks(
     resource: Res<AtmosphericsResource>,
-    mut query: Query<&mut Active, Changed<ChunkMixtures>>,
+    mut query: Query<&mut Excited, Changed<ChunkMixtures>>,
 ) {
     for mut active in &mut query {
         active.last_active_tick = resource.current_tick;
@@ -550,12 +550,12 @@ fn update_active_ticks(
 fn sleep_chunks(
     mut commands: Commands,
     resource: Res<AtmosphericsResource>,
-    query: Query<(Entity, &Active)>,
+    query: Query<(Entity, &Excited)>,
 ) {
     let current_tick = resource.current_tick;
     for (entity, active) in &query {
         if current_tick.saturating_sub(active.last_active_tick) > TICKS_TO_SLEEP {
-            commands.entity(entity).remove::<Active>();
+            commands.entity(entity).remove::<Excited>();
         }
     }
 }

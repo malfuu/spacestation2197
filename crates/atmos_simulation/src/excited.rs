@@ -4,12 +4,14 @@ use serde::{Deserialize, Serialize};
 use crate::AtmosTick;
 
 /// Marker for active chunks in simulation.
-/// A chunk that is active will:
-/// - perform exchanges internally and on neighboring chunks.
-/// - spaces tiles
+/// A chunk that is excited will:
+/// - perform exchanges in-chunk and to neighboring chunks.
+/// - clear gas mixtures exposed to space
+/// - perform reactions (todo)
+/// - expand hotspots (todo)
 #[derive(Component, Default, Debug, Serialize, Deserialize)]
 #[component(storage = "SparseSet")]
-pub struct Active {
+pub struct Excited {
     pub last_active_tick: AtmosTick,
 }
 

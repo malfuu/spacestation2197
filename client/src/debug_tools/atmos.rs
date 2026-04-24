@@ -25,7 +25,7 @@ fn ui_mixture_information() {}
 
 fn draw_wind_vectors(
     mut gizmos: Gizmos<DebugGizmos>,
-    chunks: Query<(&Chunk, &Flows), With<Active>>,
+    chunks: Query<(&Chunk, &Flows), With<Excited>>,
 ) {
     for (chunk, flows) in chunks.iter() {
         let chunk_position = chunk.position();
