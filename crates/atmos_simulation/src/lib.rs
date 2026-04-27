@@ -454,8 +454,8 @@ fn exchange_with_deltas(
     deltas_pa: &Delta,
 ) {
     let molar_heat_capacities = gas_list.get_molar_heat_capacities();
-    let lhs_temp_k = lhs.temperature(gas_list);
-    let rhs_temp_k = rhs.temperature(gas_list);
+    let lhs_temp_k = lhs.temperature(molar_heat_capacities);
+    let rhs_temp_k = rhs.temperature(molar_heat_capacities);
 
     let lhs_to_rhs = deltas_pa.map(|dp| dp > 0.0);
     let mut moved_moles = per_gas_array(0.0);

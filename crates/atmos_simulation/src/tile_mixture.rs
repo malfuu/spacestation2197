@@ -96,6 +96,7 @@ impl TemplatableMixture for TileMixtureViewMut<'_> {
             }
         }
 
-        *self.energy_mut() = template.temperature_k * self.heat_capacity(gas_list);
+        *self.energy_mut() =
+            template.temperature_k * self.heat_capacity(gas_list.get_molar_heat_capacities());
     }
 }

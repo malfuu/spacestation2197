@@ -3,6 +3,8 @@ use crate::{IDEAL_GAS_CONSTANT, PerGasArray, gas_list::GasList};
 
 /// Molar Quantity in moles of each gas type.
 pub type ContentArray = PerGasArray;
+/// Molar Heat Capacity in joule per kelvin mole for each gas type.
+pub type MolarHeatCapacities = PerGasArray;
 /// Heat capacity in joule per kelvin in a mixture for each gas type.
 pub type HeatCapacityArray = PerGasArray;
 /// Partial pressure for each gas type in pascals.
@@ -28,20 +30,24 @@ pub trait ThermodynamicMixture {
     }
 
     /// Returns the partial heat capacity for each gas in J/K.
-    fn partial_heat_capacities(&self, gas_list: &GasList) -> HeatCapacityArray {
+    fn partial_heat_capacities(
+        &self,
+        molar_heat_capacities: &MolarHeatCapacities,
+    ) -> HeatCapacityArray {
         let moles = self.moles();
-        let molar_caps = gas_list.get_molar_heat_capacities();
-        std::array::from_fn(|i| moles[i] * molar_caps[i])
+        std::array::from_fn(|i| moles[i] * molar_heat_capacities[i])
     }
 
     /// Returns the heat capacity for the gas in J/K.
-    fn heat_capacity(&self, gas_list: &GasList) -> f32 {
-        self.partial_heat_capacities(gas_list).iter().sum()
+    fn heat_capacity(&self, molar_heat_capacities: &MolarHeatCapacities) -> f32 {
+        self.partial_heat_capacities(molar_heat_capacities)
+            .iter()
+            .sum()
     }
 
     /// Computes and returns the temperature of the gas mixture in Kelvin.
-    fn temperature(&self, gas_list: &GasList) -> f32 {
-        let heat_capacity = self.heat_capacity(gas_list);
+    fn temperature(&self, molar_heat_capacities: &MolarHeatCapacities) -> f32 {
+        let heat_capacity = self.heat_capacity(molar_heat_capacities);
 
         if heat_capacity <= 0.0 {
             return 0.0; // is absolute 0 even physically possible?
@@ -58,7 +64,7 @@ pub trait VolumetricMixture: ThermodynamicMixture {
 
     /// Dalton's Law of partial pressures in Pascals.
     fn partial_pressures(&self, gas_list: &GasList) -> PressureArray {
-        let temperature_k = self.temperature(gas_list);
+        let temperature_k = self.temperature(gas_list.get_molar_heat_capacities());
 
         self.moles().map(|moles| {
             // BUG: this does not check for <= 0 moles
@@ -68,7 +74,7 @@ pub trait VolumetricMixture: ThermodynamicMixture {
 
     /// Returns the pressure of the gas mixture in Pascals.
     fn pressure(&self, gas_list: &GasList) -> f32 {
-        let temperature_k = self.temperature(gas_list);
+        let temperature_k = self.temperature(gas_list.get_molar_heat_capacities());
 
         ideal_gas_law_pressure(self.total_moles(), temperature_k, *self.volume())
     }

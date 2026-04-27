@@ -3,10 +3,7 @@ use std::collections::{HashMap, HashSet};
 
 use bevy::prelude::Resource;
 
-use crate::{Gas, GasId, MAX_NUMBER_OF_GASES, PerGasArray, per_gas_array};
-
-/// Molar Heat Capacity in joule per kelvin mole for each gas type.
-pub type MolarHeatCapacities = PerGasArray;
+use crate::{Gas, GasId, MAX_NUMBER_OF_GASES, gas_mixture::MolarHeatCapacities, per_gas_array};
 
 /// Serves as a immutable lookup table for defined gases
 #[derive(Resource)]
