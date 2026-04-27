@@ -3,6 +3,8 @@ use std::array;
 use bevy::prelude::*;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
+use crate::LocalTilePosition;
+
 /// A statically sized 2D grid, mostly for chunks
 /// sigh... AFAIK you must manually insert and ensure A = R * C
 /// until <https://github.com/rust-lang/rust/issues/76560> drops.
@@ -37,7 +39,7 @@ impl<T, const R: usize, const C: usize, const A: usize> UnsizedBaseGrid<T, R, C,
 
     #[inline]
     #[must_use]
-    fn position_to_index(pos: UVec2) -> Option<usize> {
+    fn position_to_index(pos: LocalTilePosition) -> Option<usize> {
         if pos.x >= C as u32 || pos.y >= R as u32 {
             return None;
         }
@@ -47,27 +49,27 @@ impl<T, const R: usize, const C: usize, const A: usize> UnsizedBaseGrid<T, R, C,
 
     #[inline]
     #[must_use]
-    fn index_to_position(index: usize) -> UVec2 {
+    fn index_to_position(index: usize) -> LocalTilePosition {
         let x = (index % C) as u32;
         let y = (index / C) as u32;
-        UVec2::new(x, y)
+        LocalTilePosition::new(x, y)
     }
 
     #[must_use]
-    pub fn get(&self, pos: UVec2) -> Option<&T> {
+    pub fn get(&self, pos: LocalTilePosition) -> Option<&T> {
         let index = Self::position_to_index(pos)?;
 
         self.data.get(index)
     }
 
     #[must_use]
-    pub fn get_mut(&mut self, pos: UVec2) -> Option<&mut T> {
+    pub fn get_mut(&mut self, pos: LocalTilePosition) -> Option<&mut T> {
         let index = Self::position_to_index(pos)?;
         self.data.get_mut(index)
     }
 
     #[must_use]
-    pub fn get_two(&self, pos_a: UVec2, pos_b: UVec2) -> Option<(&T, &T)> {
+    pub fn get_two(&self, pos_a: LocalTilePosition, pos_b: LocalTilePosition) -> Option<(&T, &T)> {
         let a = self.get(pos_a)?;
         let b = self.get(pos_b)?;
         if pos_a == pos_b {
@@ -77,7 +79,11 @@ impl<T, const R: usize, const C: usize, const A: usize> UnsizedBaseGrid<T, R, C,
     }
 
     #[must_use]
-    pub fn get_two_mut(&mut self, pos_a: UVec2, pos_b: UVec2) -> Option<(&mut T, &mut T)> {
+    pub fn get_two_mut(
+        &mut self,
+        pos_a: LocalTilePosition,
+        pos_b: LocalTilePosition,
+    ) -> Option<(&mut T, &mut T)> {
         let idx_a = Self::position_to_index(pos_a)?;
         let idx_b = Self::position_to_index(pos_b)?;
 
@@ -93,7 +99,7 @@ impl<T, const R: usize, const C: usize, const A: usize> UnsizedBaseGrid<T, R, C,
         }
     }
 
-    pub fn set(&mut self, pos: UVec2, value: T) -> Option<T> {
+    pub fn set(&mut self, pos: LocalTilePosition, value: T) -> Option<T> {
         let index = Self::position_to_index(pos)?;
 
         if let Some(cell) = self.data.get_mut(index) {
@@ -111,13 +117,13 @@ impl<T, const R: usize, const C: usize, const A: usize> UnsizedBaseGrid<T, R, C,
         self.data.iter_mut()
     }
 
-    pub fn iter_with_pos(&self) -> impl Iterator<Item = (UVec2, &T)> {
+    pub fn iter_with_pos(&self) -> impl Iterator<Item = (LocalTilePosition, &T)> {
         self.iter()
             .enumerate()
             .map(|(i, item)| (Self::index_to_position(i), item))
     }
 
-    pub fn iter_mut_with_pos(&mut self) -> impl Iterator<Item = (UVec2, &mut T)> {
+    pub fn iter_mut_with_pos(&mut self) -> impl Iterator<Item = (LocalTilePosition, &mut T)> {
         self.iter_mut()
             .enumerate()
             .map(|(i, item)| (Self::index_to_position(i), item))
@@ -250,10 +256,22 @@ mod tests {
     #[test]
     fn pos_to_index_valid() {
         type TestGrid = UnsizedBaseGrid<i32, 3, 3, 9>;
-        assert_eq!(TestGrid::position_to_index(UVec2::new(0, 0)), Some(0));
-        assert_eq!(TestGrid::position_to_index(UVec2::new(2, 0)), Some(2));
-        assert_eq!(TestGrid::position_to_index(UVec2::new(0, 1)), Some(3));
-        assert_eq!(TestGrid::position_to_index(UVec2::new(2, 2)), Some(8));
+        assert_eq!(
+            TestGrid::position_to_index(LocalTilePosition::new(0, 0)),
+            Some(0)
+        );
+        assert_eq!(
+            TestGrid::position_to_index(LocalTilePosition::new(2, 0)),
+            Some(2)
+        );
+        assert_eq!(
+            TestGrid::position_to_index(LocalTilePosition::new(0, 1)),
+            Some(3)
+        );
+        assert_eq!(
+            TestGrid::position_to_index(LocalTilePosition::new(2, 2)),
+            Some(8)
+        );
     }
 
     #[test]
@@ -262,9 +280,9 @@ mod tests {
         type TestGrid = UnsizedBaseGrid<i32, 2, 3, 6>;
         // x is column, so it must be < 3
         // y is row, so it must be < 2
-        assert!(TestGrid::position_to_index(UVec2::new(3, 0)).is_none());
-        assert!(TestGrid::position_to_index(UVec2::new(0, 2)).is_none());
-        assert!(TestGrid::position_to_index(UVec2::new(3, 2)).is_none());
+        assert!(TestGrid::position_to_index(LocalTilePosition::new(3, 0)).is_none());
+        assert!(TestGrid::position_to_index(LocalTilePosition::new(0, 2)).is_none());
+        assert!(TestGrid::position_to_index(LocalTilePosition::new(3, 2)).is_none());
     }
 
     #[test]
@@ -280,7 +298,7 @@ mod tests {
     #[test]
     fn get_and_set() {
         let mut grid: UnsizedBaseGrid<i32, 2, 2, 4> = UnsizedBaseGrid::from_value(0);
-        let pos = UVec2::new(1, 1);
+        let pos = LocalTilePosition::new(1, 1);
 
         grid.set(pos, 500);
         assert_eq!(grid.get(pos), Some(&500));
@@ -289,8 +307,8 @@ mod tests {
     #[test]
     fn test_get_two_mut() {
         let mut grid: UnsizedBaseGrid<i32, 2, 2, 4> = UnsizedBaseGrid::from_value(0);
-        let pos_a = UVec2::new(0, 0);
-        let pos_b = UVec2::new(1, 1);
+        let pos_a = LocalTilePosition::new(0, 0);
+        let pos_b = LocalTilePosition::new(1, 1);
 
         if let Some((a, b)) = grid.get_two_mut(pos_a, pos_b) {
             *a = 10;
@@ -305,7 +323,7 @@ mod tests {
     #[test]
     fn set_returns_old_value() {
         let mut grid: UnsizedBaseGrid<i32, 2, 2, 4> = UnsizedBaseGrid::from_value(10);
-        let pos = UVec2::new(0, 0);
+        let pos = LocalTilePosition::new(0, 0);
 
         let old = grid.set(pos, 20);
         assert_eq!(old, Some(10));
@@ -315,7 +333,7 @@ mod tests {
     #[test]
     fn out_of_bounds_access_returns_none() {
         let mut grid: UnsizedBaseGrid<i32, 2, 2, 4> = UnsizedBaseGrid::default();
-        let bad_pos = UVec2::new(5, 5);
+        let bad_pos = LocalTilePosition::new(5, 5);
 
         assert!(grid.get(bad_pos).is_none());
         assert!(grid.get_mut(bad_pos).is_none());
@@ -327,7 +345,7 @@ mod tests {
         let mut grid: UnsizedBaseGrid<Option<i32>, 2, 2, 4> = UnsizedBaseGrid::default();
         assert!(grid.is_all_none());
 
-        grid.set(UVec2::new(0, 0), Some(1));
+        grid.set(LocalTilePosition::new(0, 0), Some(1));
         assert!(!grid.is_all_none());
 
         grid.set_all_none();

@@ -18,6 +18,10 @@ use crate::grid::UnsizedBaseGrid;
 pub const CHUNK_SIZE: usize = 8;
 pub const CHUNK_AREA: usize = CHUNK_SIZE * CHUNK_SIZE;
 
+pub type ChunkPosition = IVec2;
+pub type WorldTilePosition = IVec2;
+pub type LocalTilePosition = UVec2;
+
 /// Grid with CHUNK_SIZE squared dimension.
 pub type BaseGrid<T> = UnsizedBaseGrid<T, CHUNK_SIZE, CHUNK_SIZE, CHUNK_AREA>;
 pub type BooleanChunk = BaseGrid<bool>; // perhaps look into fitting this inside a u64 bitmask
@@ -27,19 +31,19 @@ pub type EntityChunk = BaseGrid<Entity>;
 /// Chunk position origin is in the top left corner
 #[derive(Component, Clone, Serialize, Deserialize)]
 pub struct Chunk {
-    position: IVec2, // TODO: perhaps split this into ChunkPosition component
+    position: ChunkPosition, // TODO: perhaps split this into ChunkPosition component
     pub tiles: TileChunk,
 }
 
 impl Chunk {
-    pub fn new(position: IVec2) -> Self {
+    pub fn new(position: ChunkPosition) -> Self {
         Self {
             position,
             tiles: default(),
         }
     }
 
-    pub fn position(&self) -> IVec2 {
+    pub fn position(&self) -> ChunkPosition {
         self.position
     }
 
@@ -53,7 +57,7 @@ impl Chunk {
 #[derive(Component, Serialize, Deserialize)]
 #[component(map_entities)]
 pub struct Grid {
-    pub chunks: HashMap<IVec2, Entity>,
+    pub chunks: HashMap<ChunkPosition, Entity>,
 }
 
 impl Default for Grid {
@@ -67,12 +71,12 @@ impl Grid {
         Self { chunks: default() }
     }
 
-    pub fn add(&mut self, chunk_position: IVec2, chunk: Entity) {
+    pub fn add(&mut self, chunk_position: ChunkPosition, chunk: Entity) {
         assert!(self.get(chunk_position).is_none());
         self.chunks.insert(chunk_position, chunk);
     }
 
-    pub fn get(&self, chunk_position: IVec2) -> Option<Entity> {
+    pub fn get(&self, chunk_position: ChunkPosition) -> Option<Entity> {
         self.chunks.get(&chunk_position).copied()
     }
 }
@@ -88,7 +92,9 @@ impl MapEntities for Grid {
 /// Transforms a world position to a chunk position in accordance to [`CHUNK_SIZE`]
 /// and a relative local position.
 #[inline]
-pub fn world_to_chunk_and_local(world_position: IVec2) -> (IVec2, UVec2) {
+pub fn world_to_chunk_and_local(
+    world_position: WorldTilePosition,
+) -> (ChunkPosition, LocalTilePosition) {
     let chunk_position =
         world_position.div_euclid(IVec2::new(CHUNK_SIZE as i32, CHUNK_SIZE as i32));
     let local_position = world_position
@@ -100,7 +106,10 @@ pub fn world_to_chunk_and_local(world_position: IVec2) -> (IVec2, UVec2) {
 
 /// Helper function to transform chunk position and relative local position into a world position.
 #[inline]
-pub fn chunk_and_local_to_world(chunk_position: IVec2, local_position: UVec2) -> IVec2 {
+pub fn chunk_and_local_to_world(
+    chunk_position: ChunkPosition,
+    local_position: LocalTilePosition,
+) -> WorldTilePosition {
     let chunk_size = IVec2::new(CHUNK_SIZE as i32, CHUNK_SIZE as i32);
     chunk_position * chunk_size + IVec2::new(local_position.x as i32, local_position.y as i32)
 }
@@ -108,34 +117,33 @@ pub fn chunk_and_local_to_world(chunk_position: IVec2, local_position: UVec2) ->
 #[cfg(test)]
 mod tests {
     use super::*;
-    use bevy::math::{IVec2, UVec2};
 
     #[test]
     fn test_origin() {
-        let (chunk, offset) = world_to_chunk_and_local(IVec2::new(0, 0));
-        assert_eq!(chunk, IVec2::new(0, 0));
-        assert_eq!(offset, UVec2::new(0, 0));
+        let (chunk, offset) = world_to_chunk_and_local(WorldTilePosition::new(0, 0));
+        assert_eq!(chunk, ChunkPosition::new(0, 0));
+        assert_eq!(offset, LocalTilePosition::new(0, 0));
     }
 
     #[test]
     fn test_within_first_chunk() {
-        let (chunk, offset) = world_to_chunk_and_local(IVec2::new(7, 7));
-        assert_eq!(chunk, IVec2::new(0, 0));
-        assert_eq!(offset, UVec2::new(7, 7));
+        let (chunk, offset) = world_to_chunk_and_local(WorldTilePosition::new(7, 7));
+        assert_eq!(chunk, ChunkPosition::new(0, 0));
+        assert_eq!(offset, LocalTilePosition::new(7, 7));
     }
 
     #[test]
     fn test_next_chunk_boundary() {
-        let (chunk, offset) = world_to_chunk_and_local(IVec2::new(8, 8));
-        assert_eq!(chunk, IVec2::new(1, 1));
-        assert_eq!(offset, UVec2::new(0, 0));
+        let (chunk, offset) = world_to_chunk_and_local(WorldTilePosition::new(8, 8));
+        assert_eq!(chunk, ChunkPosition::new(1, 1));
+        assert_eq!(offset, LocalTilePosition::new(0, 0));
     }
 
     #[test]
     fn test_negative_coords_simple() {
-        let (chunk, offset) = world_to_chunk_and_local(IVec2::new(-1, 0));
+        let (chunk, offset) = world_to_chunk_and_local(WorldTilePosition::new(-1, 0));
 
-        assert_eq!(chunk, IVec2::new(-1, 0));
-        assert_eq!(offset, UVec2::new(7, 0));
+        assert_eq!(chunk, ChunkPosition::new(-1, 0));
+        assert_eq!(offset, LocalTilePosition::new(7, 0));
     }
 }

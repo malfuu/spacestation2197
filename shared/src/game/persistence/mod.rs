@@ -11,7 +11,9 @@ use ron::{
 use serde::{Deserialize, Serialize};
 
 use common::{EntityTag, PrototypeId};
-use tile_grid::{CHUNK_AREA, CHUNK_SIZE, Chunk, Grid, chunk_and_local_to_world};
+use tile_grid::{
+    CHUNK_AREA, CHUNK_SIZE, Chunk, ChunkPosition, Grid, LocalTilePosition, chunk_and_local_to_world,
+};
 
 use content::{entity::PrototypeEntityCommandsExt, prelude::*};
 
@@ -39,7 +41,7 @@ struct ChunkData {
 struct GridData {
     palette: Vec<PrototypeId>,
     palette_gas: Vec<PrototypeId>,
-    chunks: HashMap<IVec2, ChunkData>,
+    chunks: HashMap<ChunkPosition, ChunkData>,
 }
 
 impl GridData {
@@ -110,7 +112,7 @@ impl GridData {
                 let local_x = idx % CHUNK_SIZE;
                 let local_y = idx / CHUNK_SIZE;
 
-                let local_position = UVec2::new(local_x as u32, local_y as u32);
+                let local_position = LocalTilePosition::new(local_x as u32, local_y as u32);
                 let world_position = chunk_and_local_to_world(*chunk_position, local_position);
 
                 commands.spawn_tile(proto_id.clone(), world_position);

@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use serde::{Deserialize, Serialize};
 
-use tile_grid::{BaseGrid, BooleanChunk, CHUNK_SIZE, grid::UnsizedBaseGrid};
+use tile_grid::{BaseGrid, BooleanChunk, CHUNK_SIZE, LocalTilePosition, grid::UnsizedBaseGrid};
 
 use atmos_primitives::prelude::*;
 
@@ -20,7 +20,7 @@ pub struct ChunkMixtures {
 }
 
 impl ChunkMixtures {
-    pub fn tile_view(&self, pos: UVec2) -> Option<TileMixtureView<'_>> {
+    pub fn tile_view(&self, pos: LocalTilePosition) -> Option<TileMixtureView<'_>> {
         let moles = self.moles.0.get(pos)?;
         let energy = self.energy.0.get(pos)?;
         Some(TileMixtureView::new(moles, energy))
@@ -28,8 +28,8 @@ impl ChunkMixtures {
 
     pub fn tile_view_two(
         &self,
-        pos_a: UVec2,
-        pos_b: UVec2,
+        pos_a: LocalTilePosition,
+        pos_b: LocalTilePosition,
     ) -> Option<(TileMixtureView<'_>, TileMixtureView<'_>)> {
         let (moles_a, moles_b) = self.moles.0.get_two(pos_a, pos_b)?;
         let (energy_a, energy_b) = self.energy.0.get_two(pos_a, pos_b)?;
@@ -39,7 +39,7 @@ impl ChunkMixtures {
         ))
     }
 
-    pub fn tile_view_mut(&mut self, pos: UVec2) -> Option<TileMixtureViewMut<'_>> {
+    pub fn tile_view_mut(&mut self, pos: LocalTilePosition) -> Option<TileMixtureViewMut<'_>> {
         let moles = self.moles.0.get_mut(pos)?;
         let energy = self.energy.0.get_mut(pos)?;
         Some(TileMixtureViewMut::new(moles, energy))
@@ -47,8 +47,8 @@ impl ChunkMixtures {
 
     pub fn tile_view_two_mut(
         &mut self,
-        pos_a: UVec2,
-        pos_b: UVec2,
+        pos_a: LocalTilePosition,
+        pos_b: LocalTilePosition,
     ) -> Option<(TileMixtureViewMut<'_>, TileMixtureViewMut<'_>)> {
         let (moles_a, moles_b) = self.moles.0.get_two_mut(pos_a, pos_b)?;
         let (energy_a, energy_b) = self.energy.0.get_two_mut(pos_a, pos_b)?;

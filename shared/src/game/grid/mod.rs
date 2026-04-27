@@ -5,7 +5,9 @@ use mlua::prelude::*;
 
 use common::PrototypeId;
 use content::prelude::*;
-use tile_grid::{BooleanChunk, CHUNK_SIZE, Chunk, Grid, world_to_chunk_and_local};
+use tile_grid::{
+    BooleanChunk, CHUNK_SIZE, Chunk, Grid, LocalTilePosition, world_to_chunk_and_local,
+};
 
 use atmos_simulation::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -80,7 +82,7 @@ pub(super) fn update_chunk_properties(
 
         for x in 0..CHUNK_SIZE as u32 {
             for y in 0..CHUNK_SIZE as u32 {
-                let local_pos = UVec2::new(x, y);
+                let local_pos = LocalTilePosition::new(x, y);
 
                 let mut is_subfloor = false;
                 let mut is_space = true;

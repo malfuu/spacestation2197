@@ -8,7 +8,7 @@ pub mod tile_mixture;
 
 use bevy::{ecs::query::QueryFilter, prelude::*};
 
-use tile_grid::{CHUNK_SIZE, Chunk, Grid};
+use tile_grid::{CHUNK_SIZE, Chunk, Grid, LocalTilePosition};
 
 use atmos_primitives::{
     BASE_DIFFUSION_COEFFICIENT, MINIMUM_DELTA_PRESSURE, NEWTONS_PER_KILOPASCAL,
@@ -90,7 +90,7 @@ fn build_internal_deltas(
     let zero_delta_pressures_pa = per_gas_array(0.0);
 
     for (mixtures, impermeable, mut chunk_deltas) in active_chunks {
-        let calculate_deltas = |lhs: UVec2, rhs: UVec2| {
+        let calculate_deltas = |lhs: LocalTilePosition, rhs: LocalTilePosition| {
             if *impermeable.get(lhs).unwrap() || *impermeable.get(rhs).unwrap() {
                 return zero_delta_pressures_pa;
             }
@@ -104,7 +104,7 @@ fn build_internal_deltas(
                 let pos = uvec2(x, y);
                 chunk_deltas
                     .horizontals
-                    .set(pos, calculate_deltas(pos, pos + UVec2::X));
+                    .set(pos, calculate_deltas(pos, pos + LocalTilePosition::X));
             }
         }
 
@@ -114,7 +114,7 @@ fn build_internal_deltas(
                 let pos = uvec2(x, y);
                 chunk_deltas
                     .verticals
-                    .set(pos, calculate_deltas(pos, pos + UVec2::Y));
+                    .set(pos, calculate_deltas(pos, pos + LocalTilePosition::Y));
             }
         }
     }
@@ -198,8 +198,8 @@ fn apply_internal_deltas(
 type BuildExternalDeltaHelper<'a> = (
     IVec2,
     &'a mut InterchunkDeltas,
-    fn(u32) -> UVec2,
-    fn(u32) -> UVec2,
+    fn(u32) -> LocalTilePosition,
+    fn(u32) -> LocalTilePosition,
 );
 
 fn build_external_deltas(
@@ -293,8 +293,8 @@ fn build_external_deltas(
 type ApplyExternalDeltaHelper<'a> = (
     IVec2,
     &'a InterchunkDeltas,
-    fn(u32) -> UVec2,
-    fn(u32) -> UVec2,
+    fn(u32) -> LocalTilePosition,
+    fn(u32) -> LocalTilePosition,
     Vec2,
 );
 
