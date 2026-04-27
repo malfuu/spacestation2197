@@ -51,19 +51,11 @@ pub fn assert_gas_id(gas_id: GasId) {
 /// Defines the properties of a gas type.
 #[derive(Debug, Clone)]
 pub struct Gas {
+    /// Unique identifier for this gas
+    pub gas_id: GasId,
     /// Name for the gas.
     pub name: String,
     /// Molar Heat Capacity for the gas, in joule per mole kelvin
     /// Bigger values require more energy to increase temperature by one Kelvin.
     pub molar_heat_capacity: f32,
-}
-
-impl Gas {
-    /// Creates a new [`Gas`] instance.
-    pub fn new(name: String, molar_heat_capacity: f32) -> Self {
-        Self {
-            name,
-            molar_heat_capacity,
-        }
-    }
 }

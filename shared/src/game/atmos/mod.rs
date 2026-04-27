@@ -30,15 +30,23 @@ impl Plugin for AtmosPlugin {
 }
 
 fn build_gas_list(prototype_list: &Prototypes) -> GasList {
-    let gas_prototypes = prototype_list
+    let gases = prototype_list
         .iter_for_category::<GasPrototype>(PROTOTYPE_TYPE_GAS)
-        .map(|proto| Gas {
-            name: proto.id.clone(),
-            molar_heat_capacity: proto.molar_heat_capacity,
-        })
+        .map(
+            |GasPrototype {
+                 id,
+                 gas_id,
+                 molar_heat_capacity,
+                 color: _,
+             }| Gas {
+                gas_id: *gas_id,
+                name: id.clone(),
+                molar_heat_capacity: *molar_heat_capacity,
+            },
+        )
         .collect();
 
-    GasList::new(gas_prototypes)
+    GasList::new(gases)
 }
 
 fn build_mixture_list(prototype_list: &Prototypes, gas_list: &GasList) -> MixtureTemplateList {
@@ -78,6 +86,7 @@ pub(crate) fn load_gas_protos(mut commands: Commands, protos: Res<Prototypes>) {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GasPrototype {
     pub id: PrototypeId,
+    pub gas_id: GasId,
     pub molar_heat_capacity: f32,
     pub color: Srgba,
 }
@@ -85,6 +94,7 @@ pub struct GasPrototype {
 pub fn gas_parser(_: &Lua, table: LuaTable) -> ParseResult {
     let proto = GasPrototype {
         id: table.get("id")?,
+        gas_id: table.get("gas_id")?,
         molar_heat_capacity: table.get("molar_heat_capacity")?,
         color: Srgba::new(1.0, 1.0, 1.0, 1.0),
     };

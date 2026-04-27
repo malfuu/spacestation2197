@@ -5,31 +5,36 @@
 define {
     "gas",
     id = "oxygen",
+    gas_id = 0,
     molar_heat_capacity = 21.1,
 }
 
 define {
     "gas",
     id = "nitrogen",
+    gas_id = 1,
     molar_heat_capacity = 20.7,
 }
 
 define {
     "gas",
     id = "carbon_dioxide",
+    gas_id = 2,
     molar_heat_capacity = 28.4,
 }
 
 define {
     "gas",
-    id = "nitrogen_dioxide",
-    molar_heat_capacity = 30.0,
+    id = "plasma",
+    gas_id = 3,
+    molar_heat_capacity = 300.0,
 }
 
 define {
     "gas",
-    id = "plasma",
-    molar_heat_capacity = 300.0,
+    id = "nitrogen_dioxide",
+    gas_id = 4,
+    molar_heat_capacity = 30.0,
 }
 
 -- mixtures
