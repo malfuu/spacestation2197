@@ -5,6 +5,8 @@ pub use content::prelude::PROTOTYPE_CATEGORY_ENTITY;
 
 pub const DEFAULT_LISTEN_PORT: u16 = 2197; // NOTE: might cause collision with Apple's APNs
 
+pub const DEFAULT_TPS: f64 = 30.0;
+
 // SIZE DIMENSIONS
 pub const CEILING_HEIGHT: f32 = 2.5;
 pub const CEILING_HEIGHT_HALF: f32 = CEILING_HEIGHT / 2.0;

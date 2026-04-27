@@ -25,6 +25,7 @@ use content::prelude::*;
 
 use crate::{
     audio::AudioPlugin,
+    defines::DEFAULT_TPS,
     game::{
         atmos::AtmosPlugin, combat::CombatPlugin, containers::ContainersPlugin, ghost::GhostPlugin,
         grid::GridPlugin, hands::HandsPlugin, interact::InteractPlugin, items::ItemPlugin,
@@ -50,7 +51,7 @@ impl Plugin for GamePlugin {
             )
                 .chain(), // TODO: add run_if condition for toggling gameplay
         )
-        .insert_resource(Time::<Fixed>::from_hz(30.0))
+        .insert_resource(Time::<Fixed>::from_hz(DEFAULT_TPS))
         .add_plugins(avian3d::PhysicsPlugins::default())
         .add_plugins(physics::PhysicsPlugin)
         .add_plugins(AtmosPlugin)
