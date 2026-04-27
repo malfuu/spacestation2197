@@ -3,6 +3,10 @@ name = "client"
 version = "0.0.1"
 edition = "2024"
 
+[features]
+default = []
+no-atmos-particles = []
+
 [dependencies]
 shared.workspace = true
 # server.workspace = true TODO enable client side hosting in the future
