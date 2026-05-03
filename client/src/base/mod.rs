@@ -12,6 +12,7 @@ pub mod placement;
 pub mod session;
 pub mod settings;
 pub mod states;
+pub mod ui;
 pub mod windows;
 
 use bevy::prelude::*;
@@ -21,7 +22,8 @@ use crate::base::{
     audio::ClientAudioPlugin, camera::ClientCameraPlugin, chatbox::ClientChatboxPlugin,
     entities::ClientEntityPlugin, grid::ClientGridPlugin, input::ClientInputPlugin,
     menus::ClientMenusPlugin, placement::ClientPlacementPlugin, session::ClientSessionPlugin,
-    settings::ClientSettingsPlugin, states::ClientStatesPlugin, windows::ClientWindowsPlugin,
+    settings::ClientSettingsPlugin, states::ClientStatesPlugin, ui::ClientUiPlugin,
+    windows::ClientWindowsPlugin,
 };
 
 pub(super) struct ClientBasePlugin;
@@ -35,6 +37,7 @@ impl Plugin for ClientBasePlugin {
             .add_plugins(ClientSettingsPlugin)
             .add_plugins(ClientSessionPlugin)
             .add_plugins(ClientStatesPlugin)
+            .add_plugins(ClientUiPlugin)
             .add_plugins(ClientMenusPlugin)
             .add_plugins(ClientWindowsPlugin)
             .add_plugins(ClientEntityPlugin)

@@ -1,4 +1,4 @@
-//! Various client menu implementations in the game.
+//! Various client menu UI implementations in the game.
 pub mod escape_menu;
 pub mod main_menu;
 
