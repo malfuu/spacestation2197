@@ -1,30 +1,32 @@
 # Space Station 2197
-### Space Station 13 reinvented in 3D.
 
-- [Website](https://www.spacestation2197.com)
-- [Documentation](https://docs.spacestation2197.com)
-- [Discord](https://discord.com/channels/691052431525675048/1495401185937461298) - Join [Bevy's discord](https://discord.gg/9TsWQARU6k) first!
+[Website](https://www.spacestation2197.com) | [Documentation](https://docs.spacestation2197.com) | [Discord](https://discord.com/channels/691052431525675048/1495401185937461298) project channel - Join [Bevy's discord](https://discord.gg/9TsWQARU6k) first!
+
+Space Station 2197 [aka 13³] is a 3D reimagination of SS13.
+To provide the *fun and chaotic* atmospheric experience, we use the [Bevy](https://bevy.org/) engine.
 
 ## Development
 
-This project is in very early development. So early, in fact, that this README is quite empty!
+> [!WARNING]
+> This project is in very early development. 
+>
+> Expect a lot of TODOs, unfinished systems and code stubs all around.
 
-TL;DR:
-Bevy game engine underneath.
-Lua for content package.
-TBD runtime scripting engine.
+If you wish to develop on the project, make sure to follow the [Setup Guide](https://docs.spacestation2197.com/setup).
 
 ## Contributing
 
 *Human-made* contributions are welcome from everyone!
-Start off by joining the [Discord](https://discord.gg/MsV9Jg42XQ) or picking one of the [Issues](https://github.com/malfuu/spacestation2197/issues).
+Start off by joining the [Discord channel](https://discord.com/channels/691052431525675048/1495401185937461298) or picking one of the [Issues](https://github.com/malfuu/spacestation2197/issues).
 
 ## Crates
+
+Short explanation of the crates
 
 | Crate              | Description                                      |
 |--------------------|--------------------------------------------------|
 | atmos              | Atmospheric simulation code                      |
-| common             | Common components + messages, should be deleted soon|
+| common             | Common components + messages - should be deleted soon|
 | tile_grid          | Tilemap grid implementation + grid relations     |
 | scripting          | Prototype scripting w/ Lua         |
 | shared             | Shared code between client and server, mostly definitions |
@@ -48,5 +50,9 @@ See [LICENSE](LICENSE) file for more details.
 #### Assets
 All assets under the ```assets/``` folder fall under the [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) license unless stated otherwise in accompanying `attribution.txt` files. See [LICENSE-ASSETS](LICENSE-ASSETS) file for more details.
 
-#### Contributions
+#### Your Contributions
 Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in the work by you shall be licensed as above, without any additional terms or conditions.
+
+## Acknowledgements
+
+- [RE:SS3D](https://ss3d.space/) for their open-source assets and showing the potential of a three dimensional SS13.
