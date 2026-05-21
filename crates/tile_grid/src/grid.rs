@@ -69,34 +69,48 @@ impl<T, const R: usize, const C: usize, const A: usize> UnsizedBaseGrid<T, R, C,
     }
 
     #[must_use]
-    pub fn get_two(&self, pos_a: LocalTilePosition, pos_b: LocalTilePosition) -> Option<(&T, &T)> {
-        let a = self.get(pos_a)?;
-        let b = self.get(pos_b)?;
-        if pos_a == pos_b {
-            return None;
+    pub fn get_many<const N: usize>(&self, positions: [LocalTilePosition; N]) -> Option<[&T; N]> {
+        let mut indices = [0; N];
+        for i in 0..N {
+            indices[i] = Self::position_to_index(positions[i])?;
         }
-        Some((a, b))
+
+        for i in 0..N {
+            for j in (i + 1)..N {
+                if indices[i] == indices[j] {
+                    return None;
+                }
+            }
+        }
+
+        let ptr = self.data.as_ptr();
+        Some(array::from_fn(|i| unsafe { &*ptr.add(indices[i]) }))
     }
 
     #[must_use]
-    pub fn get_two_mut(
+    pub fn get_many_mut<const N: usize>(
         &mut self,
-        pos_a: LocalTilePosition,
-        pos_b: LocalTilePosition,
-    ) -> Option<(&mut T, &mut T)> {
-        let idx_a = Self::position_to_index(pos_a)?;
-        let idx_b = Self::position_to_index(pos_b)?;
-
-        if idx_a == idx_b {
-            return None;
+        positions: [LocalTilePosition; N],
+    ) -> Option<[&mut T; N]> {
+        let mut indices = [0; N];
+        for i in 0..N {
+            indices[i] = Self::position_to_index(positions[i])?;
         }
 
-        // # Safety
-        // idx_a != idx_b
-        unsafe {
-            let ptr = self.data.as_mut_ptr();
-            Some((&mut *ptr.add(idx_a), &mut *ptr.add(idx_b)))
+        // duplicate check
+        for i in 0..N {
+            for j in (i + 1)..N {
+                if indices[i] == indices[j] {
+                    return None;
+                }
+            }
         }
+
+        let ptr = self.data.as_mut_ptr();
+
+        // SAFETY:
+        // `position_to_index` guarantees all indices are strictly within bouds and all indices are strictly unique
+        Some(array::from_fn(|i| unsafe { &mut *ptr.add(indices[i]) }))
     }
 
     pub fn set(&mut self, pos: LocalTilePosition, value: T) -> Option<T> {
@@ -305,19 +319,21 @@ mod tests {
     }
 
     #[test]
-    fn test_get_two_mut() {
+    fn test_get_many_mut() {
         let mut grid: UnsizedBaseGrid<i32, 2, 2, 4> = UnsizedBaseGrid::from_value(0);
-        let pos_a = LocalTilePosition::new(0, 0);
         let pos_b = LocalTilePosition::new(1, 1);
+        let pos_a = LocalTilePosition::new(0, 0);
 
-        if let Some((a, b)) = grid.get_two_mut(pos_a, pos_b) {
+        if let Some([a, b]) = grid.get_many_mut([pos_a, pos_b]) {
             *a = 10;
             *b = 20;
         }
 
         assert_eq!(*grid.get(pos_a).unwrap(), 10);
         assert_eq!(*grid.get(pos_b).unwrap(), 20);
-        assert!(grid.get_two_mut(pos_a, pos_a).is_none());
+
+        assert!(grid.get_many_mut([pos_a, pos_a]).is_none());
+        assert!(grid.get_many([pos_b, pos_b]).is_none());
     }
 
     #[test]

@@ -153,7 +153,7 @@ fn apply_internal_deltas(
                 exchange_with_deltas(&gas_list, mix_lhs, mix_rhs, deltas_pa);
 
                 // perhaps flows can be applied parallel.
-                let (flow_lhs, flow_rhs) = flows.get_two_mut(lhs, rhs).expect("pos valid");
+                let [flow_lhs, flow_rhs] = flows.get_many_mut([lhs, rhs]).expect("pos valid");
                 let flow_direction = Vec2::X;
                 let deltas_sum: f32 = deltas_pa.iter().copied().sum();
 
@@ -183,7 +183,7 @@ fn apply_internal_deltas(
                 exchange_with_deltas(&gas_list, mix_lhs, mix_rhs, deltas_pa);
 
                 // perhaps flows can be applied parallel.
-                let (flow_lhs, flow_rhs) = flows.get_two_mut(lhs, rhs).expect("pos valid");
+                let [flow_lhs, flow_rhs] = flows.get_many_mut([lhs, rhs]).expect("pos valid");
                 let flow_direction = Vec2::Y;
                 let deltas_sum: f32 = deltas_pa.iter().copied().sum();
 

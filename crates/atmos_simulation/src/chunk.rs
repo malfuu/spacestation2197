@@ -31,8 +31,8 @@ impl ChunkMixtures {
         pos_a: LocalTilePosition,
         pos_b: LocalTilePosition,
     ) -> Option<(TileMixtureView<'_>, TileMixtureView<'_>)> {
-        let (moles_a, moles_b) = self.moles.0.get_two(pos_a, pos_b)?;
-        let (energy_a, energy_b) = self.energy.0.get_two(pos_a, pos_b)?;
+        let [moles_a, moles_b] = self.moles.0.get_many([pos_a, pos_b])?;
+        let [energy_a, energy_b] = self.energy.0.get_many([pos_a, pos_b])?;
         Some((
             TileMixtureView::new(moles_a, energy_a),
             TileMixtureView::new(moles_b, energy_b),
@@ -50,8 +50,8 @@ impl ChunkMixtures {
         pos_a: LocalTilePosition,
         pos_b: LocalTilePosition,
     ) -> Option<(TileMixtureViewMut<'_>, TileMixtureViewMut<'_>)> {
-        let (moles_a, moles_b) = self.moles.0.get_two_mut(pos_a, pos_b)?;
-        let (energy_a, energy_b) = self.energy.0.get_two_mut(pos_a, pos_b)?;
+        let [moles_a, moles_b] = self.moles.0.get_many_mut([pos_a, pos_b])?;
+        let [energy_a, energy_b] = self.energy.0.get_many_mut([pos_a, pos_b])?;
         Some((
             TileMixtureViewMut::new(moles_a, energy_a),
             TileMixtureViewMut::new(moles_b, energy_b),
