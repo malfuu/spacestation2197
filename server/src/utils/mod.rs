@@ -89,14 +89,14 @@ pub trait MessageCommandsExt {
 impl MessageCommandsExt for Commands<'_, '_> {
     fn send_chat_message(&mut self, player: Entity, message: impl Into<String>) {
         self.write_message(ToClients {
-            mode: SendMode::Direct(ClientId::Client(player)),
+            targets: SendTargets::Single(ClientId::Client(player)),
             message: ChatMessage(message.into()),
         });
     }
 
     fn broadcast_chat_message(&mut self, message: impl Into<String>) {
         self.write_message(ToClients {
-            mode: SendMode::Broadcast,
+            targets: SendTargets::All,
             message: ChatMessage(message.into()),
         });
     }

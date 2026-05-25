@@ -21,14 +21,14 @@ fn transmit_sounds(
 ) {
     for message in global_sounds.read() {
         commands.write_message(ToClients::<PlaySoundMessage> {
-            mode: SendMode::Broadcast,
+            targets: SendTargets::All,
             message: message.clone().into(),
         });
     }
 
     for message in local_sounds.read() {
         commands.write_message(ToClients::<PlaySoundMessage> {
-            mode: SendMode::Broadcast,
+            targets: SendTargets::All,
             message: message.clone().into(),
         });
     }

@@ -79,7 +79,7 @@ pub(crate) fn on_read_takeovers(
 ) {
     for takeover in messages.read() {
         commands.write_message(ToClients {
-            mode: SendMode::Direct(ClientId::Client(takeover.client_entity)),
+            targets: SendTargets::Single(ClientId::Client(takeover.client_entity)),
             message: OwnMobMessage(Some(takeover.target_mob)),
         });
     }

@@ -28,8 +28,8 @@ shared = { path = "shared" }
 server = { path = "server" }
 
 # TODO wait for replicon to stop feature gating VisibilityFilter - waiting for update now.
-bevy_replicon = { version = "0.39.3", default-features = false, features = ["server"] }
-bevy_replicon_renet = { version = "0.15.0", default-features = false, features = ["renet_netcode"] }
+bevy_replicon = { version = "0.40", default-features = false, features = ["server"] }
+bevy_replicon_renet = { version = "0.16", default-features = false, features = ["renet_netcode"] }
 bevy_renet = { version = "4.0", default-features = false }
 
 avian3d = { version = "0.6.1", features = ["simd", "serialize"]}
