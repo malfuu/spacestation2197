@@ -17,8 +17,8 @@ pub struct GasList {
 }
 
 impl GasList {
-    /// Creates a new Gas List
-    /// Returns None if it fails e.g. repeated gas names
+    /// Creates a new [`GasList`]
+    /// Panics if it cannot be constructed.
     pub fn new(mut new_gases: Vec<Gas>) -> Self {
         if new_gases.len() > MAX_NUMBER_OF_GASES {
             panic!("Can't initialize atmos with too many gases!");
