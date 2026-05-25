@@ -6,8 +6,7 @@ pub(super) struct ContainersPlugin;
 
 impl Plugin for ContainersPlugin {
     fn build(&self, app: &mut App) {
-        app.sync_related_entities::<Contained>()
-            .replicate::<Contained>();
+        app.replicate::<Contained>();
     }
 }
 

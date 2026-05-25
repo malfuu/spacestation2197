@@ -18,7 +18,8 @@ pub(super) struct GhostPlugin;
 
 impl Plugin for GhostPlugin {
     fn build(&self, app: &mut App) {
-        app.add_observer(add_see_ghost)
+        app.add_visibility_filter::<Ghost>()
+            .add_observer(add_see_ghost)
             .add_observer(remove_see_ghost)
             .add_systems(
                 FixedUpdate,

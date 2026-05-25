@@ -28,7 +28,8 @@ pub(super) struct ServerNetworkingPlugin;
 
 impl Plugin for ServerNetworkingPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(FixedUpdate, update_ping.in_set(MetaSystems::Logic))
+        app.sync_related_entities::<ChildOf>()
+            .add_systems(FixedUpdate, update_ping.in_set(MetaSystems::Logic))
             .add_observer(on_joining_client)
             .add_observer(listen_leaving_client);
     }

@@ -8,8 +8,7 @@ pub(super) struct MarkerPlugin;
 
 impl Plugin for MarkerPlugin {
     fn build(&self, app: &mut App) {
-        app.prototype_component::<Marker>()
-            .add_visibility_filter::<Marker>();
+        app.prototype_component::<Marker>();
     }
 }
 

@@ -10,7 +10,6 @@ pub(super) struct GhostPlugin;
 impl Plugin for GhostPlugin {
     fn build(&self, app: &mut App) {
         app.prototype_component::<Ghost>()
-            .add_visibility_filter::<Ghost>()
             .replicate::<Ghost>()
             .add_client_message::<GhostInput>(Channel::Unreliable);
     }

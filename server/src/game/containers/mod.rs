@@ -1,5 +1,6 @@
 use avian3d::prelude::*;
 use bevy::prelude::*;
+use bevy_replicon::prelude::*;
 
 use shared::{game::containers::Contained, utils::physics::PhysicsEntityCommandsExt};
 
@@ -7,7 +8,8 @@ pub(super) struct ContainersPlugin;
 
 impl Plugin for ContainersPlugin {
     fn build(&self, app: &mut App) {
-        app.add_observer(on_contained_add)
+        app.sync_related_entities::<Contained>()
+            .add_observer(on_contained_add)
             .add_observer(on_contained_removed);
     }
 }

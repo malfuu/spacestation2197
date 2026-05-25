@@ -14,7 +14,6 @@ impl Plugin for NetworkingPlugin {
             .add_plugins(RepliconRenetPlugins)
             .replicate::<Name>()
             .replicate::<Transform>()
-            .sync_related_entities::<ChildOf>()
             .replicate::<ChildOf>()
             .replicate_once::<EntityTag>();
     }

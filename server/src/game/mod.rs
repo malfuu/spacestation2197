@@ -4,6 +4,7 @@ pub mod containers;
 pub mod ghost;
 pub mod hands;
 pub mod interact;
+mod markers;
 pub mod mind;
 pub mod mob;
 pub mod placement;
@@ -14,8 +15,9 @@ use bevy::prelude::*;
 
 use crate::game::{
     atmos::ServerAtmosPlugin, combat::CombatPlugin, containers::ContainersPlugin,
-    ghost::GhostPlugin, hands::HandsPlugin, interact::InteractPlugin, mind::MindPlugin,
-    mob::MobPlugin, placement::ServerPlacementPlugin, sandbox::SandboxPlugin, say::SayPlugin,
+    ghost::GhostPlugin, hands::HandsPlugin, interact::InteractPlugin, markers::MarkersPlugin,
+    mind::MindPlugin, mob::MobPlugin, placement::ServerPlacementPlugin, sandbox::SandboxPlugin,
+    say::SayPlugin,
 };
 
 pub(crate) struct ServerGamePlugin;
@@ -30,6 +32,7 @@ impl Plugin for ServerGamePlugin {
             .add_plugins(GhostPlugin)
             .add_plugins(HandsPlugin)
             .add_plugins(InteractPlugin)
+            .add_plugins(MarkersPlugin)
             .add_plugins(ContainersPlugin)
             .add_plugins(ServerPlacementPlugin)
             .add_plugins(CombatPlugin);

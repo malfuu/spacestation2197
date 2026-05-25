@@ -27,8 +27,7 @@ content = { path = "crates/content" }
 shared = { path = "shared" }
 server = { path = "server" }
 
-# TODO wait for replicon to stop feature gating VisibilityFilter - waiting for update now.
-bevy_replicon = { version = "0.40", default-features = false, features = ["server"] }
+bevy_replicon = { version = "0.40", default-features = false }
 bevy_replicon_renet = { version = "0.16", default-features = false, features = ["renet_netcode"] }
 bevy_renet = { version = "4.0", default-features = false }
 
