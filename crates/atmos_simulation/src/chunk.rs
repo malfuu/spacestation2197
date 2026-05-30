@@ -1,3 +1,5 @@
+use std::array;
+
 use bevy::prelude::*;
 use serde::{Deserialize, Serialize};
 
@@ -26,36 +28,37 @@ impl ChunkMixtures {
         Some(TileMixtureView::new(moles, energy))
     }
 
-    pub fn tile_view_two(
-        &self,
-        pos_a: LocalTilePosition,
-        pos_b: LocalTilePosition,
-    ) -> Option<(TileMixtureView<'_>, TileMixtureView<'_>)> {
-        let [moles_a, moles_b] = self.moles.0.get_many([pos_a, pos_b])?;
-        let [energy_a, energy_b] = self.energy.0.get_many([pos_a, pos_b])?;
-        Some((
-            TileMixtureView::new(moles_a, energy_a),
-            TileMixtureView::new(moles_b, energy_b),
-        ))
-    }
-
     pub fn tile_view_mut(&mut self, pos: LocalTilePosition) -> Option<TileMixtureViewMut<'_>> {
         let moles = self.moles.0.get_mut(pos)?;
         let energy = self.energy.0.get_mut(pos)?;
         Some(TileMixtureViewMut::new(moles, energy))
     }
 
-    pub fn tile_view_two_mut(
+    pub fn tile_view_many<const N: usize>(
+        &self,
+        positions: [LocalTilePosition; N],
+    ) -> Option<[TileMixtureView<'_>; N]> {
+        let moles = self.moles.0.get_many(positions)?;
+        let energies = self.energy.0.get_many(positions)?;
+
+        Some(array::from_fn(|i| {
+            TileMixtureView::new(moles[i], energies[i])
+        }))
+    }
+
+    pub fn tile_view_many_mut<const N: usize>(
         &mut self,
-        pos_a: LocalTilePosition,
-        pos_b: LocalTilePosition,
-    ) -> Option<(TileMixtureViewMut<'_>, TileMixtureViewMut<'_>)> {
-        let [moles_a, moles_b] = self.moles.0.get_many_mut([pos_a, pos_b])?;
-        let [energy_a, energy_b] = self.energy.0.get_many_mut([pos_a, pos_b])?;
-        Some((
-            TileMixtureViewMut::new(moles_a, energy_a),
-            TileMixtureViewMut::new(moles_b, energy_b),
-        ))
+        positions: [LocalTilePosition; N],
+    ) -> Option<[TileMixtureViewMut<'_>; N]> {
+        let moles = self.moles.0.get_many_mut(positions)?;
+        let energies = self.energy.0.get_many_mut(positions)?;
+
+        let mut zipped = core::iter::zip(moles, energies);
+
+        Some(array::from_fn(|_| {
+            let (m, e) = zipped.next().unwrap();
+            TileMixtureViewMut::new(m, e)
+        }))
     }
 
     pub fn iter_tile_views_mut(&mut self) -> impl Iterator<Item = TileMixtureViewMut<'_>> {
@@ -71,7 +74,6 @@ impl ChunkMixtures {
     }
 }
 
-// pub type MixtureChunk = BaseGrid<BasicGasMixture>;
 pub type FlowChunk = BaseGrid<Vec2>;
 
 #[derive(Component, Deref, DerefMut, Default, Serialize, Deserialize)]

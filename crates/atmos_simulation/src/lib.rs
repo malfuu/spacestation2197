@@ -94,7 +94,7 @@ fn build_internal_deltas(
             if *impermeable.get(lhs).unwrap() || *impermeable.get(rhs).unwrap() {
                 return zero_delta_pressures_pa;
             }
-            let (l, r) = mixtures.tile_view_two(lhs, rhs).unwrap();
+            let [l, r] = mixtures.tile_view_many([lhs, rhs]).unwrap();
             l.delta_pressures(&r, &gas_list)
         };
 
@@ -149,7 +149,8 @@ fn apply_internal_deltas(
                 }
                 // dirty.0 = true;
 
-                let (mix_lhs, mix_rhs) = mixtures.tile_view_two_mut(lhs, rhs).expect("pos valid");
+                let [mix_lhs, mix_rhs] =
+                    mixtures.tile_view_many_mut([lhs, rhs]).expect("pos valid");
                 exchange_with_deltas(&gas_list, mix_lhs, mix_rhs, deltas_pa);
 
                 // perhaps flows can be applied parallel.
@@ -179,7 +180,8 @@ fn apply_internal_deltas(
                     continue;
                 }
 
-                let (mix_lhs, mix_rhs) = mixtures.tile_view_two_mut(lhs, rhs).expect("pos valid");
+                let [mix_lhs, mix_rhs] =
+                    mixtures.tile_view_many_mut([lhs, rhs]).expect("pos valid");
                 exchange_with_deltas(&gas_list, mix_lhs, mix_rhs, deltas_pa);
 
                 // perhaps flows can be applied parallel.
