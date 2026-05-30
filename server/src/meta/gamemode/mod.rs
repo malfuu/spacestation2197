@@ -2,7 +2,6 @@ use bevy::prelude::*;
 
 use rand::seq::IteratorRandom;
 use shared::{
-    InstanceState,
     audio::AudioCommandsExt,
     game::{player::Player, sandbox::Sandboxer},
     meta::{
@@ -47,7 +46,6 @@ pub struct Traitor;
 fn on_round_start(
     _: On<RoundStartedEvent>,
     gamemode: Single<&Gamemode>,
-    _state: Res<State<InstanceState>>,
     mut commands: Commands,
     players: Query<Entity, With<Player>>,
     mobs: Query<(Entity, &Controlled)>,

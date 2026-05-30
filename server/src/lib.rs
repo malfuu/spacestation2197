@@ -14,7 +14,7 @@ use atmos_simulation::prelude::*;
 
 use common::EntityTag;
 use shared::{
-    InstanceState, SharedPlugin,
+    SharedPlugin,
     game::persistence::LoadMap,
     meta::{
         manager::Manager,
@@ -58,9 +58,6 @@ pub fn start_game_instance(
     mut commands: Commands,
     mut atmos_resource: ResMut<AtmosphericsResource>,
 ) {
-    // create the lobby
-    commands.set_state(InstanceState::Hosting);
-
     let settings = ServerSettings::load_from_file(SERVER_CONFIG_FILENAME);
     commands.insert_resource(settings.clone());
     commands.trigger(LoadMap(settings.map_name.clone()));

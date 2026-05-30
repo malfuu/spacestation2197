@@ -22,8 +22,7 @@ pub struct SharedPlugin;
 
 impl Plugin for SharedPlugin {
     fn build(&self, app: &mut App) {
-        app.init_state::<InstanceState>()
-            .add_plugins(ContentPlugin::default())
+        app.add_plugins(ContentPlugin::default())
             .add_plugins(NetworkingPlugin)
             .add_plugins(AudioPlugin)
             .add_plugins(ChatPlugin)
@@ -31,12 +30,4 @@ impl Plugin for SharedPlugin {
             .add_plugins(MetaPlugin)
             .add_plugins(PlaceholderPlugin);
     }
-}
-
-/// Is the current instance hosting or listening to a game?
-#[derive(States, Default, Debug, Clone, PartialEq, Eq, Hash)]
-pub enum InstanceState {
-    Hosting,
-    #[default]
-    Listening,
 }
