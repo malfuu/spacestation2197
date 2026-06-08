@@ -75,16 +75,7 @@ impl<T, const R: usize, const C: usize, const A: usize> UnsizedBaseGrid<T, R, C,
             indices[i] = Self::position_to_index(positions[i])?;
         }
 
-        for i in 0..N {
-            for j in (i + 1)..N {
-                if indices[i] == indices[j] {
-                    return None;
-                }
-            }
-        }
-
-        let ptr = self.data.as_ptr();
-        Some(array::from_fn(|i| unsafe { &*ptr.add(indices[i]) }))
+        Some(array::from_fn(|i| &self.data[indices[i]]))
     }
 
     #[must_use]
@@ -93,17 +84,13 @@ impl<T, const R: usize, const C: usize, const A: usize> UnsizedBaseGrid<T, R, C,
         positions: [LocalTilePosition; N],
     ) -> Option<[&mut T; N]> {
         let mut indices = [0; N];
-        for i in 0..N {
-            indices[i] = Self::position_to_index(positions[i])?;
-        }
 
-        // duplicate check
         for i in 0..N {
-            for j in (i + 1)..N {
-                if indices[i] == indices[j] {
-                    return None;
-                }
+            let idx = Self::position_to_index(positions[i])?;
+            if indices[..i].contains(&idx) {
+                return None;
             }
+            indices[i] = idx;
         }
 
         let ptr = self.data.as_mut_ptr();
@@ -333,7 +320,7 @@ mod tests {
         assert_eq!(*grid.get(pos_b).unwrap(), 20);
 
         assert!(grid.get_many_mut([pos_a, pos_a]).is_none());
-        assert!(grid.get_many([pos_b, pos_b]).is_none());
+        assert_eq!(grid.get_many([pos_b, pos_b]), Some([&20, &20]));
     }
 
     #[test]

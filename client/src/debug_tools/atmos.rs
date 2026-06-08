@@ -1,12 +1,17 @@
 use bevy::prelude::*;
+use bevy_egui::prelude::*;
 
+use atmos_primitives::gas_list::GasList;
+use atmos_primitives::prelude::*;
 use atmos_simulation::prelude::*;
-use tile_grid::{Chunk, chunk_and_local_to_world};
+use tile_grid::{CHUNK_SIZE, Chunk, Grid, chunk_and_local_to_world, world_to_chunk_and_local};
 
+use crate::base::input::ExtraInputs;
 use crate::debug_tools::{AppDebugOptionExt, DebugGizmos, option_enabled};
 
 const DEBUG_OPTION_ATMOS_MIXTURE: &str = "atmos_mixture";
 const DEBUG_OPTION_ATMOS_WIND: &str = "atmos_wind";
+const DEBUG_OPTION_ATMOS_EXCITED: &str = "atmos_excited";
 
 pub(super) struct DebugAtmosPlugin;
 
@@ -14,14 +19,79 @@ impl Plugin for DebugAtmosPlugin {
     fn build(&self, app: &mut App) {
         app.register_debug_option(DEBUG_OPTION_ATMOS_MIXTURE)
             .register_debug_option(DEBUG_OPTION_ATMOS_WIND)
+            .register_debug_option(DEBUG_OPTION_ATMOS_EXCITED)
             .add_systems(
                 Update,
-                draw_wind_vectors.run_if(option_enabled(DEBUG_OPTION_ATMOS_WIND)),
+                (
+                    draw_wind_vectors.run_if(option_enabled(DEBUG_OPTION_ATMOS_WIND)),
+                    ui_mixture_information.run_if(option_enabled(DEBUG_OPTION_ATMOS_MIXTURE)),
+                    draw_excited_chunks.run_if(option_enabled(DEBUG_OPTION_ATMOS_EXCITED)),
+                ),
             );
     }
 }
 
-fn ui_mixture_information() {}
+fn ui_mixture_information(
+    mut contexts: EguiContexts,
+    inputs: Res<ExtraInputs>,
+    gas_list: Res<GasList>,
+    grids: Query<&Grid>,
+    chunk_mixtures: Query<&ChunkMixtures>,
+) -> Result {
+    let Some(mouse_positions) = inputs.mouse_positions() else {
+        return Ok(());
+    };
+
+    let (chunk_pos, local_pos) = world_to_chunk_and_local(mouse_positions.tile_position);
+
+    let mut found_mixture = None;
+    let grid = grids.single().expect("only one grid");
+    if let Some(chunk_entity) = grid.get(chunk_pos)
+        && let Ok(mixtures) = chunk_mixtures.get(chunk_entity)
+        && let Some(view) = mixtures.tile_view(local_pos)
+    {
+        found_mixture = Some(view);
+    }
+
+    egui::Window::new("Atmos Mixture").show(contexts.ctx_mut()?, |ui| {
+        ui.label(format!("Chunk: {}, Local: {}", chunk_pos, local_pos));
+        let Some(view) = found_mixture else {
+            ui.label("No mixture found.");
+            return;
+        };
+
+        let energy = view.energy();
+        let temp = view.temperature(gas_list.get_molar_heat_capacities());
+        let pressure = view.pressure(&gas_list);
+        let total_moles = view.total_moles();
+
+        ui.label(format!("Moles: {:.2}", total_moles));
+        ui.label(format!("Energy: {:.2} J", energy));
+        ui.label(format!("Temperature: {:.2} K", temp));
+        ui.label(format!("Pressure: {:.2} kPa", pressure / 1000.0));
+
+        ui.separator();
+
+        let partial_pressures = view.partial_pressures(&gas_list);
+        let moles = view.moles().as_array();
+
+        ui.heading("Gases");
+        for (i, gas) in gas_list.iter().enumerate() {
+            let m = moles[i];
+            if m > 0.0 {
+                let partial_pressure = partial_pressures.as_array()[i];
+                ui.label(format!(
+                    "{}: {:.3} moles, {:.2} kPa",
+                    gas.name,
+                    m,
+                    partial_pressure / 1000.0
+                ));
+            }
+        }
+    });
+
+    Ok(())
+}
 
 fn draw_wind_vectors(
     mut gizmos: Gizmos<DebugGizmos>,
@@ -39,7 +109,7 @@ fn draw_wind_vectors(
             let global_position = chunk_and_local_to_world(chunk_position, tile_position).as_vec2();
             let start = Vec3::new(global_position.x + 0.5, 0.01, global_position.y + 0.5);
 
-            let display_len = (flow_len / 32.0).tanh();
+            let display_len = (flow_len / 64.0).tanh();
 
             let flow_dir = flow.normalize();
             let flow_offset = Vec3::new(flow_dir.x, 0.0, flow_dir.y) * display_len;
@@ -50,5 +120,23 @@ fn draw_wind_vectors(
 
             gizmos.arrow(start, end, color);
         }
+    }
+}
+
+fn draw_excited_chunks(mut gizmos: Gizmos<DebugGizmos>, chunks: Query<&Chunk, With<Excited>>) {
+    let rotation = Quat::from_rotation_x(90.0f32.to_radians());
+
+    for chunk in chunks.iter() {
+        let chunk_position = chunk.position();
+
+        let grid_corner = chunk_position.as_vec2() * CHUNK_SIZE as f32;
+        let grid_center = grid_corner + Vec2::splat(CHUNK_SIZE as f32 / 2.0);
+        let grid_center = Vec3::new(grid_center.x, 0.01, grid_center.y);
+
+        gizmos.rect(
+            Isometry3d::new(grid_center, rotation),
+            Vec2::splat(CHUNK_SIZE as f32),
+            Color::srgb(1.0, 0.5, 0.0),
+        );
     }
 }

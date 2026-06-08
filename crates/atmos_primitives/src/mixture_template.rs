@@ -2,8 +2,9 @@
 use std::collections::HashMap;
 
 use bevy::prelude::*;
+use wide::f32x16;
 
-use crate::{GasId, MAX_NUMBER_OF_GASES, PerGasArray, gas_list::GasList};
+use crate::{GasId, PerGasArray, gas_list::GasList};
 
 /// Normalized fractions for each gas type.
 pub type FractionArray = PerGasArray;
@@ -61,17 +62,18 @@ impl MixtureTemplate {
         temperature_k: f32,
         fractions: Vec<(GasId, f32)>,
     ) -> Self {
-        let mut composition: FractionArray = [0.0; MAX_NUMBER_OF_GASES];
+        let mut composition: FractionArray = f32x16::ZERO;
+        let composition_array = composition.as_mut_array();
 
         for (id, value) in fractions {
-            composition[id] = value;
+            composition_array[id] = value;
         }
 
         let pressure_pa = pressure_kpa * 1000.0;
 
-        let sum: f32 = composition.iter().sum();
+        let sum: f32 = composition.reduce_add();
         let normalized: FractionArray = if sum > 0.0 {
-            composition.map(|f| f / sum)
+            composition / sum
         } else {
             composition
         };

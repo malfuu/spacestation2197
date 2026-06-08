@@ -3,7 +3,7 @@ use std::collections::{HashMap, HashSet};
 
 use bevy::prelude::Resource;
 
-use crate::{Gas, GasId, MAX_NUMBER_OF_GASES, gas_mixture::MolarHeatCapacities, per_gas_array};
+use crate::{Gas, GasId, MAX_NUMBER_OF_GASES, PerGasArray, gas_mixture::MolarHeatCapacities};
 
 /// Serves as a immutable lookup table for defined gases
 #[derive(Resource)]
@@ -27,7 +27,7 @@ impl GasList {
         new_gases.sort_by_key(|gas| gas.gas_id);
 
         let mut gases = heapless::Vec::new();
-        let mut molar_heat_capacities = per_gas_array(0.0);
+        let mut molar_heat_capacities = [0.0; 16];
         let mut gas_names = HashMap::<String, GasId>::default();
         let mut seen_ids = HashSet::<GasId>::new();
 
@@ -55,7 +55,7 @@ impl GasList {
 
         Self {
             gases,
-            molar_heat_capacities,
+            molar_heat_capacities: PerGasArray::new(molar_heat_capacities),
             gas_names,
         }
     }
@@ -226,7 +226,7 @@ mod tests {
         gas1.molar_heat_capacity = 30.0;
 
         let gas_list = GasList::new(vec![gas0, gas1]);
-        let capacities = gas_list.get_molar_heat_capacities();
+        let capacities = gas_list.get_molar_heat_capacities().as_array();
 
         assert_eq!(capacities[0], 20.0);
         assert_eq!(capacities[1], 30.0);

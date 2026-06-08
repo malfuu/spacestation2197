@@ -11,6 +11,7 @@ bevy.workspace = true
 common.workspace = true
 tile_grid.workspace = true
 
+wide.workspace = true
 heapless.workspace = true
 anyhow.workspace = true
 serde.workspace = true

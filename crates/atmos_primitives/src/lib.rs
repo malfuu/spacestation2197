@@ -1,6 +1,8 @@
 //! Atmospheric primitives for simulation.
 #![deny(missing_docs)]
 
+/// Equations for calculating mixture properties.
+pub mod equations;
 pub mod gas_list;
 pub mod gas_mixture;
 pub mod mixture_template;
@@ -9,13 +11,14 @@ pub mod mixture_template;
 pub mod prelude;
 
 use bevy::prelude::*;
+use wide::f32x16;
 
 /// Ideal gas law constant at J K^-1 mol^-1
 pub const IDEAL_GAS_CONSTANT: f32 = 8.314_463;
 /// Required moles to avoid being culled.
-pub const MINIMUM_AMOUNT_OF_SUBSTANCE: f32 = 1e-4;
-/// In kilopascals
-pub const MINIMUM_DELTA_PRESSURE: f32 = 1e-4;
+pub const MINIMUM_AMOUNT_OF_SUBSTANCE: f32 = 1e-8;
+/// In Kilopascals
+pub const MINIMUM_DELTA_PRESSURE: f32 = 1e-1;
 /// Wind force
 pub const NEWTONS_PER_KILOPASCAL: f32 = 30.0; // arbitrary btw
 /// Coefficient on the notion that air can travel 4 directions or remain still, ergo 5
@@ -27,15 +30,8 @@ pub type GasId = usize;
 /// Controls the sizes of arrays in the entire simulation.
 pub const MAX_NUMBER_OF_GASES: usize = 16;
 
-/// Arrays that contain a property per [`Gas`] indexed by [`GasId`]
-// NOTE: this will most likely be where the drop in replacement for a f32x16 type will ocurr.
-pub type PerGasArray = [f32; MAX_NUMBER_OF_GASES];
-
-/// Creates a [`PerGasArray`] given an amount.
-#[inline]
-pub fn per_gas_array(amount: f32) -> PerGasArray {
-    [amount; MAX_NUMBER_OF_GASES]
-}
+/// Array that contain a property per [`Gas`] type indexed by [`GasId`]
+pub type PerGasArray = f32x16;
 
 /// Returns an iterator over all gas identifiers up to [`MAX_NUMBER_OF_GASES`].
 /// These gas identifiers might not map to an existing gas type.
@@ -55,7 +51,7 @@ pub struct Gas {
     pub gas_id: GasId,
     /// Name for the gas.
     pub name: String,
-    /// Molar Heat Capacity for the gas, in joule per mole kelvin
+    /// Molar Heat Capacity for the gas, in Joules per Mole Kelvin
     /// Bigger values require more energy to increase temperature by one Kelvin.
     pub molar_heat_capacity: f32,
 }

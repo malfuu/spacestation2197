@@ -149,10 +149,10 @@ pub(super) fn on_chunk_add(add: On<Add, Chunk>, mut commands: Commands, chunks: 
         Flows::default(),
         SubfloorChunk::default(),
         SolidChunk::default(),
-        atmos_simulation::chunk::ChunkDeltas::default(),
+        ChunkCached::default(),
         SpaceChunk::default(),
         ImpermeableChunk::default(),
-        atmos_simulation::excited::ProcessedTick::default(),
+        atmos_simulation::excited::Excited::default(),
     ));
 }
 
