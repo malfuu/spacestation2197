@@ -7,8 +7,8 @@
 //! And does not despawn chunks.
 //! and is overall desync happy.
 //! oh god - this impl is trash!
-pub mod grid;
 pub mod chunk_mask;
+pub mod grid;
 
 use bevy::{ecs::entity::MapEntities, platform::collections::HashMap, prelude::*};
 use common::TileTag;
@@ -16,7 +16,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::grid::UnsizedBaseGrid;
 
-pub const CHUNK_SIZE: usize = 8;
+pub const CHUNK_SIZE: usize = 16;
 pub const CHUNK_AREA: usize = CHUNK_SIZE * CHUNK_SIZE;
 
 pub type ChunkPosition = IVec2;
@@ -25,9 +25,11 @@ pub type LocalTilePosition = UVec2;
 
 /// Grid with CHUNK_SIZE squared dimension.
 pub type BaseGrid<T> = UnsizedBaseGrid<T, CHUNK_SIZE, CHUNK_SIZE, CHUNK_AREA>;
-pub type BooleanChunk = BaseGrid<bool>; // perhaps look into fitting this inside a u64 bitmask
 pub type TileChunk = BaseGrid<Option<TileTag>>;
 pub type EntityChunk = BaseGrid<Entity>;
+
+pub type BooleanChunk = BaseGrid<bool>; // perhaps look into fitting this inside a u64 bitmask
+// actually look into usin the new [`chunkMask`]!
 
 /// Chunk position origin is in the top left corner
 #[derive(Component, Clone, Serialize, Deserialize)]
