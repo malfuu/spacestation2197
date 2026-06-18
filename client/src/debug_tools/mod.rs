@@ -3,7 +3,6 @@ mod atmos;
 mod frametime;
 mod gizmos;
 mod grid;
-mod inspector;
 mod networking;
 
 use std::collections::HashMap;
@@ -12,7 +11,6 @@ use bevy::prelude::*;
 use bevy_egui::prelude::*;
 
 use crate::base::windows::{WindowCommands, WindowStack};
-use crate::debug_tools::inspector::ClientInspectorPlugin;
 use crate::debug_tools::networking::DebugNetworkingPlugin;
 use crate::debug_tools::{atmos::DebugAtmosPlugin, gizmos::DebugGizmos};
 use crate::debug_tools::{frametime::DebugFrametimePlugin, grid::DebugGridPlugin};
@@ -27,7 +25,6 @@ impl Plugin for ClientDebugPlugin {
             .init_resource::<DebugResource>()
             .add_plugins(DebugAtmosPlugin)
             .add_plugins(DebugGridPlugin)
-            .add_plugins(ClientInspectorPlugin)
             .add_plugins(DebugFrametimePlugin)
             .add_plugins(DebugNetworkingPlugin)
             // .add_plugins(WorldInspectorPlugin::new())

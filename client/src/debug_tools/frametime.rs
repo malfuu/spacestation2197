@@ -1,6 +1,5 @@
 use bevy::{
-    dev_tools::fps_overlay::{FpsOverlayConfig, FpsOverlayPlugin, FrameTimeGraphConfig},
-    prelude::*,
+    dev_tools::fps_overlay::{FpsOverlayConfig, FpsOverlayPlugin, FrameTimeGraphConfig}, diagnostic::DiagnosticsStore, prelude::*
 };
 
 pub(super) struct DebugFrametimePlugin;
@@ -19,4 +18,10 @@ impl Plugin for DebugFrametimePlugin {
             },
         });
     }
+}
+
+fn test(
+    res: Res<DiagnosticsStore>
+) {
+
 }

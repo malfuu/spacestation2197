@@ -4,7 +4,7 @@ use tile_grid::{CHUNK_SIZE, Chunk};
 
 use crate::debug_tools::{AppDebugOptionExt, DebugGizmos, option_enabled};
 
-const GIZMO_COLOR_CHUNK: f32 = 0.4;
+const GIZMO_COLOR_CHUNK: f32 = 0.6;
 const GIZMO_COLOR_TILE: f32 = 0.2;
 
 const DEBUG_OPTION_GRID: &str = "grid_tiles";
@@ -28,7 +28,7 @@ fn draw_grid_tiles(mut gizmos: Gizmos<DebugGizmos>, chunks: Query<&Chunk>) {
 
         let grid_corner = chunk_position.as_vec2() * CHUNK_SIZE as f32;
         let grid_center = grid_corner + Vec2::splat(CHUNK_SIZE as f32 / 2.0);
-        let grid_center = vec3(grid_center.x, -0.02, grid_center.y);
+        let grid_center = vec3(grid_center.x, 0.02, grid_center.y);
 
         gizmos
             .grid(

@@ -17,6 +17,9 @@ opt-level = 3
 codegen-units = 1
 lto = "thin"
 
+
+
+
 [workspace.dependencies]
 atmos_primitives = { path = "crates/atmos_primitives" }
 atmos_simulation = { path = "crates/atmos_simulation" }

@@ -3,6 +3,9 @@ name = "client"
 version = "0.0.1"
 edition = "2024"
 
+[features]
+dev = ["bevy-inspector-egui"]
+
 [dependencies]
 shared.workspace = true
 # server.workspace = true TODO enable client side hosting in the future
@@ -22,7 +25,7 @@ bevy_hanabi = { version = "0.18.0" }
 bevy_mod_outline = "0.12"
 
 bevy_egui = "0.39.0"
-bevy-inspector-egui = "0.36"
+bevy-inspector-egui = { version = "0.36", optional = true }
 # bevy_rich_text3d = "0.5.1"
 
 anyhow.workspace = true
