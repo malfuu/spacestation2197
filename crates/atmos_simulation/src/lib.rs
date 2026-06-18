@@ -34,7 +34,8 @@ impl Plugin for AtmosphericsPlugin {
                     AtmosSystems::First,
                     AtmosSystems::StepSimulation,
                     AtmosSystems::Last,
-                ).chain(),
+                )
+                    .chain(),
             )
             .add_systems(
                 FixedUpdate,
