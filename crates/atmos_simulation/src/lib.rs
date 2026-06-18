@@ -1,12 +1,11 @@
 pub mod chunk;
 pub mod excited;
-mod simulation;
+pub mod tile_mixture;
 
-pub(crate) mod schedule;
+pub mod simulation;
 
 #[doc(hidden)]
 pub mod prelude;
-pub mod tile_mixture;
 
 use bevy::prelude::*;
 
@@ -35,7 +34,7 @@ impl Plugin for AtmosphericsPlugin {
                     AtmosSystems::First,
                     AtmosSystems::StepSimulation,
                     AtmosSystems::Last,
-                ),
+                ).chain(),
             )
             .add_systems(
                 FixedUpdate,

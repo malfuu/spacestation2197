@@ -38,13 +38,13 @@ impl Plugin for FlowSimulation {
     }
 }
 
-pub fn reset_flows(active_chunks: Query<Mut<Flows>, With<Excited>>) {
+fn reset_flows(active_chunks: Query<Mut<Flows>, With<Excited>>) {
     for mut flows in active_chunks {
         flows.iter_mut().for_each(|f| *f = Vec2::ZERO);
     }
 }
 
-pub fn cache_mixtures(
+fn cache_mixtures(
     gas_list: Res<GasList>,
     mut active_chunks: Query<(&ChunkMixtures, &mut ChunkCached), With<Excited>>,
 ) {
@@ -57,22 +57,18 @@ pub fn cache_mixtures(
 
                 let temperature = view.temperature(molar_heat_capacities);
                 let partial_pressures = view.partial_pressures(&gas_list);
-                let pressure = view.pressure(&gas_list);
-                let heat_capacity = view.heat_capacity(molar_heat_capacities);
                 let heat_capacities = view.partial_heat_capacities(molar_heat_capacities);
 
                 let c = cached.get_mut(pos).expect("pos valid");
                 c.temperature = temperature;
                 c.partial_pressures = partial_pressures;
-                c.pressure = pressure;
-                c.heat_capacity = heat_capacity;
                 c.heat_capacities = heat_capacities;
             }
         }
     }
 }
 
-pub fn apply_internal_exchanges(
+fn apply_internal_exchanges(
     gas_list: Res<GasList>,
     mut active_chunks: Query<(&mut ChunkMixtures, &mut Flows, &ChunkCached), With<Excited>>,
 ) {
@@ -133,7 +129,7 @@ pub fn apply_internal_exchanges(
     }
 }
 
-pub fn apply_external_exchanges(
+fn apply_external_exchanges(
     gas_list: Res<GasList>,
     grid: Query<&Grid>,
     mut chunk_query: Query<(&mut ChunkMixtures, &mut Flows, &ChunkCached)>,

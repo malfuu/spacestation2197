@@ -12,8 +12,6 @@ pub type TileEnergy = f32;
 pub struct CachedTile {
     pub temperature: f32,
     pub partial_pressures: PressureArray,
-    pub pressure: f32,
-    pub heat_capacity: f32,
     pub heat_capacities: HeatCapacityArray,
 }
 

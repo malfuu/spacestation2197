@@ -8,6 +8,7 @@
 //! and is overall desync happy.
 //! oh god - this impl is trash!
 pub mod grid;
+pub mod chunk_mask;
 
 use bevy::{ecs::entity::MapEntities, platform::collections::HashMap, prelude::*};
 use common::TileTag;
