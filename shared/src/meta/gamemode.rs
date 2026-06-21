@@ -21,7 +21,6 @@ pub enum Gamemode {
     #[default]
     Extended,
     Sandbox,
-    Mafia, // lame ass sus gamemode for playtest
 }
 
 impl std::fmt::Display for Gamemode {
@@ -29,7 +28,6 @@ impl std::fmt::Display for Gamemode {
         let text = match self {
             Gamemode::Extended => "Extended",
             Gamemode::Sandbox => "Sandbox",
-            Gamemode::Mafia => "Mafia",
         };
 
         write!(f, "{text}")

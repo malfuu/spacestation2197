@@ -1,6 +1,5 @@
 //! Stuff that needs to be transfered to scripting domain later
 //! or just placeholder misc stuff
-pub mod showcase;
 
 use avian3d::prelude::*;
 use bevy::{
@@ -12,13 +11,11 @@ use serde::Deserialize;
 
 use content::prelude::*;
 
-use crate::placeholder::showcase::ShowcasePlugin;
-
 pub(super) struct PlaceholderPlugin;
 
 impl Plugin for PlaceholderPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugins(ShowcasePlugin)
+        app
             .prototype_component::<MobCollider>()
             .prototype_component::<ItemCollider>();
     }

@@ -28,7 +28,6 @@ bevy_egui = "0.39.0"
 bevy-inspector-egui = { version = "0.36", optional = true }
 # bevy_rich_text3d = "0.5.1"
 
-anyhow.workspace = true
 rand.workspace = true
 
 bevy = { 

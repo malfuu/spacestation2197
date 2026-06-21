@@ -200,11 +200,6 @@ fn ui_admin_round(ui: &mut egui::Ui, commands: &mut Commands, selected_gamemode:
                     Gamemode::Sandbox,
                     Gamemode::Sandbox.to_string(),
                 );
-                ui.selectable_value(
-                    selected_gamemode,
-                    Gamemode::Mafia,
-                    Gamemode::Mafia.to_string(),
-                );
             });
 
         if ui.button("Set").clicked() {

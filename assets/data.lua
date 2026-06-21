@@ -10,4 +10,3 @@ require "prototypes.entities.furniture"
 require "prototypes.gases"
 require "prototypes.tiles"
 
-require "prototypes.showcase"

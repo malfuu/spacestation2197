@@ -8,6 +8,5 @@ common.workspace = true
 
 heapless.workspace = true
 serde.workspace = true
-anyhow.workspace = true
 
 bevy.workspace = true

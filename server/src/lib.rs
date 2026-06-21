@@ -5,8 +5,6 @@ pub mod utils;
 mod game;
 mod meta;
 
-mod showcase;
-
 use bevy::prelude::*;
 use bevy_replicon::prelude::*;
 
@@ -28,7 +26,6 @@ use crate::{
     game::ServerGamePlugin,
     meta::ServerMetaPlugin,
     networking::{ServerNetworkingPlugin, load_server},
-    showcase::ShowcasePlugin,
 };
 
 pub const SERVER_CONFIG_FILENAME: &str = "server_config.toml";
@@ -43,7 +40,6 @@ impl Plugin for ServerPlugin {
             .add_plugins(ServerNetworkingPlugin)
             .add_plugins(ServerGamePlugin)
             .add_plugins(ServerMetaPlugin)
-            .add_plugins(ShowcasePlugin)
             .add_observer(replicate_new_entities);
     }
 }

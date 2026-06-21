@@ -26,7 +26,6 @@ bevy_renet.workspace = true
 
 avian3d.workspace = true
 
-anyhow.workspace = true
 rand.workspace = true
 
 bevy = { workspace = true, features = ["dev"] }

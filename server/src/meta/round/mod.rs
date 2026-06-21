@@ -153,13 +153,6 @@ fn on_start_timer_finished(
     players: Query<Entity, (PlayerFilter, With<Ready>)>,
     gamemode: Single<&Gamemode>,
 ) {
-    if matches!(**gamemode, Gamemode::Mafia) && players.count() < 2 {
-        info!("Could not start, not enough players!");
-        // commands.trigger(SetStartTimer(Duration::from_secs(10)));
-        commands.trigger(SetStartTimer);
-        return;
-    }
-
     let (manager, state) = manager.into_inner();
     if !matches!(*state, RoundState::Starting) {
         warn!("RoundStart attempted without starting state!");

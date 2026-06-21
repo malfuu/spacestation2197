@@ -10,7 +10,6 @@ common.workspace = true
 
 wide.workspace = true
 heapless.workspace = true
-anyhow.workspace = true
 serde.workspace = true
 rand.workspace = true
 
