@@ -35,6 +35,11 @@ impl Plugin for ServerNetworkingPlugin {
     }
 }
 
+/// In case the server is also a participating client. (e.g. player hosting co-op).
+/// The inner entity will point to a backend created client entity.
+#[derive(Resource, Deref)]
+pub struct ServerClientEntity(Option<Entity>);
+
 fn on_joining_client(
     add: On<Add, ConnectedClient>,
     mut commands: Commands,
