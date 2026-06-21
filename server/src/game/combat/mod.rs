@@ -33,7 +33,6 @@ fn read_interacts_weapons(
     mut messages: MessageReader<InteractWithMessage>,
     mut commands: Commands,
     weapons: Query<&Weapon>,
-    transforms: Query<&Transform>,
 ) {
     for interaction in messages.read() {
         if !matches!(interaction.intent, Intent::Aggressive) {
@@ -44,11 +43,7 @@ fn read_interacts_weapons(
             continue;
         };
 
-        let transform = transforms
-            .get(interaction.user)
-            .expect("Attacker should have transform.");
-
-        commands.play_sound_locally(weapon.hit_sound.clone(), transform.translation);
+        commands.play_sound(weapon.hit_sound.clone());
 
         commands.write_message(AttackMeleeMessage {
             user: interaction.user,

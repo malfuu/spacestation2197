@@ -175,7 +175,7 @@ fn on_start_timer_finished(
 }
 
 fn on_round_start(_: On<RoundStartedEvent>, mut commands: Commands) {
-    commands.play_sound_globally("sounds/welcome.ogg");
+    commands.play_sound("sounds/welcome.ogg");
 }
 
 fn on_round_end(

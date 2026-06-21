@@ -17,25 +17,9 @@ fn read_play_sound(
     asset_server: Res<AssetServer>,
 ) {
     for message in messages.read() {
-        match message {
-            PlaySoundMessage::Global { sound } => {
-                commands.spawn((
-                    AudioPlayer::new(asset_server.load(sound)),
-                    PlaybackSettings::DESPAWN,
-                ));
-            }
-            PlaySoundMessage::Spatial {
-                sound, position, ..
-            } => {
-                commands.spawn((
-                    AudioPlayer::new(asset_server.load(sound)),
-                    Transform::from_translation(*position),
-                    PlaybackSettings {
-                        spatial: true,
-                        ..PlaybackSettings::DESPAWN
-                    },
-                ));
-            }
-        }
+        commands.spawn((
+            AudioPlayer::new(asset_server.load(&message.sound)),
+            PlaybackSettings::DESPAWN,
+        ));
     }
 }

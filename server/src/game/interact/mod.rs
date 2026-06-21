@@ -183,7 +183,6 @@ fn read_interact_empty_hand(
     // if we are doing a full optional query, why dont we just use the world?
     // god this is going this whole project will be so spaghetti
     mut entities: Query<InteractEmptyHandQueryData>,
-    transforms: Query<&GlobalTransform>,
 ) {
     for interaction in reader.read() {
         let kind = {
@@ -202,7 +201,7 @@ fn read_interact_empty_hand(
 
         match kind {
             TargetKind::Mob => {
-                on_interact_mob(&mut commands, *interaction, &transforms);
+                on_interact_mob(&mut commands, *interaction);
             }
             TargetKind::Item => {
                 on_interact_item(&mut commands, *interaction, &mut entities);
@@ -212,11 +211,7 @@ fn read_interact_empty_hand(
     }
 }
 
-fn on_interact_mob(
-    commands: &mut Commands,
-    interaction: InteractHandMessage,
-    transforms: &Query<&GlobalTransform>,
-) {
+fn on_interact_mob(commands: &mut Commands, interaction: InteractHandMessage) {
     match interaction.intent {
         Intent::Passive => {
             commands.trigger(Hug {
@@ -225,11 +220,7 @@ fn on_interact_mob(
             });
         }
         Intent::Aggressive => {
-            let puncher = transforms
-                .get(interaction.user)
-                .expect("Puncher should have transform.");
-
-            commands.play_sound_locally("sounds/punch1.ogg", puncher.translation());
+            commands.play_sound("sounds/punch1.ogg");
 
             commands.write_message(AttackMeleeMessage {
                 user: interaction.user,
@@ -241,21 +232,12 @@ fn on_interact_mob(
     };
 }
 
-fn on_hug(
-    hug: On<Hug>,
-    mut commands: Commands,
-    names: Query<&Name>,
-    transforms: Query<&Transform>,
-) {
+fn on_hug(hug: On<Hug>, mut commands: Commands, names: Query<&Name>) {
     let from_name = names.get(hug.user).expect("from must have name");
     let to_name = names.get(hug.target).expect("to must have name");
     commands.broadcast_chat_message(format!("{} hugged {}.", from_name, to_name));
 
-    let hugged_position = transforms
-        .get(hug.target)
-        .expect("hugged should have transform.");
-
-    commands.play_sound_locally("sounds/hug.ogg", hugged_position.translation);
+    commands.play_sound("sounds/hug.ogg");
 }
 
 fn on_interact_item(

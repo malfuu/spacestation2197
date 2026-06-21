@@ -40,7 +40,7 @@ fn switch_intent(
             Intent::Passive => SOUND_PASSIVE,
         };
 
-        commands.write_message(PlaySoundMessage::Global {
+        commands.write_message(PlaySoundMessage {
             sound: sound_path.to_string(),
         });
     }
