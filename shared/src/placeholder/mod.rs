@@ -15,8 +15,7 @@ pub(super) struct PlaceholderPlugin;
 
 impl Plugin for PlaceholderPlugin {
     fn build(&self, app: &mut App) {
-        app
-            .prototype_component::<MobCollider>()
+        app.prototype_component::<MobCollider>()
             .prototype_component::<ItemCollider>();
     }
 }

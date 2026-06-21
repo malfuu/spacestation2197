@@ -151,7 +151,7 @@ fn on_start_timer_finished(
     mut commands: Commands,
     manager: Single<(Entity, &RoundState), ManagerFilter>,
     players: Query<Entity, (PlayerFilter, With<Ready>)>,
-    gamemode: Single<&Gamemode>,
+    _gamemode: Single<&Gamemode>,
 ) {
     let (manager, state) = manager.into_inner();
     if !matches!(*state, RoundState::Starting) {

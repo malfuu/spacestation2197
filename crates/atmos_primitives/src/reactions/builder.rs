@@ -11,7 +11,7 @@ use cranelift_module::{Linkage, Module};
 
 use crate::reactions::{BlockCollection, ROperation, ReactionFn};
 
-const CRANELIFT_OPT_LEVEL: &'static str = "speed";
+const CRANELIFT_OPT_LEVEL: &str = "speed";
 
 fn get_reaction_settings_builder() -> settings::Builder {
     let mut builder = settings::builder();
@@ -165,7 +165,7 @@ fn build_function(
         start_block(&mut builder, &variables, first_user_block, cl_end_block);
 
     // actual conversion of blocks
-    for (_idx, block) in rblocks.iter().enumerate() {
+    for block in rblocks.iter() {
         let cl_block = *cranelift_blocks.get(&block.name).unwrap();
         builder.switch_to_block(cl_block);
 
@@ -252,4 +252,3 @@ pub(super) fn build_reactions(
 
     Ok((module, reactions))
 }
-

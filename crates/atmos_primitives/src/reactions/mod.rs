@@ -61,13 +61,16 @@ pub fn parse_and_build_reactions(
 ) -> Result<ReactionRegistry, Box<dyn Error>> {
     let mut parsed_reactions = Vec::with_capacity(reaction_prototypes.len());
     for (_name_prototype, reaction_prototype) in reaction_prototypes.iter() {
-        let parsed = parse_reaction(*reaction_prototype)?;
+        let parsed = parse_reaction(reaction_prototype)?;
         parsed_reactions.push(parsed);
     }
 
     let (module, reactions) = build_reactions(parsed_reactions)?;
 
-    let registry = ReactionRegistry { _module: module, reactions };
+    let registry = ReactionRegistry {
+        _module: module,
+        reactions,
+    };
 
     Ok(registry)
 }
