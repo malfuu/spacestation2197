@@ -17,9 +17,6 @@ opt-level = 3
 codegen-units = 1
 lto = "thin"
 
-
-
-
 [workspace.dependencies]
 atmos_primitives = { path = "crates/atmos_primitives" }
 atmos_simulation = { path = "crates/atmos_simulation" }
@@ -52,6 +49,13 @@ indexmap = "2.13.0"
 
 # deliberately not using luajit
 mlua = { version = "0.11.6", features = ["lua51", "vendored", "serde", "macros", "anyhow"] }
+
+chumsky = "0.13"
+cranelift = "0.132.2"
+cranelift-jit = "0.132.2"
+cranelift-module = "0.132.2"
+cranelift-native = "0.132.2"
+cranelift-frontend = "0.132.2"
 
 criterion = { version = "0.8.2", features = ["html_reports"]}
 

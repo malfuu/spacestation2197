@@ -14,5 +14,12 @@ anyhow.workspace = true
 serde.workspace = true
 rand.workspace = true
 
+chumsky.workspace = true
+cranelift.workspace = true
+cranelift-jit.workspace = true
+cranelift-module.workspace = true
+cranelift-native.workspace = true
+cranelift-frontend.workspace = true
+
 [dev-dependencies]
 criterion.workspace = true

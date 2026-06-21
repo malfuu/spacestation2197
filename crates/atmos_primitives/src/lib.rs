@@ -6,6 +6,7 @@ pub mod equations;
 pub mod gas_list;
 pub mod gas_mixture;
 pub mod mixture_template;
+pub mod reactions;
 
 #[doc(hidden)]
 pub mod prelude;
@@ -13,7 +14,7 @@ pub mod prelude;
 use bevy::prelude::*;
 use wide::f32x16;
 
-/// Ideal gas law constant at J K^-1 mol^-1
+/// Ideal gas law constant at Joules per Kelvin Mole
 pub const IDEAL_GAS_CONSTANT: f32 = 8.314_463;
 /// Required moles to avoid being culled.
 pub const MINIMUM_AMOUNT_OF_SUBSTANCE: f32 = 1e-8;
