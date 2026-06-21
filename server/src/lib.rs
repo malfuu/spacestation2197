@@ -44,6 +44,16 @@ impl Plugin for ServerPlugin {
     }
 }
 
+/// Marker resource marking this instance as authoritative.
+#[derive(Resource, Debug)]
+pub struct IsAuthority;
+
+/// Run condition for running authoritative systems and conditions.
+/// Only host or servers should use these.
+pub fn is_authority(is_authority: Option<Res<IsAuthority>>) -> bool {
+    is_authority.is_some()
+}
+
 fn replicate_new_entities(on: On<Add, EntityTag>, mut commands: Commands) {
     commands.entity(on.entity).insert(Replicated);
 }
@@ -70,4 +80,26 @@ pub fn start_game_instance(
 
     // open server & connections
     commands.run_system_cached(load_server);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn is_authority_true() {
+        let mut app = App::new();
+        app.insert_resource(IsAuthority);
+
+        let sut = app.world_mut().run_system_cached(is_authority).unwrap();
+        assert!(sut);
+    }
+
+    #[test]
+    fn is_authority_false() {
+        let mut app = App::new();
+
+        let sut = app.world_mut().run_system_cached(is_authority).unwrap();
+        assert!(!sut);
+    }
 }
