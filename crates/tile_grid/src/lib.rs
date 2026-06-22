@@ -137,7 +137,7 @@ mod tests {
 
     #[test]
     fn test_next_chunk_boundary() {
-        let (chunk, offset) = world_to_chunk_and_local(WorldTilePosition::new(8, 8));
+        let (chunk, offset) = world_to_chunk_and_local(WorldTilePosition::new(16, 16));
         assert_eq!(chunk, ChunkPosition::new(1, 1));
         assert_eq!(offset, LocalTilePosition::new(0, 0));
     }
@@ -147,6 +147,6 @@ mod tests {
         let (chunk, offset) = world_to_chunk_and_local(WorldTilePosition::new(-1, 0));
 
         assert_eq!(chunk, ChunkPosition::new(-1, 0));
-        assert_eq!(offset, LocalTilePosition::new(7, 0));
+        assert_eq!(offset, LocalTilePosition::new(15, 0));
     }
 }
