@@ -1,8 +1,10 @@
 use bevy::prelude::*;
+use tile_grid::Grid;
 
 use crate::{
     chunk::ChunkMixtures,
     simulation::{AtmosSchedule, AtmosStepSystems},
+    AtmosSimulated,
 };
 
 pub(super) struct ReactionSimulation;
@@ -18,8 +20,15 @@ impl Plugin for ReactionSimulation {
     }
 }
 
-fn perform_reactions(mut active_chunks: Query<&mut ChunkMixtures>) {
-    for mut _chunk in active_chunks.iter_mut() {
-        // TODO
+fn perform_reactions(
+    grids: Query<&Grid, With<AtmosSimulated>>,
+    mut active_chunks: Query<&mut ChunkMixtures>,
+) {
+    for grid in &grids {
+        for &chunk_entity in grid.chunks.values() {
+            if let Ok(mut _chunk) = active_chunks.get_mut(chunk_entity) {
+                // TODO
+            }
+        }
     }
 }
