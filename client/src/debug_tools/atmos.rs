@@ -4,14 +4,13 @@ use bevy_egui::prelude::*;
 use atmos_primitives::gas_list::GasList;
 use atmos_primitives::prelude::*;
 use atmos_simulation::prelude::*;
-use tile_grid::{CHUNK_SIZE, Chunk, Grid, chunk_and_local_to_world, world_to_chunk_and_local};
+use tile_grid::{Chunk, Grid, chunk_and_local_to_world, world_to_chunk_and_local};
 
 use crate::base::input::ExtraInputs;
 use crate::debug_tools::{AppDebugOptionExt, DebugGizmos, option_enabled};
 
 const DEBUG_OPTION_ATMOS_MIXTURE: &str = "atmos_mixture";
 const DEBUG_OPTION_ATMOS_WIND: &str = "atmos_wind";
-const DEBUG_OPTION_ATMOS_EXCITED: &str = "atmos_excited";
 
 pub(super) struct DebugAtmosPlugin;
 
@@ -19,13 +18,11 @@ impl Plugin for DebugAtmosPlugin {
     fn build(&self, app: &mut App) {
         app.register_debug_option(DEBUG_OPTION_ATMOS_MIXTURE)
             .register_debug_option(DEBUG_OPTION_ATMOS_WIND)
-            .register_debug_option(DEBUG_OPTION_ATMOS_EXCITED)
             .add_systems(
                 Update,
                 (
                     draw_wind_vectors.run_if(option_enabled(DEBUG_OPTION_ATMOS_WIND)),
                     ui_mixture_information.run_if(option_enabled(DEBUG_OPTION_ATMOS_MIXTURE)),
-                    draw_excited_chunks.run_if(option_enabled(DEBUG_OPTION_ATMOS_EXCITED)),
                 ),
             );
     }
@@ -93,10 +90,7 @@ fn ui_mixture_information(
     Ok(())
 }
 
-fn draw_wind_vectors(
-    mut gizmos: Gizmos<DebugGizmos>,
-    chunks: Query<(&Chunk, &Flows), With<Excited>>,
-) {
+fn draw_wind_vectors(mut gizmos: Gizmos<DebugGizmos>, chunks: Query<(&Chunk, &Flows)>) {
     for (chunk, flows) in chunks.iter() {
         let chunk_position = chunk.position();
 
@@ -120,23 +114,5 @@ fn draw_wind_vectors(
 
             gizmos.arrow(start, end, color);
         }
-    }
-}
-
-fn draw_excited_chunks(mut gizmos: Gizmos<DebugGizmos>, chunks: Query<&Chunk, With<Excited>>) {
-    let rotation = Quat::from_rotation_x(90.0f32.to_radians());
-
-    for chunk in chunks.iter() {
-        let chunk_position = chunk.position();
-
-        let grid_corner = chunk_position.as_vec2() * CHUNK_SIZE as f32;
-        let grid_center = grid_corner + Vec2::splat(CHUNK_SIZE as f32 / 2.0);
-        let grid_center = Vec3::new(grid_center.x, 0.01, grid_center.y);
-
-        gizmos.rect(
-            Isometry3d::new(grid_center, rotation),
-            Vec2::splat(CHUNK_SIZE as f32),
-            Color::srgb(1.0, 0.5, 0.0),
-        );
     }
 }

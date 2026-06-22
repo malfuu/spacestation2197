@@ -8,6 +8,7 @@ pub mod simulation;
 pub mod prelude;
 
 use bevy::prelude::*;
+use serde::{Deserialize, Serialize};
 
 use crate::simulation::{AtmosphericsSimulationPlugin, run_atmos_schedule};
 
@@ -56,3 +57,8 @@ pub(crate) enum AtmosSystems {
     /// Empty by default.
     Last,
 }
+
+/// Marks a grid has having a simulated atmosphere.
+/// Note: a grid might still have an atmosphere.
+#[derive(Component, Debug, Serialize, Deserialize)]
+pub struct AtmosSimulated;

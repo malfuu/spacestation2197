@@ -11,7 +11,6 @@ use crate::{
     chunk::{
         ChunkCached, ChunkMixtures, Flows, INTERNAL_EDGES_LENGTH, ImpermeableChunk, SpaceChunk,
     },
-    excited::Excited,
     simulation::{AtmosSchedule, AtmosStepSystems},
     tile_mixture::{CachedTile, TileMixtureViewMut},
 };
@@ -38,7 +37,7 @@ impl Plugin for FlowSimulation {
     }
 }
 
-fn reset_flows(active_chunks: Query<Mut<Flows>, With<Excited>>) {
+fn reset_flows(active_chunks: Query<Mut<Flows>>) {
     for mut flows in active_chunks {
         flows.iter_mut().for_each(|f| *f = Vec2::ZERO);
     }
@@ -46,7 +45,7 @@ fn reset_flows(active_chunks: Query<Mut<Flows>, With<Excited>>) {
 
 fn cache_mixtures(
     gas_list: Res<GasList>,
-    mut active_chunks: Query<(&ChunkMixtures, &mut ChunkCached), With<Excited>>,
+    mut active_chunks: Query<(&ChunkMixtures, &mut ChunkCached)>,
 ) {
     let molar_heat_capacities = gas_list.get_molar_heat_capacities();
     for (mixtures, mut cached) in &mut active_chunks {
@@ -70,7 +69,7 @@ fn cache_mixtures(
 
 fn apply_internal_exchanges(
     gas_list: Res<GasList>,
-    mut active_chunks: Query<(&mut ChunkMixtures, &mut Flows, &ChunkCached), With<Excited>>,
+    mut active_chunks: Query<(&mut ChunkMixtures, &mut Flows, &ChunkCached)>,
 ) {
     for (mut mixtures, mut flows, cached) in &mut active_chunks {
         // horizontal exchanges
@@ -197,7 +196,7 @@ fn apply_external_exchanges(
     }
 }
 
-fn cull_mixtures(active_chunks: Query<Mut<ChunkMixtures>, With<Excited>>) {
+fn cull_mixtures(active_chunks: Query<Mut<ChunkMixtures>>) {
     for mut chunk in active_chunks {
         let chunk = chunk.bypass_change_detection();
         chunk.cull();
@@ -238,7 +237,7 @@ fn exchange(
     exchanging_amounts
 }
 
-fn update_space_clear(mut chunks: Query<(Mut<ChunkMixtures>, &SpaceChunk), With<Excited>>) {
+fn update_space_clear(mut chunks: Query<(Mut<ChunkMixtures>, &SpaceChunk)>) {
     for (mut chunk, space) in chunks.iter_mut() {
         let chunk = chunk.bypass_change_detection();
         space.iter_with_pos().for_each(|(pos, is_space)| {
@@ -251,7 +250,6 @@ fn update_space_clear(mut chunks: Query<(Mut<ChunkMixtures>, &SpaceChunk), With<
 
 #[derive(QueryFilter)]
 struct ChangingChunks {
-    no_actives: Without<Excited>,
     or_changed: Or<(
         Changed<ChunkMixtures>,
         Changed<SpaceChunk>,

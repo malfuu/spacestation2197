@@ -2,7 +2,6 @@ use bevy::prelude::*;
 
 use crate::{
     chunk::ChunkMixtures,
-    excited::Excited,
     simulation::{AtmosSchedule, AtmosStepSystems},
 };
 
@@ -19,7 +18,7 @@ impl Plugin for ReactionSimulation {
     }
 }
 
-fn perform_reactions(mut active_chunks: Query<&mut ChunkMixtures, With<Excited>>) {
+fn perform_reactions(mut active_chunks: Query<&mut ChunkMixtures>) {
     for mut _chunk in active_chunks.iter_mut() {
         // TODO
     }

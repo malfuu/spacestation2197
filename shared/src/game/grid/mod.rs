@@ -152,7 +152,6 @@ pub(super) fn on_chunk_add(add: On<Add, Chunk>, mut commands: Commands, chunks: 
         ChunkCached::default(),
         SpaceChunk::default(),
         ImpermeableChunk::default(),
-        atmos_simulation::excited::Excited::default(),
     ));
 }
 
