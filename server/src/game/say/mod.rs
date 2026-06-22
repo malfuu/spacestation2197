@@ -13,6 +13,7 @@ use shared::{
 
 use crate::{
     game::mind::{Controlled, Controls},
+    networking::ServerClientEntity,
     utils::MessageCommandsExt,
 };
 
@@ -32,13 +33,12 @@ impl Plugin for SayPlugin {
 
 fn read_input_say_input(
     mut reader: MessageReader<FromClient<SayInput>>,
+    server_client: Res<ServerClientEntity>,
     mut commands: Commands,
     players: Query<&Controls, PlayerFilter>,
 ) {
     for input in reader.read() {
-        let ClientId::Client(client_entity) = input.client_id else {
-            continue;
-        };
+        let client_entity = server_client.resolve(input.client_id);
 
         let Ok(owner) = players.get(client_entity) else {
             continue;

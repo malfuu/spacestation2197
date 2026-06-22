@@ -14,7 +14,7 @@ use shared::{
     utils::filters::PlayerFilter,
 };
 
-use crate::{meta::ooc::OocResource, utils::MessageCommandsExt};
+use crate::{meta::ooc::OocResource, networking::ServerClientEntity, utils::MessageCommandsExt};
 
 pub const MINIMUM_TICKS: u32 = 1;
 pub const MAXIMUM_TICKS: u32 = 120;
@@ -60,6 +60,7 @@ struct AdminCommandsData<'w> {
 
 fn read_admin_commands(
     mut reader: MessageReader<FromClient<AdminCommandMessage>>,
+    _server_client: Res<ServerClientEntity>,
     mut commands: Commands,
     admins: Query<&Administrator, PlayerFilter>,
     round_state: Single<(Entity, &RoundState)>,

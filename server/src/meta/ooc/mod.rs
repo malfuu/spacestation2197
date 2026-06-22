@@ -6,7 +6,7 @@ use shared::{
     utils::filters::PlayerFilter,
 };
 
-use crate::utils::MessageCommandsExt;
+use crate::{networking::ServerClientEntity, utils::MessageCommandsExt};
 
 pub(crate) struct OocPlugin;
 
@@ -30,6 +30,7 @@ impl Default for OocResource {
 
 fn read_oocs(
     mut reader: MessageReader<FromClient<PlayerOoc>>,
+    server_client: Res<ServerClientEntity>,
     mut commands: Commands,
     resource: Res<OocResource>,
     ids: Query<&PlayerName, PlayerFilter>,
@@ -39,7 +40,7 @@ fn read_oocs(
             continue; // dont forget to consume all incoming OOC messages regardless!
         }
 
-        let client_entity = msg.client_id.entity().expect("only client instances play.");
+        let client_entity = server_client.resolve(msg.client_id);
 
         let Ok(player_name) = ids.get(client_entity) else {
             continue;

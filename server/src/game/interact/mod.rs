@@ -25,6 +25,7 @@ use shared::{
 
 use crate::{
     game::{combat::AttackMeleeMessage, mind::Controls},
+    networking::ServerClientEntity,
     utils::MessageCommandsExt,
 };
 
@@ -55,13 +56,12 @@ impl Plugin for InteractPlugin {
 
 fn read_input_interacts(
     mut reader: MessageReader<FromClient<InteractInput>>,
+    server_client: Res<ServerClientEntity>,
     mut commands: Commands,
     clients: Query<&Controls, PlayerFilter>,
 ) {
     for input in reader.read() {
-        let ClientId::Client(client_entity) = input.client_id else {
-            continue;
-        };
+        let client_entity = server_client.resolve(input.client_id);
 
         let Ok(owner) = clients.get(client_entity) else {
             continue;

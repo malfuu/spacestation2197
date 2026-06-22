@@ -11,6 +11,7 @@ use shared::{
 
 use crate::{
     game::mind::{Controlled, Controls},
+    networking::ServerClientEntity,
     utils::{SpawnMethod, SpawnerCommandsExt},
 };
 
@@ -30,14 +31,13 @@ impl Plugin for GhostPlugin {
 
 fn read_input_ghosts(
     mut reader: MessageReader<FromClient<GhostInput>>,
+    server_client: Res<ServerClientEntity>,
     mut commands: Commands,
     clients: Query<&Controls, PlayerFilter>,
     mobs: Query<&Transform, (MobFilter, Without<Ghost>)>,
 ) {
     for input in reader.read() {
-        let ClientId::Client(client_entity) = input.client_id else {
-            continue;
-        };
+        let client_entity = server_client.resolve(input.client_id);
 
         let Ok(controls) = clients.get(client_entity) else {
             continue;

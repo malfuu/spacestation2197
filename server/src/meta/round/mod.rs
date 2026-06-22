@@ -18,7 +18,10 @@ use shared::{
     },
 };
 
-use crate::utils::{SpawnMethod, SpawnerCommandsExt};
+use crate::{
+    networking::ServerClientEntity,
+    utils::{SpawnMethod, SpawnerCommandsExt},
+};
 
 pub(crate) struct RoundPlugin;
 
@@ -49,12 +52,11 @@ impl Plugin for RoundPlugin {
 
 pub(super) fn read_ready(
     mut reader: MessageReader<FromClient<ReadyInput>>,
+    server_client: Res<ServerClientEntity>,
     mut commands: Commands,
 ) {
     for input in reader.read() {
-        let ClientId::Client(client_entity) = input.client_id else {
-            continue;
-        };
+        let client_entity = server_client.resolve(input.client_id);
 
         let Ok(mut entity) = commands.get_entity(client_entity) else {
             warn!("No existing player entity for {client_entity:?}");
@@ -69,11 +71,13 @@ pub(super) fn read_ready(
     }
 }
 
-pub(super) fn read_join(mut reader: MessageReader<FromClient<JoinInput>>, mut commands: Commands) {
+pub(super) fn read_join(
+    mut reader: MessageReader<FromClient<JoinInput>>,
+    server_client: Res<ServerClientEntity>,
+    mut commands: Commands,
+) {
     for input in reader.read() {
-        let ClientId::Client(client_entity) = input.client_id else {
-            continue;
-        };
+        let client_entity = server_client.resolve(input.client_id);
 
         let Ok(_) = commands.get_entity(client_entity) else {
             warn!("No existing player entity for {client_entity:?}");

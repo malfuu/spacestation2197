@@ -17,6 +17,8 @@ use shared::{
     utils::filters::PlayerFilter,
 };
 
+use crate::networking::ServerClientEntity;
+
 pub(super) struct SandboxPlugin;
 
 impl Plugin for SandboxPlugin {
@@ -51,6 +53,7 @@ struct SandboxData<'w, 's> {
 
 fn read_sandbox_commands(
     mut reader: MessageReader<FromClient<SandboxCommands>>,
+    _server_client: Res<ServerClientEntity>,
     mut commands: Commands,
     mut sandbox_data: SandboxData,
 ) {

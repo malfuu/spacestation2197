@@ -13,7 +13,7 @@ use shared::{
     utils::filters::{MobFilter, PlayerFilter},
 };
 
-use crate::game::mind::Controls;
+use crate::{game::mind::Controls, networking::ServerClientEntity};
 
 pub(super) struct HandsPlugin;
 
@@ -36,14 +36,13 @@ type AliveMobFilter = (MobFilter, Without<Dead>);
 
 fn read_input_drops(
     mut reader: MessageReader<FromClient<DropInput>>,
+    server_client: Res<ServerClientEntity>,
     mut commands: Commands,
     clients: Query<&Controls, PlayerFilter>,
     mut mobs: Query<(&Transform, Mut<Hands>), AliveMobFilter>,
 ) {
     for input in reader.read() {
-        let ClientId::Client(client_entity) = input.client_id else {
-            continue;
-        };
+        let client_entity = server_client.resolve(input.client_id);
 
         let Ok(owner) = clients.get(client_entity) else {
             continue;
@@ -77,15 +76,14 @@ fn read_input_drops(
 
 fn read_input_throws(
     mut reader: MessageReader<FromClient<ThrowInput>>,
+    server_client: Res<ServerClientEntity>,
     mut commands: Commands,
     clients: Query<&Controls, PlayerFilter>,
     mut mobs: Query<(&Transform, Mut<Hands>), AliveMobFilter>,
     mut item_physics: Query<(Option<&Mass>, Forces)>,
 ) {
     for input in reader.read() {
-        let ClientId::Client(client_entity) = input.client_id else {
-            continue;
-        };
+        let client_entity = server_client.resolve(input.client_id);
 
         let Ok(owner) = clients.get(client_entity) else {
             continue;
@@ -131,14 +129,13 @@ fn read_input_throws(
 
 fn read_input_uses(
     mut reader: MessageReader<FromClient<UseInput>>,
+    server_client: Res<ServerClientEntity>,
     mut commands: Commands,
     clients: Query<&Controls, PlayerFilter>,
     mobs: Query<&Hands, AliveMobFilter>,
 ) {
     for input in reader.read() {
-        let ClientId::Client(client_entity) = input.client_id else {
-            continue;
-        };
+        let client_entity = server_client.resolve(input.client_id);
 
         let Ok(owner) = clients.get(client_entity) else {
             continue;
@@ -165,13 +162,12 @@ fn read_input_uses(
 
 fn read_input_switch_hands(
     mut reader: MessageReader<FromClient<SwitchHandsInput>>,
+    server_client: Res<ServerClientEntity>,
     clients: Query<&Controls, PlayerFilter>,
     mut mobs: Query<&mut Hands, AliveMobFilter>,
 ) {
     for input in reader.read() {
-        let ClientId::Client(client_entity) = input.client_id else {
-            continue;
-        };
+        let client_entity = server_client.resolve(input.client_id);
 
         let Ok(owner) = clients.get(client_entity) else {
             continue;

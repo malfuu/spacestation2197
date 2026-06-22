@@ -6,15 +6,16 @@ use shared::{
     utils::filters::PlayerFilter,
 };
 
+use crate::networking::ServerClientEntity;
+
 pub(super) fn read_set_customization(
     mut reader: MessageReader<FromClient<SetCustomizationInput>>,
+    server_client: Res<ServerClientEntity>,
     mut commands: Commands,
     players: Query<Entity, PlayerFilter>,
 ) {
     for input in reader.read() {
-        let ClientId::Client(client_entity) = input.client_id else {
-            continue;
-        };
+        let client_entity = server_client.resolve(input.client_id);
 
         let Ok(entity) = players.get(client_entity) else {
             warn!("No existing player entity for {client_entity:?}");

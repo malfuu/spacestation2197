@@ -29,6 +29,7 @@ pub(super) struct ServerNetworkingPlugin;
 impl Plugin for ServerNetworkingPlugin {
     fn build(&self, app: &mut App) {
         app.sync_related_entities::<ChildOf>()
+            .init_resource::<ServerClientEntity>()
             .add_systems(FixedUpdate, update_ping.in_set(MetaSystems::Logic))
             .add_observer(on_joining_client)
             .add_observer(listen_leaving_client);
@@ -37,8 +38,20 @@ impl Plugin for ServerNetworkingPlugin {
 
 /// In case the server is also a participating client. (e.g. player hosting co-op).
 /// The inner entity will point to a backend created client entity.
-#[derive(Resource, Deref)]
+#[derive(Resource, Default, Deref)]
 pub struct ServerClientEntity(Option<Entity>);
+
+impl ServerClientEntity {
+    /// Resolves the client entity from a `ClientId`
+    /// Falls back to the server's local client entity if it's `ClientId::Server`, panics if no
+    /// local client is present.
+    pub fn resolve(&self, client_id: ClientId) -> Entity {
+        client_id
+            .entity()
+            .or(self.0)
+            .expect("Server origin without server client preent!")
+    }
+}
 
 fn on_joining_client(
     add: On<Add, ConnectedClient>,

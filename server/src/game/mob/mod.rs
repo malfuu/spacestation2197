@@ -9,9 +9,12 @@ use shared::{
     utils::filters::{MobFilter, PlayerFilter},
 };
 
-use crate::game::{
-    mind::Controls,
-    mob::health::{die, on_death},
+use crate::{
+    game::{
+        mind::Controls,
+        mob::health::{die, on_death},
+    },
+    networking::ServerClientEntity,
 };
 
 pub mod health;
@@ -31,6 +34,7 @@ impl Plugin for MobPlugin {
 
 pub(super) fn read_input_moves(
     mut reader: MessageReader<FromClient<MoveInput>>,
+    _server_client: Res<ServerClientEntity>,
     clients: Query<&Controls, PlayerFilter>,
     mut mobs: Query<&mut AccumulatedInput, (MobFilter, Without<Dead>)>,
 ) {
