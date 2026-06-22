@@ -7,6 +7,8 @@
 //! And does not despawn chunks.
 //! and is overall desync happy.
 //! oh god - this impl is trash!
+#![deny(missing_docs)]
+
 pub mod chunk_mask;
 pub mod grid;
 
@@ -16,29 +18,41 @@ use serde::{Deserialize, Serialize};
 
 use crate::grid::UnsizedBaseGrid;
 
+/// Side length of a chunk.
 pub const CHUNK_SIZE: usize = 16;
+/// Total area of a chunk.
 pub const CHUNK_AREA: usize = CHUNK_SIZE * CHUNK_SIZE;
 
+/// Coordinates identifying a chunk's position in grid space.
 pub type ChunkPosition = IVec2;
+/// Coordinates identifying a tile's position in grid space.
 pub type WorldTilePosition = IVec2;
+/// Coordinates identifying a tile's position relative to its containing chunk.
 pub type LocalTilePosition = UVec2;
 
-/// Grid with CHUNK_SIZE squared dimension.
+/// Base grid with CHUNK_SIZE squared dimension.
+/// You should mostly use this one.
 pub type BaseGrid<T> = UnsizedBaseGrid<T, CHUNK_SIZE, CHUNK_SIZE, CHUNK_AREA>;
+/// Sparse Chunk containing [`TileTag`]s.
 pub type TileChunk = BaseGrid<Option<TileTag>>;
+/// Entity per cell.
 pub type EntityChunk = BaseGrid<Entity>;
 
-pub type BooleanChunk = BaseGrid<bool>; // perhaps look into fitting this inside a u64 bitmask
-// actually look into usin the new [`chunkMask`]!
+/// [`BaseGrid`] with bools.
+/// Avoid using this as [`chunk_mask::ChunkMask`] takes the lead.
+pub type BooleanChunk = BaseGrid<bool>;
 
 /// Chunk position origin is in the top left corner
 #[derive(Component, Clone, Serialize, Deserialize)]
 pub struct Chunk {
-    position: ChunkPosition, // TODO: perhaps split this into ChunkPosition component
+    // TODO: perhaps split this into ChunkPosition component
+    position: ChunkPosition,
+    /// The tile grid containing the tile tags for this chunk.
     pub tiles: TileChunk,
 }
 
 impl Chunk {
+    /// Constructs a new [`Chunk`] at the specified chunk position.
     pub fn new(position: ChunkPosition) -> Self {
         Self {
             position,
@@ -46,10 +60,12 @@ impl Chunk {
         }
     }
 
+    /// Returns the position of this chunk.
     pub fn position(&self) -> ChunkPosition {
         self.position
     }
 
+    /// Returns `true` if all tiles in this chunk are empty.
     pub fn is_empty(&self) -> bool {
         self.tiles.is_all_none()
     }
@@ -60,6 +76,7 @@ impl Chunk {
 #[derive(Component, Serialize, Deserialize)]
 #[component(map_entities)]
 pub struct Grid {
+    /// Internal container of entities representing chunks.
     pub chunks: HashMap<ChunkPosition, Entity>,
 }
 
@@ -70,15 +87,18 @@ impl Default for Grid {
 }
 
 impl Grid {
+    /// Constructs a new [`Grid`].
     pub fn new() -> Self {
         Self { chunks: default() }
     }
 
+    /// Adds a [`Chunk`] at [`ChunkPosition`].
     pub fn add(&mut self, chunk_position: ChunkPosition, chunk: Entity) {
         assert!(self.get(chunk_position).is_none());
         self.chunks.insert(chunk_position, chunk);
     }
 
+    /// Retrieves a [`Chunk`] indexed by [`ChunkPosition`].
     pub fn get(&self, chunk_position: ChunkPosition) -> Option<Entity> {
         self.chunks.get(&chunk_position).copied()
     }

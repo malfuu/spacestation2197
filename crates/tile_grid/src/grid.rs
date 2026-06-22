@@ -1,3 +1,4 @@
+//! Core 2D fixed-size base grid data structure.
 use std::array;
 
 use bevy::prelude::*;
@@ -15,23 +16,26 @@ pub struct UnsizedBaseGrid<T, const R: usize, const C: usize, const A: usize> {
 }
 
 impl<T, const R: usize, const C: usize, const A: usize> UnsizedBaseGrid<T, R, C, A> {
+    /// Returns the number of rows.
     pub const fn rows() -> usize {
         R
     }
 
+    /// Returns the number of columns.
     pub const fn columns() -> usize {
         C
     }
 
+    /// Returns the total area.
     pub const fn area() -> usize {
         A
     }
 
+    /// Splats a value across the entire chunk.
     pub fn from_value(value: T) -> Self
     where
         T: Copy,
     {
-        // Sanity check
         assert_eq!(R * C, A, "Invalid chunk sizes."); // TODO perhaps make this compile time.
 
         Self { data: [value; A] }
@@ -55,6 +59,8 @@ impl<T, const R: usize, const C: usize, const A: usize> UnsizedBaseGrid<T, R, C,
         LocalTilePosition::new(x, y)
     }
 
+    /// Retrieves `&T` indexed by its position.
+    /// [`None`] if position is invalid.
     #[must_use]
     pub fn get(&self, pos: LocalTilePosition) -> Option<&T> {
         let index = Self::position_to_index(pos)?;
@@ -62,12 +68,16 @@ impl<T, const R: usize, const C: usize, const A: usize> UnsizedBaseGrid<T, R, C,
         self.data.get(index)
     }
 
+    /// Retrieves `&mut T` indexed by its position.
+    /// [`None`] if position is invalid.
     #[must_use]
     pub fn get_mut(&mut self, pos: LocalTilePosition) -> Option<&mut T> {
         let index = Self::position_to_index(pos)?;
         self.data.get_mut(index)
     }
 
+    /// Retrieves multiple `&T` references.
+    /// [`None`] if any of the positions are invalid.
     #[must_use]
     pub fn get_many<const N: usize>(&self, positions: [LocalTilePosition; N]) -> Option<[&T; N]> {
         let mut indices = [0; N];
@@ -78,6 +88,8 @@ impl<T, const R: usize, const C: usize, const A: usize> UnsizedBaseGrid<T, R, C,
         Some(array::from_fn(|i| &self.data[indices[i]]))
     }
 
+    /// Retrieves multiple `&mut T` references.
+    /// [`None`] if any of the positions are invalid.
     #[must_use]
     pub fn get_many_mut<const N: usize>(
         &mut self,
@@ -96,10 +108,13 @@ impl<T, const R: usize, const C: usize, const A: usize> UnsizedBaseGrid<T, R, C,
         let ptr = self.data.as_mut_ptr();
 
         // SAFETY:
-        // `position_to_index` guarantees all indices are strictly within bouds and all indices are strictly unique
+        // `position_to_index` guarantees all indices are strictly within bouds
+        // and all indices are strictly unique
         Some(array::from_fn(|i| unsafe { &mut *ptr.add(indices[i]) }))
     }
 
+    /// Sets a cell value by position.
+    /// [`None`] if position is invalid.
     pub fn set(&mut self, pos: LocalTilePosition, value: T) -> Option<T> {
         let index = Self::position_to_index(pos)?;
 
@@ -110,26 +125,32 @@ impl<T, const R: usize, const C: usize, const A: usize> UnsizedBaseGrid<T, R, C,
         }
     }
 
+    /// Returns an iterator over cells.
     pub fn iter(&self) -> impl Iterator<Item = &T> {
         self.data.iter()
     }
 
+    /// Returns a mutable iterator over cells.
     pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut T> {
         self.data.iter_mut()
     }
 
+    /// Returns an iterator over cells with their positions.
     pub fn iter_with_pos(&self) -> impl Iterator<Item = (LocalTilePosition, &T)> {
         self.iter()
             .enumerate()
             .map(|(i, item)| (Self::index_to_position(i), item))
     }
 
+    /// Returns a mutable iterator over cells with their positions.
     pub fn iter_mut_with_pos(&mut self) -> impl Iterator<Item = (LocalTilePosition, &mut T)> {
         self.iter_mut()
             .enumerate()
             .map(|(i, item)| (Self::index_to_position(i), item))
     }
 
+    /// Returns an iterator over a row.
+    /// [`None`] if row is invalid.
     pub fn iter_row(&self, row: usize) -> Option<impl Iterator<Item = &T>> {
         self.data
             .chunks_exact(C)
@@ -137,6 +158,8 @@ impl<T, const R: usize, const C: usize, const A: usize> UnsizedBaseGrid<T, R, C,
             .map(|row_slice| row_slice.iter())
     }
 
+    /// Returns an iterator over a column.
+    /// [`None`] if column is invalid.
     pub fn iter_column(&self, col: usize) -> Option<impl Iterator<Item = &T>> {
         if col >= C {
             return None;
@@ -145,6 +168,8 @@ impl<T, const R: usize, const C: usize, const A: usize> UnsizedBaseGrid<T, R, C,
         Some(self.data.iter().skip(col).step_by(C))
     }
 
+    /// Returns a mutable iterator over a row.
+    /// [`None`] if row is invalid.
     pub fn iter_row_mut(&mut self, row: usize) -> Option<impl Iterator<Item = &mut T>> {
         self.data
             .chunks_exact_mut(C)
@@ -152,6 +177,8 @@ impl<T, const R: usize, const C: usize, const A: usize> UnsizedBaseGrid<T, R, C,
             .map(|row_slice| row_slice.iter_mut())
     }
 
+    /// Returns a mutable iterator over a column.
+    /// [`None`] if column is invalid.
     pub fn iter_column_mut(&mut self, col: usize) -> Option<impl Iterator<Item = &mut T>> {
         if col >= C {
             return None;
@@ -177,10 +204,12 @@ where
 }
 
 impl<V, const R: usize, const C: usize, const A: usize> UnsizedBaseGrid<Option<V>, R, C, A> {
+    /// Returns true if all cells are [`None`].
     pub fn is_all_none(&self) -> bool {
         self.data.iter().all(|cell| cell.is_none())
     }
 
+    /// Sets all cells to [`None`].
     pub fn set_all_none(&mut self) {
         for cell in self.data.iter_mut() {
             *cell = None;

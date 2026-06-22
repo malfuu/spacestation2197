@@ -2,9 +2,9 @@ use bevy::prelude::*;
 use tile_grid::Grid;
 
 use crate::{
+    AtmosSimulated,
     chunk::ChunkMixtures,
     simulation::{AtmosSchedule, AtmosStepSystems},
-    AtmosSimulated,
 };
 
 pub(super) struct ReactionSimulation;

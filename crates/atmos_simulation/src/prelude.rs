@@ -3,4 +3,4 @@ pub use crate::chunk::{
 };
 pub use crate::excited::Excited;
 pub use crate::tile_mixture::CachedTile;
-pub use crate::{AtmosphericsPlugin, AtmosphericsResource, AtmosSimulated};
+pub use crate::{AtmosSimulated, AtmosphericsPlugin, AtmosphericsResource};

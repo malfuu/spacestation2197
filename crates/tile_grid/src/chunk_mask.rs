@@ -1,3 +1,4 @@
+//! Bitmask implementation for use with chunks.
 use std::ops::{BitAnd, BitOr, BitXor, Not};
 
 use serde::{Deserialize, Serialize};
@@ -6,7 +7,8 @@ use crate::{CHUNK_AREA, CHUNK_SIZE, LocalTilePosition};
 
 const _: () = assert!(CHUNK_SIZE == 16, "ChunkMask is built for CHUNK_SIZE of 16");
 
-/// a boolean mask for a CHUNK_SIZE'd chunk
+/// A boolean mask for a grid chunk of `CHUNK_SIZE` dimension.
+/// Under the hood, this uses four 64-bit integers.
 #[derive(Clone, Copy, Default, Debug, Serialize, Deserialize, PartialEq, Eq)]
 pub struct ChunkMask(pub [u64; 4]);
 
@@ -16,11 +18,13 @@ impl ChunkMask {
         ((index / 64) as usize, 1_u64 << (index % 64))
     }
 
+    /// Bit index to 2D tile position
     #[inline]
     pub fn bit_to_position(index: u32) -> LocalTilePosition {
         LocalTilePosition::new(index % (CHUNK_SIZE as u32), index / (CHUNK_SIZE as u32))
     }
 
+    /// Sets the bit to `true`.
     #[inline]
     pub fn set_position(&mut self, pos: LocalTilePosition) {
         let index = pos.y * (CHUNK_SIZE as u32) + pos.x;
@@ -28,6 +32,7 @@ impl ChunkMask {
         self.0[array_index] |= bit;
     }
 
+    /// Sets the bit to `false`.
     #[inline]
     pub fn clear_position(&mut self, pos: LocalTilePosition) {
         let index = pos.y * (CHUNK_SIZE as u32) + pos.x;
@@ -35,6 +40,7 @@ impl ChunkMask {
         self.0[array_index] &= !bit;
     }
 
+    /// Returns bit value at a given position.
     #[inline]
     pub fn has_position(&self, pos: LocalTilePosition) -> bool {
         let index = pos.y * (CHUNK_SIZE as u32) + pos.x;
@@ -42,17 +48,20 @@ impl ChunkMask {
         (self.0[array_index] & bit) != 0
     }
 
+    /// Checks if all bits in the mask are `false`.
     #[inline]
     pub fn is_empty(&self) -> bool {
         self.0 == [0; 4]
     }
 
+    /// Returns bit value at a given index.
     #[inline]
     pub fn has_index(&self, index: u32) -> bool {
         let (array_index, bit) = Self::to_index_and_bit(index);
         (self.0[array_index] & bit) != 0
     }
 
+    /// Iterates over every bit set to `true`.
     pub fn iter_positions(&self) -> impl Iterator<Item = LocalTilePosition> + '_ {
         let limit = CHUNK_AREA as u32;
         (0..limit)
