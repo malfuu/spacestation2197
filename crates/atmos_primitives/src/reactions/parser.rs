@@ -2,8 +2,11 @@ use chumsky::extra;
 use chumsky::prelude::*;
 
 use super::builder::{BlockCollection, RBlock, ROperation};
+use crate::gas_list::GasList;
 
+const BLOCK_PREFIX_CHARACTER: char = ':';
 const COMMENT_CHARACTER: char = ';';
+const GASTYPE_CHARACTER: char = '#';
 
 const OP_ADD: &str = "add";
 const OP_SUB: &str = "sub";
@@ -18,7 +21,10 @@ enum LineItem {
     Op(ROperation),
 }
 
-pub(super) fn parse_reaction<'a>(text: &'a str) -> Result<BlockCollection, String> {
+pub(super) fn parse_reaction<'a>(
+    text: &'a str,
+    _gas_list: &GasList,
+) -> Result<BlockCollection, String> {
     type MyExtra<'a> = extra::Err<Rich<'a, char>>;
 
     let horiz_space = any::<_, MyExtra<'a>>()
@@ -38,7 +44,17 @@ pub(super) fn parse_reaction<'a>(text: &'a str) -> Result<BlockCollection, Strin
         .at_least(1)
         .collect::<String>();
 
-    let block_prefix = just::<_, _, MyExtra<'a>>(':').ignore_then(identation);
+    let block_prefix = just::<_, _, MyExtra<'a>>(BLOCK_PREFIX_CHARACTER).ignore_then(identation);
+
+    // TODO: enable
+    // let gas_id_ref = just::<_, _, MyExtra<'a>>(GASTYPE_CHARACTER)
+    //     .ignore_then(identation.clone())
+    //     .try_map(|name, span| {
+    //         gas_list
+    //             .try_get_gas_id_by_name(&name)
+    //             .map(|id| id.to_string())
+    //             .ok_or_else(|| Rich::custom(span, format!("Invalid gas name: {}", name)))
+    //     });
 
     // giga train of repeated code
     let add_op = just::<_, _, MyExtra<'a>>(OP_ADD)
@@ -165,18 +181,34 @@ pub(super) fn parse_reaction<'a>(text: &'a str) -> Result<BlockCollection, Strin
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::Gas;
+
+    fn make_test_gas_list() -> GasList {
+        GasList::new(vec![
+            Gas {
+                gas_id: 0,
+                name: "gas_a".to_string(),
+                molar_heat_capacity: 21.1,
+            },
+            Gas {
+                gas_id: 1,
+                name: "gas_b".to_string(),
+                molar_heat_capacity: 20.7,
+            },
+        ])
+    }
 
     #[test]
     fn parse_error_no_block() {
         let input = "add a b c";
-        let parsed = parse_reaction(input);
+        let parsed = parse_reaction(input, &make_test_gas_list());
         assert!(parsed.is_err());
     }
 
     #[test]
     fn parse_invalid_syntax() {
         let input = ":start\nadd a b";
-        let parsed = parse_reaction(input);
+        let parsed = parse_reaction(input, &make_test_gas_list());
         assert!(parsed.is_err());
     }
 
@@ -190,7 +222,7 @@ mod tests {
             ; another comment line
             jump end
         ";
-        let parsed = parse_reaction(input).unwrap();
+        let parsed = parse_reaction(input, &make_test_gas_list()).unwrap();
         assert_eq!(parsed.len(), 1);
         assert_eq!(parsed[0].name, "start");
         assert_eq!(parsed[0].operations.len(), 2);

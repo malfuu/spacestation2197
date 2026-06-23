@@ -12,6 +12,7 @@ use wide::f32x16;
 
 use crate::{
     PerGasArray,
+    gas_list::GasList,
     reactions::{builder::build_reactions, parser::parse_reaction},
 };
 
@@ -80,11 +81,12 @@ pub struct ReactionRegistry {
 /// Constructs reactions and returns their functions ready for execution.
 pub fn parse_and_build_reactions(
     reaction_prototypes: Vec<ReactionPrototype>,
+    gas_list: &GasList,
 ) -> Result<ReactionRegistry, Box<dyn Error>> {
     let mut parsed_reactions = Vec::with_capacity(reaction_prototypes.len());
 
     for prototype in reaction_prototypes.iter() {
-        let parsed = parse_reaction(prototype.function.as_str())?;
+        let parsed = parse_reaction(prototype.function.as_str(), gas_list)?;
         parsed_reactions.push(parsed);
     }
 

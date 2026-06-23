@@ -76,8 +76,8 @@ fn build_mixture_list(prototype_list: &Prototypes, gas_list: &GasList) -> Mixtur
     mixture_list
 }
 
-fn build_reaction_registry(_prototype_list: &Prototypes, _gas_list: &GasList) -> ReactionRegistry {
-    parse_and_build_reactions(vec![]).unwrap()
+fn build_reaction_registry(_prototype_list: &Prototypes, gas_list: &GasList) -> ReactionRegistry {
+    parse_and_build_reactions(vec![], gas_list).unwrap()
 }
 
 pub(crate) fn load_gas_protos(world: &mut World) {
