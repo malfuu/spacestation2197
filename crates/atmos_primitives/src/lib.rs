@@ -56,3 +56,20 @@ pub struct Gas {
     /// Bigger values require more energy to increase temperature by one Kelvin.
     pub molar_heat_capacity: f32,
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_per_gas_array_size() {
+        let f32_size = std::mem::size_of::<f32>();
+        let array_size = std::mem::size_of::<PerGasArray>();
+
+        assert_eq!(
+            array_size,
+            MAX_NUMBER_OF_GASES * f32_size,
+            "PerGasArray size does not match MAX_NUMBER_OF_GASES."
+        );
+    }
+}

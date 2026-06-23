@@ -1,13 +1,14 @@
 use chumsky::extra;
 use chumsky::prelude::*;
 
-use super::{BlockCollection, RBlock, ROperation};
+use super::builder::{BlockCollection, RBlock, ROperation};
 
 const OP_ADD: &str = "add";
 const OP_SUB: &str = "sub";
 const OP_MUL: &str = "mul";
 const OP_DIV: &str = "div";
 const OP_JUMP: &str = "jump";
+const OP_REACTED: &str = "reacted";
 
 #[derive(Debug, Clone)]
 enum LineItem {
@@ -79,9 +80,16 @@ pub(super) fn parse_reaction<'a>(text: &'a str) -> Result<BlockCollection, Strin
         .ignore_then(identation)
         .map(ROperation::Jump);
 
+    let reacted_op = just::<_, _, MyExtra<'a>>(OP_REACTED).map(|_| ROperation::Reacted);
+
     // gigatrain of repeated code over -- thank you for visiting shitcode
 
-    let operation = add_op.or(sub_op).or(mul_op).or(div_op).or(jump_op);
+    let operation = add_op
+        .or(sub_op)
+        .or(mul_op)
+        .or(div_op)
+        .or(jump_op)
+        .or(reacted_op);
 
     let line = block_prefix
         .map(LineItem::Header)

@@ -6,6 +6,7 @@ use bevy_replicon::prelude::*;
 use common::PrototypeId;
 
 use atmos_primitives::prelude::*;
+use atmos_primitives::reactions::{ReactionRegistry, parse_and_build_reactions};
 use atmos_simulation::prelude::*;
 use content::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -75,12 +76,19 @@ fn build_mixture_list(prototype_list: &Prototypes, gas_list: &GasList) -> Mixtur
     mixture_list
 }
 
-pub(crate) fn load_gas_protos(mut commands: Commands, protos: Res<Prototypes>) {
-    let gas_list = build_gas_list(&protos);
-    let mixture_list = build_mixture_list(&protos, &gas_list);
+fn build_reaction_registry(_prototype_list: &Prototypes, _gas_list: &GasList) -> ReactionRegistry {
+    parse_and_build_reactions(vec![]).unwrap()
+}
 
-    commands.insert_resource(gas_list);
-    commands.insert_resource(mixture_list);
+pub(crate) fn load_gas_protos(world: &mut World) {
+    let protos = world.resource::<Prototypes>();
+    let gas_list = build_gas_list(protos);
+    let mixture_list = build_mixture_list(protos, &gas_list);
+    let reaction_registry = build_reaction_registry(protos, &gas_list);
+
+    world.insert_resource(gas_list);
+    world.insert_resource(mixture_list);
+    world.insert_non_send_resource(reaction_registry);
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

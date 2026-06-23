@@ -7,6 +7,6 @@ require "prototypes.entities.structures"
 require "prototypes.entities.markers"
 require "prototypes.entities.furniture"
 
-require "prototypes.gases"
+require "prototypes.atmos"
 require "prototypes.tiles"
 

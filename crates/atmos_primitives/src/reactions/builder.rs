@@ -9,9 +9,33 @@ use cranelift_frontend::{FunctionBuilder, FunctionBuilderContext};
 use cranelift_jit::{JITBuilder, JITModule};
 use cranelift_module::{Linkage, Module};
 
-use crate::reactions::{BlockCollection, ROperation, ReactionFn};
+use crate::reactions::ReactionFn;
 
 const CRANELIFT_OPT_LEVEL: &str = "speed";
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(super) enum ROperation {
+    /// Adds two values. Scalar and Vector.
+    Add(String, String, String),
+    /// Subtracts two values. Scalar and Vector.
+    Sub(String, String, String),
+    /// Multiplies two values. Scalar and Vector.
+    Mul(String, String, String),
+    /// Divides two values. Scalar and Vector.
+    Div(String, String, String),
+    /// Jumps to another block unconditionally.
+    Jump(String),
+    /// Marks that the reaction has reacted. Set only.
+    Reacted,
+}
+
+#[derive(Debug, Clone)]
+pub(super) struct RBlock {
+    pub name: String,
+    pub operations: Vec<ROperation>,
+}
+
+pub(super) type BlockCollection = Vec<RBlock>;
 
 fn get_reaction_settings_builder() -> settings::Builder {
     let mut builder = settings::builder();
@@ -30,16 +54,17 @@ fn get_isa(flags: settings::Flags) -> Result<Arc<dyn TargetIsa>, Box<dyn Error>>
 }
 
 fn get_signature(module: &mut JITModule) -> Signature {
-    let mut sig = module.make_signature();
-    sig.params.push(AbiParam::new(types::I64)); // &mut f32x16
-    sig.returns.push(AbiParam::new(types::I32)); // ReactionResult
-    sig
+    let mut signature = module.make_signature();
+    signature.params.push(AbiParam::new(types::I64)); // &mut f32x16
+    signature.returns.push(AbiParam::new(types::I32)); // ReactionResult
+    signature
 }
 
 /// transform
 fn start_block(
     builder: &mut FunctionBuilder,
     variables: &HashMap<String, Variable>,
+    reacted_var: Variable,
     first_user_block: Option<Block>,
     end_block: Block,
 ) -> (Block, Value) {
@@ -59,6 +84,10 @@ fn start_block(
     builder.def_var(*variables.get("v1").unwrap(), v1_val);
     builder.def_var(*variables.get("v2").unwrap(), v2_val);
     builder.def_var(*variables.get("v3").unwrap(), v3_val);
+
+    // Initialize reacted_var to 0
+    let zero_i32 = builder.ins().iconst(types::I32, 0);
+    builder.def_var(reacted_var, zero_i32);
 
     // init user variables to a zero vector f32x4.
     let zero = builder.ins().f32const(0.0);
@@ -82,6 +111,7 @@ fn start_block(
 fn end_block(
     builder: &mut FunctionBuilder,
     variables: &HashMap<String, Variable>,
+    reacted_var: Variable,
     ptr_val: Value,
     end_block: Block,
 ) {
@@ -97,8 +127,8 @@ fn end_block(
     builder.ins().store(flags, v2_val, ptr_val, 32);
     builder.ins().store(flags, v3_val, ptr_val, 48);
 
-    // Return ReactionResult::Reacted (1).
-    let ret_val = builder.ins().iconst(types::I32, 1);
+    // Return the value of reacted_var.
+    let ret_val = builder.use_var(reacted_var);
     builder.ins().return_(&[ret_val]);
 }
 
@@ -145,7 +175,7 @@ fn build_function(
                     user_variable_names.insert(src1.clone());
                     user_variable_names.insert(src2.clone());
                 }
-                ROperation::Jump(_) => {}
+                ROperation::Jump(_) | ROperation::Reacted => {}
             }
         }
     }
@@ -157,12 +187,19 @@ fn build_function(
         variables.insert(variable_name, var);
     }
 
+    let reacted_var = builder.declare_var(types::I32);
+
     let first_user_block = rblocks
         .first()
         .map(|fb| *cranelift_blocks.get(&fb.name).unwrap());
 
-    let (_entry_block, ptr_val) =
-        start_block(&mut builder, &variables, first_user_block, cl_end_block);
+    let (_entry_block, ptr_val) = start_block(
+        &mut builder,
+        &variables,
+        reacted_var,
+        first_user_block,
+        cl_end_block,
+    );
 
     // actual conversion of blocks
     for block in rblocks.iter() {
@@ -199,11 +236,15 @@ fn build_function(
                     let target_block = *cranelift_blocks.get(target).unwrap();
                     builder.ins().jump(target_block, &[]);
                 }
+                ROperation::Reacted => {
+                    let one_i32 = builder.ins().iconst(types::I32, 1);
+                    builder.def_var(reacted_var, one_i32);
+                }
             }
         }
     }
 
-    end_block(&mut builder, &variables, ptr_val, cl_end_block);
+    end_block(&mut builder, &variables, reacted_var, ptr_val, cl_end_block);
 
     builder.seal_all_blocks();
     builder.finalize();
@@ -229,23 +270,23 @@ pub(super) fn build_reactions(
     let jit_builder = JITBuilder::with_isa(isa, cranelift_module::default_libcall_names());
     let mut module = JITModule::new(jit_builder);
 
-    let sig = get_signature(&mut module);
+    let signature = get_signature(&mut module);
 
-    let mut reactions: Vec<ReactionFn> = vec![];
-    let mut func_ids = Vec::new();
+    let mut reactions = Vec::with_capacity(parsed_reactions.len());
+    let mut function_ids = Vec::with_capacity(parsed_reactions.len());
 
     for (idx, blocks) in parsed_reactions.into_iter().enumerate() {
         let name = format!("reaction_{}", idx);
-        let func_id = module.declare_function(&name, Linkage::Export, &sig)?;
-        func_ids.push(func_id);
+        let function_id = module.declare_function(&name, Linkage::Export, &signature)?;
+        function_ids.push(function_id);
 
-        build_function(&mut module, func_id, sig.clone(), blocks)?;
+        build_function(&mut module, function_id, signature.clone(), blocks)?;
     }
 
     module.finalize_definitions()?;
 
-    for func_id in func_ids {
-        let ptr = module.get_finalized_function(func_id);
+    for function_id in function_ids {
+        let ptr = module.get_finalized_function(function_id);
         let reaction_fn = unsafe { std::mem::transmute::<*const u8, ReactionFn>(ptr) };
         reactions.push(reaction_fn);
     }

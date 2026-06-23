@@ -1,7 +1,5 @@
 -- gases
--- NOTE: gas ids are given by define order
--- I think this is actualy an anti-pattern, 
--- and should be looked into better
+
 define {
     "gas",
     id = "oxygen",
@@ -50,3 +48,15 @@ define {
     }
 }
 
+-- reactions
+
+define {
+    "reaction",
+    id = "test_reaction",
+    minimum_temperature = 800,
+    code = [[
+main:
+    add v0 v0 v0 
+    jump end
+]]
+}
