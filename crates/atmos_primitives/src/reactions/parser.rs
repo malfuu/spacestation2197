@@ -3,6 +3,8 @@ use chumsky::prelude::*;
 
 use super::builder::{BlockCollection, RBlock, ROperation};
 
+const COMMENT_CHARACTER: char = ';';
+
 const OP_ADD: &str = "add";
 const OP_SUB: &str = "sub";
 const OP_MUL: &str = "mul";
@@ -91,17 +93,30 @@ pub(super) fn parse_reaction<'a>(text: &'a str) -> Result<BlockCollection, Strin
         .or(jump_op)
         .or(reacted_op);
 
-    let line = block_prefix
+    let comment = just::<_, _, MyExtra<'a>>(COMMENT_CHARACTER)
+        .then(any().filter(|c: &char| *c != '\n').repeated())
+        .ignored();
+
+    let spacing = horiz_space.then(comment.or_not()).ignored();
+
+    let line_item = block_prefix
         .map(LineItem::Header)
         .or(operation.map(LineItem::Op))
-        .padded_by(horiz_space);
+        .padded_by(spacing);
 
     let newline = just::<_, _, MyExtra<'a>>('\n');
 
-    let parser = line
-        .separated_by(newline.repeated().at_least(1))
+    let separator = spacing
+        .then(newline)
+        .then(spacing.or_not())
+        .repeated()
+        .at_least(1)
+        .ignored();
+
+    let parser = line_item
+        .separated_by(separator)
         .collect::<Vec<_>>()
-        .padded_by(newline.repeated())
+        .padded_by(separator.or_not())
         .then_ignore(end::<_, MyExtra<'a>>());
 
     let lines = parser.parse(text).into_result().map_err(|errs| {
@@ -163,5 +178,23 @@ mod tests {
         let input = ":start\nadd a b";
         let parsed = parse_reaction(input);
         assert!(parsed.is_err());
+    }
+
+    #[test]
+    fn parse_comments() {
+        let input = "
+            ; comment
+            :start ; block comment
+            reacted ; op comment
+
+            ; another comment line
+            jump end
+        ";
+        let parsed = parse_reaction(input).unwrap();
+        assert_eq!(parsed.len(), 1);
+        assert_eq!(parsed[0].name, "start");
+        assert_eq!(parsed[0].operations.len(), 2);
+        assert_eq!(parsed[0].operations[0], ROperation::Reacted);
+        assert_eq!(parsed[0].operations[1], ROperation::Jump("end".to_string()));
     }
 }

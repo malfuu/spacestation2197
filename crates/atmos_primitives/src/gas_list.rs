@@ -1,7 +1,8 @@
 //! Gas list management and registry storage.
-use std::collections::{HashMap, HashSet};
-
-use bevy::prelude::Resource;
+use bevy::{
+    platform::collections::{HashMap, HashSet},
+    prelude::Resource,
+};
 
 use crate::{Gas, GasId, MAX_NUMBER_OF_GASES, PerGasArray, gas_mixture::MolarHeatCapacities};
 
