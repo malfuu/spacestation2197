@@ -97,7 +97,7 @@ fn on_chunk_change(
                         if let Some(proto) =
                             registry.get::<TilePrototype>(PROTOTYPE_TYPE_TILE, tile_tag.clone())
                         {
-                            commands.entity(tile_entity).insert(SceneRoot(
+                            commands.entity(tile_entity).insert(WorldAssetRoot(
                                 asset_server.load(format!("{}#Scene0", proto.mesh)),
                             ));
                         }
@@ -105,7 +105,7 @@ fn on_chunk_change(
                     None => {
                         commands
                             .entity(tile_entity)
-                            .remove::<SceneRoot>()
+                            .remove::<WorldAssetRoot>()
                             .despawn_children();
                     }
                 }

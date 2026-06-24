@@ -25,7 +25,8 @@ fn create_sun(mut commands: Commands) {
         },
         DirectionalLight {
             illuminance: light_consts::lux::OFFICE,
-            shadows_enabled: true,
+            shadow_maps_enabled: true,
+            contact_shadows_enabled: true,
             ..default()
         },
     ));
@@ -42,7 +43,7 @@ fn on_light_add(on: On<Add, Light>, mut commands: Commands, lights: Query<&Light
         intensity: light.intensity,
         range: light.range,
         radius: 2.0,
-        shadows_enabled: true,
+        shadow_maps_enabled: true,
         ..default()
     });
 }

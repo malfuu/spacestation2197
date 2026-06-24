@@ -27,11 +27,25 @@ content = { path = "crates/content" }
 shared = { path = "shared" }
 server = { path = "server" }
 
-bevy_replicon = { version = "0.40", default-features = false }
-bevy_replicon_renet = { version = "0.16", default-features = false, features = ["renet_netcode"] }
-bevy_renet = { version = "4.0", default-features = false }
+bevy_replicon = { version = "0.41", default-features = false }
+bevy_replicon_renet = { version = "0.17", default-features = false, features = ["renet_netcode"] }
+bevy_renet = { version = "5.0", default-features = false }
 
-avian3d = { version = "0.6.1", features = ["simd", "serialize"]}
+avian3d = { 
+    version = "0.7", 
+    default-features = false, 
+    features = [
+        "simd", 
+        "serialize", 
+        "3d", 
+        "f32", 
+        "parry-f32", 
+        "xpbd_joints", 
+        "parallel", 
+        "collider-from-mesh", 
+        "bevy_scene"
+    ] 
+}
 
 wide = { version = "1.5.0", features = ["serde"] }
 
@@ -59,7 +73,7 @@ cranelift-frontend = "0.132.2"
 criterion = { version = "0.8.2", features = ["html_reports"]}
 
 bevy = {
-    version = "0.18.1",
+    version = "0.19.0",
     default-features = false,
     features = [
         "bevy_asset",

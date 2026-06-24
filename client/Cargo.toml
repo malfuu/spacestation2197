@@ -20,13 +20,12 @@ bevy_replicon = { workspace = true, features = ["client"] }
 bevy_replicon_renet = { workspace = true, features = ["client"] }
 bevy_renet.workspace = true
 
-avian3d = { workspace = true, features = ["diagnostic_ui", "debug-plugin"] }
-bevy_hanabi = { version = "0.18.0" }
-bevy_mod_outline = "0.12"
+avian3d = { workspace = true, features = ["diagnostic_ui", "debug-plugin", "bevy_picking"] }
+# bevy_hanabi = { version = "0.18.0" } # TODO: wait for 0.19 update
+# bevy_mod_outline = "0.13" # TODO: wait for crate release
 
-bevy_egui = "0.39.0"
-bevy-inspector-egui = { version = "0.36", optional = true }
-# bevy_rich_text3d = "0.5.1"
+bevy_egui = "0.40.0"
+bevy-inspector-egui = { version = "0.37", optional = true }
 
 rand.workspace = true
 

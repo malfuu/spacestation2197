@@ -68,7 +68,7 @@ impl PrototypeAppExt for App {
         category: impl Into<String>,
         parser: impl Fn(&Lua, LuaTable) -> ParseResult + 'static,
     ) -> &mut Self {
-        let mut registry = self.world_mut().non_send_resource_mut::<ParserRegistry>();
+        let mut registry = self.world_mut().non_send_mut::<ParserRegistry>();
         registry.parsers.insert(category.into(), Box::new(parser));
 
         self

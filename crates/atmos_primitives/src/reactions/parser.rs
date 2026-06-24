@@ -6,7 +6,7 @@ use crate::gas_list::GasList;
 
 const BLOCK_PREFIX_CHARACTER: char = ':';
 const COMMENT_CHARACTER: char = ';';
-const GASTYPE_CHARACTER: char = '#';
+// const GASTYPE_CHARACTER: char = '#';
 
 const OP_ADD: &str = "add";
 const OP_SUB: &str = "sub";

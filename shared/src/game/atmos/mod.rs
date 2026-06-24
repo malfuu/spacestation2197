@@ -88,7 +88,7 @@ pub(crate) fn load_gas_protos(world: &mut World) {
 
     world.insert_resource(gas_list);
     world.insert_resource(mixture_list);
-    world.insert_non_send_resource(reaction_registry);
+    world.insert_non_send(reaction_registry);
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

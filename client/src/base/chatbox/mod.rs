@@ -66,7 +66,7 @@ fn ui_chatbox(
 
     let mut request_focus = false;
 
-    if !context.wants_keyboard_input() {
+    if !context.egui_wants_keyboard_input() {
         if keys.just_pressed(KeyCode::KeyT) {
             *selected_channel = ChatChannel::Say;
             request_focus = true;

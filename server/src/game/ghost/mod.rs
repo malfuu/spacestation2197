@@ -72,7 +72,7 @@ fn add_see_ghost(
 }
 
 fn remove_see_ghost(
-    replaced: On<Replace, Controlled>,
+    replaced: On<Discard, Controlled>,
     _commands: Commands,
     controlleds: Query<&Controlled>,
 ) {

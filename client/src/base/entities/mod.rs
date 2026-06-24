@@ -1,5 +1,5 @@
 //! Handling of entities to be ready for client side use.
-use bevy::{prelude::*, scene::SceneInstanceReady};
+use bevy::{prelude::*, world_serialization::WorldInstanceReady};
 use bevy_replicon::prelude::*;
 
 use common::EntityTag;
@@ -39,13 +39,13 @@ fn on_add_entity_tag(
         .mesh
         .clone();
 
-    commands
-        .entity(add.entity)
-        .insert((SceneRoot(asset_server.load(format!("{}#Scene0", mesh))),));
+    commands.entity(add.entity).insert((WorldAssetRoot(
+        asset_server.load(format!("{}#Scene0", mesh)),
+    ),));
 }
 
 pub fn apply_pickable(
-    on: On<SceneInstanceReady>,
+    on: On<WorldInstanceReady>,
     mut commands: Commands,
     query: Query<(Entity, Option<&EntityTag>)>,
     children: Query<&Children>,
@@ -61,6 +61,6 @@ pub fn apply_pickable(
     };
 
     for child in children.iter_descendants(parent) {
-        commands.entity(child).insert(pickable.clone());
+        commands.entity(child).insert(pickable);
     }
 }

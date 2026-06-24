@@ -48,7 +48,7 @@ impl Default for ContentPlugin {
 
 impl Plugin for ContentPlugin {
     fn build(&self, app: &mut App) {
-        app.init_non_send_resource::<ParserRegistry>()
+        app.init_non_send::<ParserRegistry>()
             .insert_resource(ContentEntryPointPath(self.script.clone()))
             .add_systems(PreStartup, load.in_set(LoadContentSystems));
 
@@ -76,7 +76,7 @@ fn load(world: &mut World) {
     let path = Path::new(&path_str);
 
     let parser_registry = world
-        .remove_non_send_resource::<ParserRegistry>()
+        .remove_non_send::<ParserRegistry>()
         .expect("ParserRegistry should be initialized before loading");
 
     let component_prototypes = world
