@@ -19,6 +19,7 @@ use shared::{
 };
 
 use crate::{
+    is_authority,
     networking::ServerClientEntity,
     utils::{SpawnMethod, SpawnerCommandsExt},
 };
@@ -27,10 +28,10 @@ pub(crate) struct RoundPlugin;
 
 impl Plugin for RoundPlugin {
     fn build(&self, app: &mut App) {
-        app.add_observer(on_start_round_timer)
-            .add_observer(on_start_timer_finished)
-            .add_observer(on_round_start)
-            .add_observer(on_round_end)
+        app.add_observer(on_start_round_timer.run_if(is_authority))
+            .add_observer(on_start_timer_finished.run_if(is_authority))
+            .add_observer(on_round_start.run_if(is_authority))
+            .add_observer(on_round_end.run_if(is_authority))
             .add_systems(
                 FixedUpdate,
                 (read_ready, read_join).in_set(MetaSystems::Inputs),

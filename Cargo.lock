@@ -2424,6 +2424,7 @@ dependencies = [
  "common",
  "content",
  "rand 0.9.4",
+ "server",
  "shared",
  "tile_grid",
 ]

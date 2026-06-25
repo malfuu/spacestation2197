@@ -11,6 +11,7 @@ use shared::{
 
 use crate::{
     game::mind::{Controlled, Controls},
+    is_authority,
     networking::ServerClientEntity,
     utils::{SpawnMethod, SpawnerCommandsExt},
 };
@@ -20,12 +21,12 @@ pub(super) struct GhostPlugin;
 impl Plugin for GhostPlugin {
     fn build(&self, app: &mut App) {
         app.add_visibility_filter::<Ghost>()
-            .add_observer(add_see_ghost)
-            .add_observer(remove_see_ghost)
             .add_systems(
                 FixedUpdate,
                 (read_input_ghosts,).in_set(GameplaySystems::Inputs),
-            );
+            )
+            .add_observer(add_see_ghost.run_if(is_authority))
+            .add_observer(remove_see_ghost.run_if(is_authority));
     }
 }
 

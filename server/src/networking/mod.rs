@@ -24,6 +24,8 @@ use shared::{
     utils::ServerSettings,
 };
 
+use crate::is_authority;
+
 pub(super) struct ServerNetworkingPlugin;
 
 impl Plugin for ServerNetworkingPlugin {
@@ -31,8 +33,8 @@ impl Plugin for ServerNetworkingPlugin {
         app.sync_related_entities::<ChildOf>()
             .init_resource::<ServerClientEntity>()
             .add_systems(FixedUpdate, update_ping.in_set(MetaSystems::Logic))
-            .add_observer(on_joining_client)
-            .add_observer(listen_leaving_client);
+            .add_observer(on_joining_client.run_if(is_authority))
+            .add_observer(listen_leaving_client.run_if(is_authority));
     }
 }
 

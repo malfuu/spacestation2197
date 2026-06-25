@@ -40,18 +40,25 @@ impl Plugin for ServerPlugin {
             .add_plugins(ServerNetworkingPlugin)
             .add_plugins(ServerGamePlugin)
             .add_plugins(ServerMetaPlugin)
-            .add_observer(replicate_new_entities);
+            .add_observer(replicate_new_entities.run_if(is_authority))
+            .init_resource::<IsAuthority>();
     }
 }
 
 /// Marker resource marking this instance as authoritative.
-#[derive(Resource, Debug)]
-pub struct IsAuthority;
+#[derive(Resource, Default, Debug)]
+pub struct IsAuthority(bool);
+
+impl IsAuthority {
+    pub fn new(it_ism: bool) -> Self {
+        IsAuthority(it_ism)
+    }
+}
 
 /// Run condition for running authoritative systems and conditions.
 /// Only host or servers should use these.
-pub fn is_authority(is_authority: Option<Res<IsAuthority>>) -> bool {
-    is_authority.is_some()
+pub fn is_authority(is_authority: Res<IsAuthority>) -> bool {
+    is_authority.0
 }
 
 fn replicate_new_entities(on: On<Add, EntityTag>, mut commands: Commands) {
@@ -89,7 +96,7 @@ mod tests {
     #[test]
     fn is_authority_true() {
         let mut app = App::new();
-        app.insert_resource(IsAuthority);
+        app.insert_resource(IsAuthority::new(true));
 
         let sut = app.world_mut().run_system_cached(is_authority).unwrap();
         assert!(sut);
@@ -98,6 +105,7 @@ mod tests {
     #[test]
     fn is_authority_false() {
         let mut app = App::new();
+        app.insert_resource(IsAuthority::new(false));
 
         let sut = app.world_mut().run_system_cached(is_authority).unwrap();
         assert!(!sut);

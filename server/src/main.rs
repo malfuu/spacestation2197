@@ -3,7 +3,7 @@ use std::time::Duration;
 use bevy::{app::ScheduleRunnerPlugin, prelude::*};
 
 use content::prelude::*;
-use server::{ServerPlugin, start_game_instance};
+use server::{IsAuthority, ServerPlugin, start_game_instance};
 use shared::SharedPlugin;
 
 fn main() {
@@ -11,7 +11,7 @@ fn main() {
 
     app.add_plugins(
         DefaultPlugins.set(ScheduleRunnerPlugin::run_loop(Duration::from_secs_f64(
-            1.0 / 240.0, // arbitrary
+            1.0 / 120.0, // arbitrary
         ))),
     )
     .add_plugins(SharedPlugin)
@@ -22,6 +22,7 @@ fn main() {
 }
 
 fn loadup(mut commands: Commands) {
+    commands.insert_resource(IsAuthority::new(true));
     commands.run_system_cached(start_game_instance);
     commands.run_system_cached(log_content_hash);
 }

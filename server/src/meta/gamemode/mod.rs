@@ -5,11 +5,13 @@ use shared::{
     meta::{gamemode::Gamemode, round::RoundStartedEvent},
 };
 
+use crate::is_authority;
+
 pub(super) struct ServerGamemodePlugin;
 
 impl Plugin for ServerGamemodePlugin {
     fn build(&self, app: &mut App) {
-        app.add_observer(on_round_start);
+        app.add_observer(on_round_start.run_if(is_authority));
     }
 }
 

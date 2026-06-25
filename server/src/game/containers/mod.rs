@@ -4,13 +4,15 @@ use bevy_replicon::prelude::*;
 
 use shared::{game::containers::Contained, utils::physics::PhysicsEntityCommandsExt};
 
+use crate::is_authority;
+
 pub(super) struct ContainersPlugin;
 
 impl Plugin for ContainersPlugin {
     fn build(&self, app: &mut App) {
         app.sync_related_entities::<Contained>()
-            .add_observer(on_contained_add)
-            .add_observer(on_contained_removed);
+            .add_observer(on_contained_add.run_if(is_authority))
+            .add_observer(on_contained_removed.run_if(is_authority));
     }
 }
 

@@ -14,6 +14,7 @@ use crate::{
         mind::Controls,
         mob::health::{die, on_death},
     },
+    is_authority,
     networking::ServerClientEntity,
 };
 
@@ -28,7 +29,7 @@ impl Plugin for MobPlugin {
             (read_input_moves,).in_set(GameplaySystems::Inputs),
         )
         .add_systems(FixedUpdate, (die,).chain().in_set(GameplaySystems::Logic))
-        .add_observer(on_death);
+        .add_observer(on_death.run_if(is_authority));
     }
 }
 

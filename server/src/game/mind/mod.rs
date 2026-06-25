@@ -11,7 +11,10 @@ use shared::{
     utils::filters::MobFilter,
 };
 
-use crate::utils::{SpawnMethod, SpawnerCommandsExt};
+use crate::{
+    is_authority,
+    utils::{SpawnMethod, SpawnerCommandsExt},
+};
 
 pub(super) struct MindPlugin;
 
@@ -22,8 +25,8 @@ impl Plugin for MindPlugin {
                 FixedUpdate,
                 on_read_takeovers.in_set(GameplaySystems::Final),
             )
-            .add_observer(on_insert_controlled)
-            .add_observer(on_remove_controlled);
+            .add_observer(on_insert_controlled.run_if(is_authority))
+            .add_observer(on_remove_controlled.run_if(is_authority));
     }
 }
 

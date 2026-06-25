@@ -8,7 +8,7 @@ dev = ["bevy-inspector-egui"]
 
 [dependencies]
 shared.workspace = true
-# server.workspace = true TODO enable client side hosting in the future
+server.workspace = true
 
 atmos_primitives.workspace = true
 atmos_simulation.workspace = true

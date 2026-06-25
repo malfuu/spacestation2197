@@ -25,6 +25,7 @@ use shared::{
 
 use crate::{
     game::{combat::AttackMeleeMessage, mind::Controls},
+    is_authority,
     networking::ServerClientEntity,
     utils::MessageCommandsExt,
 };
@@ -50,7 +51,7 @@ impl Plugin for InteractPlugin {
                 )
                     .in_set(GameplaySystems::Logic),
             )
-            .add_observer(on_hug);
+            .add_observer(on_hug.run_if(is_authority));
     }
 }
 

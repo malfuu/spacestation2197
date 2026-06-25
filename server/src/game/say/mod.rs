@@ -13,6 +13,7 @@ use shared::{
 
 use crate::{
     game::mind::{Controlled, Controls},
+    is_authority,
     networking::ServerClientEntity,
     utils::MessageCommandsExt,
 };
@@ -21,13 +22,13 @@ pub(super) struct SayPlugin;
 
 impl Plugin for SayPlugin {
     fn build(&self, app: &mut App) {
-        app.add_observer(on_entity_say)
-            .add_observer(on_entity_deadsay)
-            .add_observer(on_entity_listen)
-            .add_systems(
-                FixedUpdate,
-                (read_input_say_input,).in_set(GameplaySystems::Inputs),
-            );
+        app.add_systems(
+            FixedUpdate,
+            (read_input_say_input,).in_set(GameplaySystems::Inputs),
+        )
+        .add_observer(on_entity_say.run_if(is_authority))
+        .add_observer(on_entity_deadsay.run_if(is_authority))
+        .add_observer(on_entity_listen.run_if(is_authority));
     }
 }
 
