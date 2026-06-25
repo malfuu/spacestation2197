@@ -17,17 +17,17 @@ use crate::{
     reactions::{builder::build_reactions, parser::parse_reaction},
 };
 
-const VARIABLE_MOLES: &'static str = "moles";
-const VARIABLE_ENERGY: &'static str = "energy";
-const VARIABLE_TOTAL_MOLES: &'static str = "total_moles";
-const VARIABLE_HEAT_CAPACITY: &'static str = "heat_capacity";
-const VARIABLE_TEMPERATURE: &'static str = "temperature";
-const VARIABLE_PRESSURE: &'static str = "pressure";
+const VARIABLE_MOLES: &str = "moles";
+const VARIABLE_ENERGY: &str = "energy";
+const VARIABLE_TOTAL_MOLES: &str = "total_moles";
+const VARIABLE_HEAT_CAPACITY: &str = "heat_capacity";
+const VARIABLE_TEMPERATURE: &str = "temperature";
+const VARIABLE_PRESSURE: &str = "pressure";
 
 /// User implemented block that serves as their entry point.
-const BLOCK_START: &'static str = "start";
+const BLOCK_START: &str = "start";
 /// Host implemented block that serves as ending point of the reaction function.
-const BLOCK_END: &'static str = "end";
+const BLOCK_END: &str = "end";
 
 /// Reaction Fn applied to mixture values.
 /// Filled with unsafe black magic due to its JIT compiled nature.

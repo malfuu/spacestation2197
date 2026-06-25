@@ -26,10 +26,10 @@ pub(super) fn is_reaction_flow_valid(parsed: &ParsedReactionFunction) -> bool {
         };
 
         for target in targets {
-            if target != BLOCK_END {
-                if let Some(&to_idx) = nodes.get(target) {
-                    graph.add_edge(from_idx, to_idx, ());
-                }
+            if target != BLOCK_END
+                && let Some(&to_idx) = nodes.get(target)
+            {
+                graph.add_edge(from_idx, to_idx, ());
             }
         }
     }

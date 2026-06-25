@@ -64,7 +64,7 @@ pub(super) fn parse_reaction<'a>(
         .collect::<String>();
 
     let block_prefix = just::<_, _, MyExtra<'a>>(BLOCK_PREFIX_CHARACTER)
-        .ignore_then(identation.clone())
+        .ignore_then(identation)
         .or(identation.then_ignore(just::<_, _, MyExtra<'a>>(BLOCK_PREFIX_CHARACTER)));
 
     // giga train of repeated code
@@ -122,7 +122,7 @@ pub(super) fn parse_reaction<'a>(
 
     let reacted_op = just::<_, _, MyExtra<'a>>(OP_REACTED).map(|_| ROperation::Reacted);
 
-    let gas_id_parser = identation.clone().try_map(|name, span| {
+    let gas_id_parser = identation.try_map(|name, span| {
         gas_list
             .try_get_gas_id_by_name(&name)
             .ok_or_else(|| Rich::custom(span, format!("Invalid gas name: {}", name)))

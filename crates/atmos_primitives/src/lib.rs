@@ -5,6 +5,7 @@
 pub mod equations;
 pub mod gas_list;
 pub mod gas_mixture;
+pub mod hotspot;
 pub mod mixture_template;
 pub mod reactions;
 

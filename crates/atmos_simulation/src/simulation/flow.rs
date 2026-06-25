@@ -1,4 +1,4 @@
-use bevy::{ecs::query::QueryFilter, prelude::*};
+use bevy::prelude::*;
 use std::collections::HashSet;
 use tile_grid::{CHUNK_SIZE, Grid};
 
@@ -263,8 +263,8 @@ fn update_space_clear(
 ) {
     for grid in &grids {
         for &chunk_entity in grid.chunks.values() {
-            if let Ok((mut chunk, properties)) = chunks.get_mut(chunk_entity) {
-                let chunk = chunk.bypass_change_detection();
+            if let Ok((mut chunk, _properties)) = chunks.get_mut(chunk_entity) {
+                let _chunk = chunk.bypass_change_detection();
 
                 // TODO
             }

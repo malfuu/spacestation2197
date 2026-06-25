@@ -17,7 +17,7 @@ impl Plugin for ReactionSimulation {
     fn build(&self, app: &mut App) {
         app.add_systems(
             AtmosSchedule,
-            (perform_reactions)
+            (update_reactions)
                 .chain()
                 .in_set(AtmosStepSystems::ReactionPhase),
         );
@@ -26,7 +26,7 @@ impl Plugin for ReactionSimulation {
 
 fn do_tile_reactions(_mixture: &TileMixtureViewMut, _reactions: &ReactionRegistry) {}
 
-fn perform_reactions(
+fn update_reactions(
     grids: Query<&Grid, With<AtmosSimulated>>,
     mut active_chunks: Query<&mut ChunkMixtures>,
     reactions: NonSend<ReactionRegistry>, // forces single threading btw

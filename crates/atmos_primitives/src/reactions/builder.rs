@@ -474,4 +474,3 @@ pub(super) fn build_reactions(
 
     Ok((module, reactions))
 }
-

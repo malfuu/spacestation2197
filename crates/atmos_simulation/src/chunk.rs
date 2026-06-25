@@ -3,7 +3,7 @@ use std::array;
 use bevy::prelude::*;
 use serde::{Deserialize, Serialize};
 
-use tile_grid::{BaseGrid, BooleanChunk, CHUNK_SIZE, LocalTilePosition, chunk_mask::ChunkMask};
+use tile_grid::{BaseGrid, CHUNK_SIZE, LocalTilePosition, chunk_mask::ChunkMask};
 
 use crate::tile_mixture::{CachedTile, TileEnergy, TileMixtureView, TileMixtureViewMut, TileMoles};
 
@@ -91,4 +91,3 @@ pub struct ChunkMixtureProperties {
     /// Tiles set to `true` do not exchange gases with neighbors.
     pub is_impermeable: ChunkMask,
 }
-

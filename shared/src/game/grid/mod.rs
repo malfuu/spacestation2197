@@ -63,11 +63,7 @@ fn tile_parser(_: &Lua, table: LuaTable) -> ParseResult {
     Ok(Box::new(proto))
 }
 
-type ChunkPropertyQueryData<'a> = (
-    Ref<'a, Chunk>,
-    Mut<'a, SubfloorChunk>,
-    Mut<'a, SolidChunk>,
-);
+type ChunkPropertyQueryData<'a> = (Ref<'a, Chunk>, Mut<'a, SubfloorChunk>, Mut<'a, SolidChunk>);
 
 pub(super) fn update_chunk_properties(
     mut chunks: Query<ChunkPropertyQueryData, With<Chunk>>,

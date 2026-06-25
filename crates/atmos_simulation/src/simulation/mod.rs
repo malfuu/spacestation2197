@@ -1,11 +1,12 @@
 pub(crate) mod flow;
+pub(crate) mod hotspot;
 pub(crate) mod reactions;
 
 use bevy::{ecs::schedule::ScheduleLabel, prelude::*};
 
 use crate::{
     AtmosphericsResource,
-    simulation::{flow::FlowSimulation, reactions::ReactionSimulation},
+    simulation::{flow::FlowSimulation, hotspot::HotspotSimulation, reactions::ReactionSimulation},
 };
 
 pub(super) struct AtmosphericsSimulationPlugin;
@@ -15,12 +16,14 @@ impl Plugin for AtmosphericsSimulationPlugin {
         app.init_schedule(AtmosSchedule)
             .add_plugins(FlowSimulation)
             .add_plugins(ReactionSimulation)
+            .add_plugins(HotspotSimulation)
             .configure_sets(
                 AtmosSchedule,
                 (
                     AtmosStepSystems::First,
                     AtmosStepSystems::FlowPhase,
                     AtmosStepSystems::ReactionPhase,
+                    AtmosStepSystems::HotspotPhase,
                     AtmosStepSystems::Last,
                 )
                     .chain(),
@@ -52,6 +55,8 @@ pub(crate) enum AtmosStepSystems {
     FlowPhase,
     /// Responsible for performing reactions in environmental mixtures.
     ReactionPhase,
-    /// Runs at the end of [`AtmosSchedule`]
+    /// Responsible for maintaining and propagating hotspot (fires).
+    HotspotPhase,
+    /// Runs at the end of [`AtmosSchedule`].
     Last,
 }
