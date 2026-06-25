@@ -4,7 +4,7 @@ tick_rate = 30
 max_players = 10 
 
 # atmos
-atmos_enabled = true 
+atmos_enabled = false
 
 # net
 port = 2197 
