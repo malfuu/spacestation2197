@@ -18,9 +18,9 @@ mod placeholder;
 #[cfg(debug_assertions)]
 use crate::debug_tools::ClientDebugPlugin;
 
-use bevy::{prelude::*, window::PresentMode};
+use bevy::{prelude::*, settings::SettingsPlugin, window::PresentMode};
 
-use shared::SharedPlugin;
+use shared::{SharedPlugin, defines::NAME_SHORT};
 
 use crate::{
     base::ClientBasePlugin, editor::ClientEditorPlugin, game::ClientGamePlugin,
@@ -30,22 +30,23 @@ use crate::{
 fn main() {
     let mut app = App::new();
 
-    app.add_plugins(DefaultPlugins.set(WindowPlugin {
-        primary_window: Some(Window {
-            // funny, how no one will complain if vsync is off
-            // but many will complain if vsync is on.
-            present_mode: PresentMode::AutoNoVsync,
+    app.add_plugins(SettingsPlugin::new(NAME_SHORT))
+        .add_plugins(DefaultPlugins.set(WindowPlugin {
+            primary_window: Some(Window {
+                // funny, how no one will complain if vsync is off
+                // but many will complain if vsync is on.
+                present_mode: PresentMode::AutoNoVsync,
+                ..default()
+            }),
             ..default()
-        }),
-        ..default()
-    }))
-    .add_plugins(SharedPlugin)
-    // .add_plugins(ServerPlugin) TODO: turn client into possible host as well
-    .add_plugins(ClientBasePlugin)
-    .add_plugins(ClientEditorPlugin)
-    .add_plugins(ClientGamePlugin)
-    .add_plugins(ClientMetaPlugin)
-    .add_plugins(ClientPlaceholderPlugin);
+        }))
+        .add_plugins(SharedPlugin)
+        // .add_plugins(ServerPlugin) TODO: turn client into possible host as well
+        .add_plugins(ClientBasePlugin)
+        .add_plugins(ClientEditorPlugin)
+        .add_plugins(ClientGamePlugin)
+        .add_plugins(ClientMetaPlugin)
+        .add_plugins(ClientPlaceholderPlugin);
 
     #[cfg(debug_assertions)]
     app.add_plugins(ClientDebugPlugin);

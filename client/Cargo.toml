@@ -32,41 +32,15 @@ rand.workspace = true
 bevy = { 
     workspace = true, 
     features = [
-        "bevy_anti_alias",
-        "bevy_post_process",
-        "bevy_animation",
-        "bevy_core_pipeline",
-        "bevy_gizmos",
-        "bevy_gizmos_render",
-        "bevy_gltf",
-        "bevy_pbr",
-        "bevy_picking", # bevy_egui requirement
-        "bevy_render",
-        "bevy_text",
-        "bevy_ui",
-        "bevy_ui_render",
-        "bevy_window",
-        "bevy_winit",
-        "bevy_scene",
-        "hdr",
+        # Feature Collections
+        "3d_bevy_render",
+        "ui_bevy_render",
+        "picking",
+        "default_platform",
+        "dev",
 
-        # audio
-        # "symphonia-all",
-        "vorbis",
-
-        "mesh_picking",
-
-        # Platform stuff
-        "png",
-        "x11",
-        "tonemapping_luts",
-        "zstd_rust",
-        "custom_cursor",
-
-        # Experimental
+        # Features
         "experimental_pbr_pcss",
-
-        "dev"
     ]
 }
 

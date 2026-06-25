@@ -3,6 +3,9 @@ use bevy::math::prelude::*;
 
 pub use content::prelude::PROTOTYPE_CATEGORY_ENTITY;
 
+pub const NAME_FULL: &'static str = "Space Station 2197";
+pub const NAME_SHORT: &'static str = "ss2197";
+
 pub const DEFAULT_LISTEN_PORT: u16 = 2197; // NOTE: might cause collision with Apple's APNs
 
 pub const DEFAULT_TPS: f64 = 30.0;
