@@ -1,21 +1,21 @@
 -- lua not allowing bit operations on rust
 -- should be concerning already
 local LAYERS = {
-    NONE           = 0,
-    NORMAL         = 1,
-    GHOST          = 64,
+    NONE = 0,
+    NORMAL = 1,
+    GHOST = 64,
     GHOST_BLOCKING = 128,
-    ALL            = 4294967295,
+    ALL = 4294967295,
 }
 
 local function make_collision_layers(memberships, filters)
     return {
         memberships = memberships,
-        filters = filters
+        filters = filters,
     }
 end
 
-define {
+define({
     "entity",
     id = "base_mob",
     abstract = true,
@@ -23,10 +23,10 @@ define {
         "Mob",
         "Interactable",
         Mass = 70.0,
-    }
-}
+    },
+})
 
-define {
+define({
     "entity",
     id = "moving_mob",
     abstract = true,
@@ -39,10 +39,10 @@ define {
 
         "RigidBody",
         "MobController",
-    }
-}
+    },
+})
 
-define {
+define({
     "entity",
     id = "ghost",
     parent = "moving_mob",
@@ -50,10 +50,10 @@ define {
     components = {
         CollisionLayers = make_collision_layers(LAYERS.GHOST, LAYERS.GHOST_BLOCKING),
         "Ghost",
-    }
-}
+    },
+})
 
-define {
+define({
     "entity",
     id = "admin_ghost", -- ghost with hands!
     parent = "ghost",
@@ -61,11 +61,11 @@ define {
     components = {
         CollisionLayers = make_collision_layers(LAYERS.GHOST, LAYERS.GHOST_BLOCKING),
         "Ghost",
-        "Hands"
-    }
-}
+        "Hands",
+    },
+})
 
-define {
+define({
     "entity",
     id = "human",
     parent = "moving_mob",
@@ -74,6 +74,5 @@ define {
         "Hands",
         "InteractCooldown",
         Health = { amount = 100 },
-    }
-}
-
+    },
+})

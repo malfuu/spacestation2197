@@ -6,7 +6,9 @@ edition = "2024"
 [dependencies]
 common.workspace = true
 
+wide.workspace = true
 heapless.workspace = true
+
 serde.workspace = true
 
 bevy.workspace = true

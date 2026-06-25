@@ -395,6 +395,7 @@ dependencies = [
  "cranelift-native",
  "criterion 0.8.2",
  "heapless 0.9.3",
+ "petgraph",
  "rand 0.9.4",
  "serde",
  "wide 1.5.0",
@@ -6735,6 +6736,7 @@ dependencies = [
  "common",
  "heapless 0.9.3",
  "serde",
+ "wide 1.5.0",
 ]
 
 [[package]]

@@ -1,48 +1,48 @@
-define {
+define({
     "entity",
     id = "base_tool",
     abstract = true,
     parent = "base_item",
-}
+})
 
-define {
+define({
     "entity",
     id = "multitool",
     parent = "base_tool",
-    mesh = "models/ss3d/multitool.glb"
-}
+    mesh = "models/ss3d/multitool.glb",
+})
 
-define {
+define({
     "entity",
     id = "crowbar",
     parent = "base_tool",
-    mesh = "models/ss3d/crowbar.glb"
-}
+    mesh = "models/ss3d/crowbar.glb",
+})
 
-define {
+define({
     "entity",
     id = "screwdriver",
     parent = "base_tool",
-    mesh = "models/ss3d/screwdriver.glb"
-}
+    mesh = "models/ss3d/screwdriver.glb",
+})
 
-define {
+define({
     "entity",
     id = "wirecutters",
     parent = "base_tool",
-    mesh = "models/ss3d/wirecutters.glb"
-}
+    mesh = "models/ss3d/wirecutters.glb",
+})
 
-define {
+define({
     "entity",
     id = "wrench",
     parent = "base_tool",
-    mesh = "models/ss3d/wrench.glb"
-}
+    mesh = "models/ss3d/wrench.glb",
+})
 
-define {
+define({
     "entity",
     id = "welder",
     parent = "base_tool",
-    mesh = "models/ss3d/welder.glb"
-}
+    mesh = "models/ss3d/welder.glb",
+})

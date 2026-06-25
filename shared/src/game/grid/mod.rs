@@ -66,8 +66,6 @@ fn tile_parser(_: &Lua, table: LuaTable) -> ParseResult {
 type ChunkPropertyQueryData<'a> = (
     Ref<'a, Chunk>,
     Mut<'a, SubfloorChunk>,
-    Mut<'a, SpaceChunk>,
-    Mut<'a, ImpermeableChunk>,
     Mut<'a, SolidChunk>,
 );
 
@@ -75,7 +73,7 @@ pub(super) fn update_chunk_properties(
     mut chunks: Query<ChunkPropertyQueryData, With<Chunk>>,
     registry: Res<Prototypes>,
 ) {
-    for (chunk, mut subfloor, mut space, mut impermeable, mut solid) in &mut chunks {
+    for (chunk, mut subfloor, mut solid) in &mut chunks {
         if !chunk.is_changed() {
             continue;
         }
@@ -85,7 +83,6 @@ pub(super) fn update_chunk_properties(
                 let local_pos = LocalTilePosition::new(x, y);
 
                 let mut is_subfloor = false;
-                let mut is_space = true;
                 let mut is_solid = false;
 
                 if let Some(Some(tile_tag)) = chunk.tiles.get(local_pos)
@@ -93,19 +90,13 @@ pub(super) fn update_chunk_properties(
                         registry.get::<TilePrototype>(PROTOTYPE_TYPE_TILE, tile_tag.clone())
                 {
                     is_subfloor = proto.is_solid;
-                    is_space = proto.is_space;
                     is_solid = proto.is_solid;
                 }
 
                 if let Some(val) = subfloor.0.get_mut(local_pos) {
                     *val = is_subfloor;
                 }
-                if let Some(val) = space.0.get_mut(local_pos) {
-                    *val = is_space;
-                }
-                if let Some(val) = impermeable.0.get_mut(local_pos) {
-                    *val = is_solid;
-                }
+                // TODO set space and impermeable props
                 if let Some(val) = solid.0.get_mut(local_pos) {
                     *val = is_solid;
                 }
@@ -150,8 +141,6 @@ pub(super) fn on_chunk_add(add: On<Add, Chunk>, mut commands: Commands, chunks: 
         SubfloorChunk::default(),
         SolidChunk::default(),
         ChunkCached::default(),
-        SpaceChunk::default(),
-        ImpermeableChunk::default(),
     ));
 }
 

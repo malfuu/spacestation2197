@@ -1,4 +1,4 @@
-define {
+define({
     "entity",
     id = "base_item",
     abstract = true,
@@ -13,35 +13,35 @@ define {
             hit_sound = "sounds/hit1.ogg",
         },
         PlaySoundOnPickup = {
-            sound = "sounds/component_pickup.ogg"
+            sound = "sounds/component_pickup.ogg",
         },
         PlaySoundOnDrop = {
-            sound = "sounds/component_drop.ogg"
-        }
+            sound = "sounds/component_drop.ogg",
+        },
     },
-}
+})
 
-define {
+define({
     "entity",
     id = "light",
     parent = "base_item",
     mesh = "models/item.glb",
     components = {
         "Light",
-    }
-}
+    },
+})
 
-define {
+define({
     "entity",
     id = "iron",
     parent = "base_item",
     mesh = "models/item.glb",
     components = {
         "Stack",
-    }
-}
+    },
+})
 
-define {
+define({
     "entity",
     id = "bike_horn",
     parent = "base_item",
@@ -50,7 +50,7 @@ define {
         "Item",
         "RigidBody",
         PlaySoundOnUse = {
-            sound = "sounds/bikehorn.ogg"
-        }
-    }
-}
+            sound = "sounds/bikehorn.ogg",
+        },
+    },
+})

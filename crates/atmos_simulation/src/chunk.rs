@@ -3,7 +3,7 @@ use std::array;
 use bevy::prelude::*;
 use serde::{Deserialize, Serialize};
 
-use tile_grid::{BaseGrid, BooleanChunk, CHUNK_SIZE, LocalTilePosition};
+use tile_grid::{BaseGrid, BooleanChunk, CHUNK_SIZE, LocalTilePosition, chunk_mask::ChunkMask};
 
 use crate::tile_mixture::{CachedTile, TileEnergy, TileMixtureView, TileMixtureViewMut, TileMoles};
 
@@ -83,14 +83,12 @@ pub struct Flows(pub FlowChunk);
 /// Internal edges in a chunk length. Mostly used when iterating and comparing between cells.
 pub const INTERNAL_EDGES_LENGTH: usize = CHUNK_SIZE - 1;
 
-#[derive(Component, Clone, Copy, Deref, DerefMut)]
-pub struct SpaceChunk(pub BooleanChunk);
-
-impl Default for SpaceChunk {
-    fn default() -> Self {
-        Self(BooleanChunk::from_value(true))
-    }
+/// Per-tile properties relevenat for atmospheric simulation.
+#[derive(Component, Clone, Copy)]
+pub struct ChunkMixtureProperties {
+    /// Tiles set to `true` have their gas and energy cleared.
+    pub is_space: ChunkMask,
+    /// Tiles set to `true` do not exchange gases with neighbors.
+    pub is_impermeable: ChunkMask,
 }
 
-#[derive(Component, Default, Clone, Copy, Deref, DerefMut)]
-pub struct ImpermeableChunk(pub BooleanChunk);

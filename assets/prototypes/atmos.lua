@@ -1,43 +1,43 @@
 -- gases
 
-define {
+define({
     "gas",
     id = "oxygen",
     gas_id = 0,
     molar_heat_capacity = 21.1,
-}
+})
 
-define {
+define({
     "gas",
     id = "nitrogen",
     gas_id = 1,
     molar_heat_capacity = 20.7,
-}
+})
 
-define {
+define({
     "gas",
     id = "carbon_dioxide",
     gas_id = 2,
     molar_heat_capacity = 28.4,
-}
+})
 
-define {
+define({
     "gas",
     id = "plasma",
     gas_id = 3,
     molar_heat_capacity = 300.0,
-}
+})
 
-define {
+define({
     "gas",
     id = "nitrogen_dioxide",
     gas_id = 4,
     molar_heat_capacity = 30.0,
-}
+})
 
 -- mixtures
 
-define {
+define({
     "gas_mixture",
     id = "air",
     pressure = 101.325,
@@ -45,18 +45,25 @@ define {
     ratios = {
         oxygen = 0.21,
         nitrogen = 0.79,
-    }
-}
+    },
+})
 
 -- reactions
-
-define {
+define({
     "reaction",
-    id = "test_reaction",
-    minimum_temperature = 800,
+    id = "nitrogen_dioxide_decomposition",
     code = [[
-main:
-    add v0 v0 v0 
+:start
     jump end
-]]
-}
+]],
+})
+
+define({
+    "reaction",
+    id = "plasma_burn",
+    priority = -1,
+    code = [[
+:start
+    jump end
+]],
+})

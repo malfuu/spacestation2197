@@ -14,6 +14,7 @@ serde.workspace = true
 rand.workspace = true
 
 chumsky.workspace = true
+petgraph.workspace = true
 cranelift.workspace = true
 cranelift-jit.workspace = true
 cranelift-module.workspace = true

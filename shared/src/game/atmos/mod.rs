@@ -6,7 +6,9 @@ use bevy_replicon::prelude::*;
 use common::PrototypeId;
 
 use atmos_primitives::prelude::*;
-use atmos_primitives::reactions::{ReactionRegistry, parse_and_build_reactions};
+use atmos_primitives::reactions::{
+    ReactionInformation, ReactionModel, ReactionRegistry, parse_and_build_reactions,
+};
 use atmos_simulation::prelude::*;
 use content::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -24,7 +26,7 @@ impl Plugin for AtmosPlugin {
             .prototype::<ReactionPrototype>(PROTOTYPE_TYPE_REACTION, reaction_parser)
             .prototype::<MixturePrototype>(PROTOTYPE_TYPE_MIXTURE, mixture_parser)
             .replicate::<Excited>()
-            // .replicate::<ChunkMixtures>()
+            .replicate::<ChunkMixtures>()
             // .replicate::<Flows>()
             .add_systems(Startup, load_gas_protos);
     }
@@ -76,8 +78,37 @@ fn build_mixture_list(prototype_list: &Prototypes, gas_list: &GasList) -> Mixtur
     mixture_list
 }
 
-fn build_reaction_registry(_prototype_list: &Prototypes, gas_list: &GasList) -> ReactionRegistry {
-    parse_and_build_reactions(vec![], gas_list).unwrap()
+fn build_reaction_registry(prototype_list: &Prototypes, gas_list: &GasList) -> ReactionRegistry {
+    let mut reaction_models = Vec::new();
+
+    for proto in prototype_list.iter_for_category::<ReactionPrototype>(PROTOTYPE_TYPE_REACTION) {
+        let mut required_gases_array = [0.0f32; 16];
+        for (gas_name, amount) in &proto.required_gases {
+            if let Some(gas_id) = gas_list.try_get_gas_id_by_name(gas_name) {
+                if gas_id < MAX_NUMBER_OF_GASES {
+                    required_gases_array[gas_id] = *amount;
+                }
+            } else {
+                panic!(
+                    "Invalid gas name: {} found in reaction {} required gases!",
+                    gas_name, proto.id
+                );
+            }
+        }
+
+        let required_gases = PerGasArray::new(required_gases_array);
+
+        reaction_models.push(ReactionModel {
+            information: ReactionInformation {
+                name: proto.id.clone(),
+                priority: proto.priority,
+                required_gases,
+            },
+            function: proto.code.clone(),
+        });
+    }
+
+    parse_and_build_reactions(reaction_models, gas_list).unwrap()
 }
 
 pub(crate) fn load_gas_protos(world: &mut World) {
@@ -140,11 +171,26 @@ pub fn mixture_parser(_: &Lua, table: LuaTable) -> ParseResult {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ReactionPrototype {
     pub id: PrototypeId,
+    pub priority: i32,
+    pub required_gases: Vec<(String, f32)>,
+    pub code: String,
 }
 
 pub fn reaction_parser(_: &Lua, table: LuaTable) -> ParseResult {
+    let mut required_gases = Vec::new();
+
+    if let Ok(required_gases_table) = table.get::<LuaTable>("required_gases") {
+        for pair in required_gases_table.pairs::<String, f32>() {
+            let (gas_name, amount) = pair?;
+            required_gases.push((gas_name, amount));
+        }
+    }
+
     let proto = ReactionPrototype {
         id: table.get("id")?,
+        priority: table.get("priority").unwrap_or(0i32),
+        required_gases,
+        code: table.get("code")?,
     };
 
     Ok(Box::new(proto))

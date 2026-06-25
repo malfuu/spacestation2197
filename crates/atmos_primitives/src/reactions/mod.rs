@@ -1,6 +1,7 @@
 //! Reactions of mixtures that do not necessarily follow the laws of physics.
 mod builder;
 pub(crate) mod parser;
+mod validation;
 
 use std::error::Error;
 
@@ -16,13 +17,32 @@ use crate::{
     reactions::{builder::build_reactions, parser::parse_reaction},
 };
 
+const VARIABLE_MOLES: &'static str = "moles";
+const VARIABLE_ENERGY: &'static str = "energy";
+const VARIABLE_TOTAL_MOLES: &'static str = "total_moles";
+const VARIABLE_HEAT_CAPACITY: &'static str = "heat_capacity";
+const VARIABLE_TEMPERATURE: &'static str = "temperature";
+const VARIABLE_PRESSURE: &'static str = "pressure";
+
+/// User implemented block that serves as their entry point.
+const BLOCK_START: &'static str = "start";
+/// Host implemented block that serves as ending point of the reaction function.
+const BLOCK_END: &'static str = "end";
+
 /// Reaction Fn applied to mixture values.
 /// Filled with unsafe black magic due to its JIT compiled nature.
 /// # SAFETY
 /// Function lifetime associated with accompanying [`JITModule`].
 /// Only call this function if it is safe.
 /// Also return i32 is not assumed to be a  valid [`ReactionResult`].
-pub type ReactionFn = unsafe extern "C" fn(&mut f32x16) -> ReactionResult;
+pub type ReactionFn = unsafe extern "C" fn(
+    &mut f32x16, // moles
+    &mut f32,    // energy
+    f32,         // total_moles
+    f32,         // heat_capacity
+    f32,         // temperature
+    f32,         // pressure
+) -> ReactionResult;
 
 /// A gas mixture that is reactable.
 pub trait Reactable {
@@ -60,7 +80,7 @@ pub struct ReactionInformation {
 }
 
 /// Prototype for defining gas reactions.
-pub struct ReactionPrototype {
+pub struct ReactionModel {
     /// Information about this Reaction
     pub information: ReactionInformation,
     /// reaction DSL code defining a function
@@ -80,13 +100,18 @@ pub struct ReactionRegistry {
 
 /// Constructs reactions and returns their functions ready for execution.
 pub fn parse_and_build_reactions(
-    reaction_prototypes: Vec<ReactionPrototype>,
+    reaction_prototypes: Vec<ReactionModel>,
     gas_list: &GasList,
 ) -> Result<ReactionRegistry, Box<dyn Error>> {
     let mut parsed_reactions = Vec::with_capacity(reaction_prototypes.len());
 
     for prototype in reaction_prototypes.iter() {
         let parsed = parse_reaction(prototype.function.as_str(), gas_list)?;
+
+        if !validation::is_reaction_flow_valid(&parsed) {
+            return Err("Cycle detected in reaction control flow".into());
+        }
+
         parsed_reactions.push(parsed);
     }
 

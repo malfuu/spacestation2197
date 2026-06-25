@@ -9,9 +9,7 @@ use wide::f32x16;
 
 use crate::{
     AtmosSimulated,
-    chunk::{
-        ChunkCached, ChunkMixtures, Flows, INTERNAL_EDGES_LENGTH, ImpermeableChunk, SpaceChunk,
-    },
+    chunk::{ChunkCached, ChunkMixtureProperties, ChunkMixtures, Flows, INTERNAL_EDGES_LENGTH},
     simulation::{AtmosSchedule, AtmosStepSystems},
     tile_mixture::{CachedTile, TileMixtureViewMut},
 };
@@ -261,27 +259,15 @@ fn exchange(
 
 fn update_space_clear(
     grids: Query<&Grid, With<AtmosSimulated>>,
-    mut chunks: Query<(&mut ChunkMixtures, &SpaceChunk)>,
+    mut chunks: Query<(&mut ChunkMixtures, &ChunkMixtureProperties)>,
 ) {
     for grid in &grids {
         for &chunk_entity in grid.chunks.values() {
-            if let Ok((mut chunk, space)) = chunks.get_mut(chunk_entity) {
+            if let Ok((mut chunk, properties)) = chunks.get_mut(chunk_entity) {
                 let chunk = chunk.bypass_change_detection();
-                space.iter_with_pos().for_each(|(pos, is_space)| {
-                    if *is_space {
-                        chunk.tile_view_mut(pos).expect("pos valid").clear();
-                    }
-                });
+
+                // TODO
             }
         }
     }
-}
-
-#[derive(QueryFilter)]
-struct ChangingChunks {
-    or_changed: Or<(
-        Changed<ChunkMixtures>,
-        Changed<SpaceChunk>,
-        Changed<ImpermeableChunk>,
-    )>,
 }
