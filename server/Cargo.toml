@@ -11,6 +11,9 @@ path = "src/lib.rs"
 name = "server_bin"
 path = "src/main.rs"
 
+[features]
+steam = ["shared/steam"]
+
 [dependencies]
 atmos_primitives.workspace = true
 atmos_simulation.workspace = true

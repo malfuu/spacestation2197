@@ -173,3 +173,12 @@ pub fn load_server(
 
     Ok(())
 }
+
+#[cfg(feature = "steam")]
+pub fn load_steam_server(
+    mut _commands: Commands,
+    _channels: Res<RepliconChannels>,
+    _server_settings: Res<ServerSettings>,
+) -> Result {
+    todo!()
+}

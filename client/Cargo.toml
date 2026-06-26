@@ -5,6 +5,7 @@ edition = "2024"
 
 [features]
 dev = ["bevy-inspector-egui"]
+steam = ["shared/steam"]
 
 [dependencies]
 shared.workspace = true

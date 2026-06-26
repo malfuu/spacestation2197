@@ -3,6 +3,9 @@ name = "shared"
 version = "0.0.1"
 edition = "2024"
 
+[features]
+steam = []
+
 [dependencies]
 atmos_primitives.workspace = true
 atmos_simulation.workspace = true

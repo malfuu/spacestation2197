@@ -2,7 +2,7 @@
 mod ui;
 
 use std::{
-    net::{IpAddr, Ipv4Addr, SocketAddr, UdpSocket},
+    net::{IpAddr, Ipv4Addr},
     time::SystemTime,
 };
 
@@ -10,13 +10,8 @@ use bevy::prelude::*;
 use bevy_egui::prelude::*;
 use bevy_replicon::{prelude::*, shared::backend::connected_client::NetworkId};
 
-use bevy_renet::{
-    RenetClient,
-    netcode::{ClientAuthentication, NetcodeClientTransport},
-    renet::{ConnectionConfig, DisconnectReason},
-};
-use bevy_replicon_renet::RenetChannelsExt;
-use shared::{defines::DEFAULT_LISTEN_PORT, game::player::Player, networking::NETWORK_PROTOCOL_ID};
+use bevy_renet::{RenetClient, netcode::NetcodeClientTransport, renet::DisconnectReason};
+use shared::{defines::DEFAULT_LISTEN_PORT, game::player::Player, networking::load_client};
 
 use crate::base::{
     session::ui::{delete_loading_background, draw_loading_background, ui_loading},
@@ -152,42 +147,4 @@ fn on_add_player(
     if player_network_id.get() == client_id.0 {
         commands.entity(entity).insert(ThisPlayer);
     }
-}
-
-pub fn load_client(
-    In((client_id, address, port, _password_opt)): In<(u64, IpAddr, u16, Option<String>)>,
-    mut commands: Commands,
-    channels: Res<RepliconChannels>,
-) -> Result {
-    let server_channels_config = channels.server_configs();
-    let client_channels_config = channels.client_configs();
-
-    let client = bevy_renet::renet::RenetClient::new(ConnectionConfig {
-        server_channels_config,
-        client_channels_config,
-        ..Default::default()
-    });
-
-    let server_addr = SocketAddr::new(address, port);
-    let socket = UdpSocket::bind((Ipv4Addr::UNSPECIFIED, 0))?;
-
-    // BUG: sending user data spits out weird errors on the server side?
-    // let user_data: Option<[u8; 256]> = password_opt
-    //     .map(|pass| pass.as_bytes().try_into().ok())
-    //     .flatten();
-
-    let authentication = ClientAuthentication::Unsecure {
-        client_id,
-        protocol_id: NETWORK_PROTOCOL_ID,
-        server_addr,
-        user_data: None,
-    };
-
-    let current_time = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH)?;
-    let transport = NetcodeClientTransport::new(current_time, authentication, socket)?;
-
-    commands.insert_resource(RenetClient(client));
-    commands.insert_resource(transport);
-
-    Ok(())
 }
