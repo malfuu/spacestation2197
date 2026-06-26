@@ -1,3 +1,9 @@
+//! JIT compiler for the reaction DSL using Cranelift.
+//!
+//! Some background: compiles block-based representations of reaction logic directly into native
+//! machine code. To simplify JIT compilation and avoid dealing
+//! with Cranelift's SSA, the `Variable` API is used.
+
 use std::{collections::HashMap, error::Error, sync::Arc};
 
 use cranelift::{
@@ -22,6 +28,8 @@ use crate::{
 
 const CRANELIFT_OPT_LEVEL: &str = "speed";
 const CRANELIFT_OPT_PIC: &str = "false";
+
+const SUBVECTOR_SIZE: usize = 4;
 
 pub(super) type BlockName = String;
 pub(super) type VarName = String;
@@ -69,7 +77,7 @@ pub(super) enum REndOperation {
     Brif(VarName, BlockName, BlockName),
 }
 
-type VectorVariable = [Variable; 4]; // sub-vectors
+type VectorVariable = [Variable; SUBVECTOR_SIZE]; // sub-vectors
 
 #[allow(dead_code)]
 enum CraneliftVariable {
@@ -102,6 +110,7 @@ pub(super) struct RBlock {
 pub(super) struct VarDeclaration {
     pub name: VarName,
     pub ty: VarType,
+    pub init: Option<f32>,
 }
 
 #[derive(Debug, Clone)]
@@ -146,7 +155,7 @@ fn declare_scalar(builder: &mut FunctionBuilder) -> Variable {
     builder.declare_var(F32)
 }
 
-fn declare_vector(builder: &mut FunctionBuilder) -> [Variable; 4] {
+fn declare_vector(builder: &mut FunctionBuilder) -> [Variable; SUBVECTOR_SIZE] {
     [
         builder.declare_var(F32X4),
         builder.declare_var(F32X4),
@@ -258,6 +267,8 @@ fn build_start_block(
     entry_block: Block,
     vars: &BuiltinVariables,
     first_block: Block,
+    declarations: &[VarDeclaration],
+    variables: &VariablesMap,
 ) {
     builder.switch_to_block(entry_block);
     builder.append_block_params_for_function_params(entry_block);
@@ -298,6 +309,33 @@ fn build_start_block(
         .iconst(types::I32, ReactionResult::DidNotReact as i64);
     builder.def_var(vars.reacted_var, zero_i32);
 
+    for decl in declarations {
+        let var = variables
+            .get(&decl.name)
+            .expect("declared variable missing");
+        match var {
+            CraneliftVariable::Scalar(v) => {
+                let init_val = decl.init.unwrap_or(0.0);
+                let f_val = builder.ins().f32const(init_val);
+                builder.def_var(*v, f_val);
+            }
+            CraneliftVariable::Vector(vs) => {
+                let init_val = decl.init.unwrap_or(0.0);
+                let f_val = builder.ins().f32const(init_val);
+                let vec_val = builder.ins().splat(types::F32X4, f_val);
+
+                for subvector in vs.iter() {
+                    builder.def_var(*subvector, vec_val);
+                }
+            }
+            CraneliftVariable::Bool(v) => {
+                // bools not support, so default to false.
+                let b_val = builder.ins().iconst(types::I8, 0);
+                builder.def_var(*v, b_val);
+            }
+        }
+    }
+
     builder.ins().jump(first_block, &[]);
 }
 
@@ -327,6 +365,47 @@ fn build_end_block(builder: &mut FunctionBuilder, end_block: Block, vars: &Built
     builder.ins().return_(&[ret_val]);
 }
 
+fn do_binary_operation<F>(
+    builder: &mut FunctionBuilder,
+    variables: &VariablesMap,
+    dest: &VarName,
+    src1: &VarName,
+    src2: &VarName,
+    callback: F,
+) where
+    F: Fn(&mut FunctionBuilder, Value, Value) -> Value,
+{
+    let dest_var = variables.get(dest).expect("dest not found");
+    let src1_var = variables.get(src1).expect("src1 not found");
+    let src2_var = variables.get(src2).expect("src2 not found");
+
+    match (dest_var, src1_var, src2_var) {
+        (
+            CraneliftVariable::Scalar(d),
+            CraneliftVariable::Scalar(s1),
+            CraneliftVariable::Scalar(s2),
+        ) => {
+            let v1 = builder.use_var(*s1);
+            let v2 = builder.use_var(*s2);
+            let res = callback(builder, v1, v2);
+            builder.def_var(*d, res);
+        }
+        (
+            CraneliftVariable::Vector(d),
+            CraneliftVariable::Vector(s1),
+            CraneliftVariable::Vector(s2),
+        ) => {
+            for i in 0..SUBVECTOR_SIZE {
+                let v1 = builder.use_var(s1[i]);
+                let v2 = builder.use_var(s2[i]);
+                let res = callback(builder, v1, v2);
+                builder.def_var(d[i], res);
+            }
+        }
+        _ => panic!("operation needs types of same type {} {}", src1, src2),
+    }
+}
+
 fn build_blocks(
     builder: &mut FunctionBuilder,
     parsed: &ParsedReactionFunction,
@@ -340,6 +419,57 @@ fn build_blocks(
 
         for operation in &rblock.operations {
             match operation {
+                ROperation::Add(dest, src1, src2) => {
+                    do_binary_operation(builder, variables, dest, src1, src2, |b, v1, v2| {
+                        b.ins().fadd(v1, v2)
+                    });
+                }
+                ROperation::Sub(dest, src1, src2) => {
+                    do_binary_operation(builder, variables, dest, src1, src2, |b, v1, v2| {
+                        b.ins().fsub(v1, v2)
+                    });
+                }
+                ROperation::Mul(dest, src1, src2) => {
+                    do_binary_operation(builder, variables, dest, src1, src2, |b, v1, v2| {
+                        b.ins().fmul(v1, v2)
+                    });
+                }
+                ROperation::Div(dest, src1, src2) => {
+                    do_binary_operation(builder, variables, dest, src1, src2, |b, v1, v2| {
+                        b.ins().fdiv(v1, v2)
+                    });
+                }
+                ROperation::Max(dest, src1, src2) => {
+                    do_binary_operation(builder, variables, dest, src1, src2, |b, v1, v2| {
+                        b.ins().fmax(v1, v2)
+                    });
+                }
+                ROperation::Min(dest, src1, src2) => {
+                    do_binary_operation(builder, variables, dest, src1, src2, |b, v1, v2| {
+                        b.ins().fmin(v1, v2)
+                    });
+                }
+                ROperation::Abs(dest, src) => {
+                    let dest_var = variables.get(dest).expect("dest not found");
+                    let src_var = variables.get(src).expect("src not found");
+                    match (dest_var, src_var) {
+                        (CraneliftVariable::Scalar(d), CraneliftVariable::Scalar(s)) => {
+                            let v = builder.use_var(*s);
+                            let res = builder.ins().fabs(v);
+                            builder.def_var(*d, res);
+                        }
+                        (CraneliftVariable::Vector(d), CraneliftVariable::Vector(s)) => {
+                            for i in 0..SUBVECTOR_SIZE {
+                                let v = builder.use_var(s[i]);
+                                let res = builder.ins().fabs(v);
+                                builder.def_var(d[i], res);
+                            }
+                        }
+                        _ => panic!(
+                            "Type mismatch in abs: dest and src must be of the same type (both Scalar or both Vector)"
+                        ),
+                    }
+                }
                 ROperation::Cmp(dest, cond, src1, src2) => {
                     let cond_var = match variables.get(dest).expect("dest not found") {
                         CraneliftVariable::Bool(v) => *v,
@@ -362,7 +492,37 @@ fn build_blocks(
                         .iconst(types::I32, ReactionResult::Reacted as i64);
                     builder.def_var(reacted_var, one_i32);
                 }
-                _ => {}
+                ROperation::Extract(dest, src, gas_id) => {
+                    let dest_var = match variables.get(dest).expect("dest not found") {
+                        CraneliftVariable::Scalar(s) => *s,
+                        _ => panic!("extract destination must be a scalar"),
+                    };
+                    let src_vector = match variables.get(src).expect("src not found") {
+                        CraneliftVariable::Vector(v) => *v,
+                        _ => panic!("extract source must be a vector"),
+                    };
+                    let sub_vector_idx = gas_id / SUBVECTOR_SIZE;
+                    let lane_idx = (gas_id % SUBVECTOR_SIZE) as u8;
+                    let src_sub_vector_val = builder.use_var(src_vector[sub_vector_idx]);
+                    let extracted_val = builder.ins().extractlane(src_sub_vector_val, lane_idx);
+                    builder.def_var(dest_var, extracted_val);
+                }
+                ROperation::Insert(dest, gas_id, src) => {
+                    let dest_vector = match variables.get(dest).expect("dest not found") {
+                        CraneliftVariable::Vector(v) => *v,
+                        _ => panic!("insert destination must be a vector"),
+                    };
+                    let src_val = match variables.get(src).expect("src not found") {
+                        CraneliftVariable::Scalar(s) => builder.use_var(*s),
+                        _ => panic!("insert source must be a scalar"),
+                    };
+                    let sub_vector_idx = gas_id / SUBVECTOR_SIZE;
+                    let lane_idx = (gas_id % SUBVECTOR_SIZE) as u8;
+                    let sub_vector_val = builder.use_var(dest_vector[sub_vector_idx]);
+                    let new_sub_vector_val =
+                        builder.ins().insertlane(sub_vector_val, src_val, lane_idx);
+                    builder.def_var(dest_vector[sub_vector_idx], new_sub_vector_val);
+                }
             }
         }
 
@@ -414,7 +574,14 @@ fn build_function(
 
     let start_block = *blocks.get(BLOCK_START).expect("start block not found");
 
-    build_start_block(&mut builder, entry_block, &vars, start_block);
+    build_start_block(
+        &mut builder,
+        entry_block,
+        &vars,
+        start_block,
+        &parsed.declarations,
+        &variables,
+    );
 
     build_blocks(
         &mut builder,

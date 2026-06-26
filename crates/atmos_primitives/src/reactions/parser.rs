@@ -37,7 +37,7 @@ enum LineItem {
     Header(String),
     Op(ROperation),
     EndOp(REndOperation),
-    Declaration(String, VarType),
+    Declaration(String, VarType, Option<f32>),
 }
 
 pub(super) fn parse_reaction<'a>(
@@ -186,17 +186,48 @@ pub(super) fn parse_reaction<'a>(
 
     let spacing = horiz_space.then(comment.or_not()).ignored();
 
-    let var_type_parser = just::<_, _, MyExtra<'a>>(TYPE_SCALAR)
-        .to(VarType::Scalar)
-        .or(just::<_, _, MyExtra<'a>>(TYPE_VECTOR).to(VarType::Vector))
-        .or(just::<_, _, MyExtra<'a>>(TYPE_BOOL).to(VarType::Bool));
+    let digits = any::<_, MyExtra<'a>>()
+        .filter(|c: &char| c.is_ascii_digit())
+        .repeated()
+        .at_least(1)
+        .collect::<String>();
+
+    let float_literal = just('-')
+        .or_not()
+        .then(digits)
+        .then(just('.').ignore_then(digits).or_not())
+        .try_map(|((sign, int_part), frac_part), span| {
+            let s = match frac_part {
+                Some(frac) => format!("{}.{}", int_part, frac),
+                None => int_part,
+            };
+            let mut val = s
+                .parse::<f32>()
+                .map_err(|e| Rich::custom(span, format!("Invalid float: {}", e)))?;
+
+            if sign.is_some() {
+                val = -val;
+            }
+
+            Ok(val)
+        });
+
+    let decl_scalar = just::<_, _, MyExtra<'a>>(TYPE_SCALAR)
+        .then(at_least_one_space.ignore_then(float_literal).or_not())
+        .map(|(_, val)| (VarType::Scalar, val));
+
+    let decl_vector = just::<_, _, MyExtra<'a>>(TYPE_VECTOR)
+        .then(at_least_one_space.ignore_then(float_literal).or_not())
+        .map(|(_, val)| (VarType::Vector, val));
+
+    let decl_bool = just::<_, _, MyExtra<'a>>(TYPE_BOOL).map(|_| (VarType::Bool, None));
 
     let declaration = just::<_, _, MyExtra<'a>>(KEYWORD_DECLARE)
         .then_ignore(at_least_one_space)
         .ignore_then(identation)
         .then_ignore(at_least_one_space)
-        .then(var_type_parser)
-        .map(|(name, ty)| LineItem::Declaration(name, ty));
+        .then(decl_scalar.or(decl_vector).or(decl_bool))
+        .map(|(name, (ty, init))| LineItem::Declaration(name, ty, init));
 
     let line_item = block_prefix
         .map(LineItem::Header)
@@ -275,8 +306,8 @@ pub(super) fn parse_reaction<'a>(
                     return Err("end op declared out of block".into());
                 }
             }
-            LineItem::Declaration(name, ty) => {
-                declarations.push(VarDeclaration { name, ty });
+            LineItem::Declaration(name, ty, init) => {
+                declarations.push(VarDeclaration { name, ty, init });
             }
         }
     }
