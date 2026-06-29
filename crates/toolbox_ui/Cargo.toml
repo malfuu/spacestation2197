@@ -1,0 +1,20 @@
+[package]
+name = "toolbox_ui"
+version = "0.0.1"
+edition = "2024"
+
+[dependencies]
+bevy = { 
+    workspace = true, 
+    features = [
+        # Feature Collections
+        "3d_bevy_render",
+        "ui_bevy_render",
+        "picking",
+        "default_platform",
+
+        # Features
+        "bevy_feathers", 
+        "bevy_ui_widgets", 
+    ] 
+}

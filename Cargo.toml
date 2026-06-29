@@ -23,6 +23,7 @@ atmos_simulation = { path = "crates/atmos_simulation" }
 common = { path = "crates/common" }
 tile_grid = { path = "crates/tile_grid" }
 content = { path = "crates/content" }
+toolbox_ui = { path = "crates/toolbox_ui" }
 
 shared = { path = "shared" }
 server = { path = "server" }

@@ -16,6 +16,7 @@ atmos_simulation.workspace = true
 common.workspace = true
 tile_grid.workspace = true
 content.workspace = true
+toolbox_ui.workspace = true
 
 bevy_replicon = { workspace = true, features = ["client"] }
 bevy_replicon_renet = { workspace = true, features = ["client"] }

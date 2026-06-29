@@ -1299,6 +1299,7 @@ dependencies = [
  "bevy_transform",
  "bevy_ui",
  "bevy_ui_render",
+ "bevy_ui_widgets",
  "bevy_utils",
  "bevy_window",
  "bevy_winit",
@@ -2500,6 +2501,7 @@ dependencies = [
  "server",
  "shared",
  "tile_grid",
+ "toolbox_ui",
 ]
 
 [[package]]
@@ -7069,6 +7071,13 @@ name = "toml_writer"
 version = "1.1.1+spec-1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "756daf9b1013ebe47a8776667b466417e2d4c5679d441c26230efd9ef78692db"
+
+[[package]]
+name = "toolbox_ui"
+version = "0.0.1"
+dependencies = [
+ "bevy",
+]
 
 [[package]]
 name = "tracing"
