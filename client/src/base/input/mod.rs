@@ -8,7 +8,10 @@ use shared::{
 };
 
 use crate::{
-    base::{camera::CameraState, windows::WindowStack},
+    base::{
+        camera::{GameCamera, CameraState},
+        windows::WindowStack,
+    },
     game::examine::ExamineEntity,
 };
 
@@ -172,7 +175,7 @@ fn toggle_fullscreen(keys: Res<ButtonInput<KeyCode>>, mut window: Single<&mut Wi
 
 fn update_mouse_inputs(
     window: Single<&Window>,
-    camera_q: Single<(&Camera, &GlobalTransform)>,
+    camera_q: Single<(&Camera, &GlobalTransform), With<GameCamera>>,
     mut inputs: ResMut<ExtraInputs>,
 ) {
     inputs.mouse_positions = None;

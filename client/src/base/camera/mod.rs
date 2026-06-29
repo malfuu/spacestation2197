@@ -13,11 +13,17 @@ pub const ZOOM_SPEED: f32 = 0.4;
 pub const ZOOM_SMOOTHING: f32 = 10.0;
 pub const CAMERA_OFFSET_DIRECTION: Vec3 = Vec3::new(0.0, 2.0, 1.0);
 
+/// Marker component for the primary game world camera.
+#[derive(Component, Default, Clone, Reflect)]
+#[reflect(Component, Default)]
+pub struct GameCamera;
+
 pub(super) struct ClientCameraPlugin;
 
 impl Plugin for ClientCameraPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<CameraState>()
+            .register_type::<GameCamera>()
             .insert_resource(ClearColor(Color::BLACK))
             .add_systems(Startup, setup)
             .add_systems(Update, (handle_camera_zoom, update_camera).chain())
@@ -76,6 +82,7 @@ fn setup(mut commands: Commands) {
         Camera::default(),
         Camera3d::default(),
         MeshPickingCamera,
+        GameCamera,
     ));
 }
 
@@ -95,7 +102,7 @@ fn handle_camera_zoom(
 }
 
 fn update_camera(
-    mut camera_transform: Single<&mut Transform, With<Camera>>,
+    mut camera_transform: Single<&mut Transform, With<GameCamera>>,
     mobs: Query<&Transform, Without<Camera>>,
     mut camera: ResMut<CameraState>,
     time: Res<Time>,
@@ -128,6 +135,6 @@ fn update_camera(
     **camera_transform = transform;
 }
 
-fn reset_camera(mut transform: Single<&mut Transform, With<Camera>>) {
+fn reset_camera(mut transform: Single<&mut Transform, With<GameCamera>>) {
     **transform = Transform::IDENTITY;
 }

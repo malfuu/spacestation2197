@@ -8,7 +8,7 @@ use content::prelude::*;
 use shared::defines::PROTOTYPE_TYPE_TILE;
 
 use crate::{
-    base::states::AppState,
+    base::{camera::GameCamera, states::AppState},
     editor::{EditorResource, SaveMap},
 };
 
@@ -183,6 +183,6 @@ fn draw_editor_gizmos(mut editor_gizmos: Gizmos<EditorGizmos>) {
 
 fn update_editor_gizmos_config(mut editor_gizmos: Gizmos<EditorGizmos>) {}
 
-fn on_editor_enter(mut camera: Single<&mut Transform, With<Camera>>) {}
+fn on_editor_enter(mut camera: Single<&mut Transform, With<GameCamera>>) {}
 
 fn on_editor_exit() {}
