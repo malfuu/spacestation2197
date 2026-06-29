@@ -70,14 +70,14 @@ impl ToolboxSlider {
     }
 }
 
+type SliderPosQueryData<'a> = (Entity, &'a SliderValue);
+type SliderPosFilter = (
+    With<ToolboxSlider>,
+    Or<(Changed<SliderValue>, Added<ToolboxSlider>)>,
+);
+
 fn update_slider_pos(
-    mut q_sliders: Query<
-        (Entity, &SliderValue),
-        (
-            With<ToolboxSlider>,
-            Or<(Changed<SliderValue>, Added<ToolboxSlider>)>,
-        ),
-    >,
+    mut q_sliders: Query<SliderPosQueryData, SliderPosFilter>,
     q_children: Query<&Children>,
     mut q_slider_text: Query<&mut Text, With<SliderValueText>>,
 ) {

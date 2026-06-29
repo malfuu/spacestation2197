@@ -85,7 +85,7 @@ fn setup_scene(
 
     // Right Camera (2D Viewport covering right 30% of the window)
     commands.spawn((
-        Camera2d::default(),
+        Camera2d,
         Camera {
             order: 1,
             viewport: Some(Viewport {

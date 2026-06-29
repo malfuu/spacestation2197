@@ -46,20 +46,20 @@ impl ToolboxToggleSwitch {
     }
 }
 
+type SwitchVisualsQueryData = (Entity, Has<Checked>);
+type SwitchVisualsFilter = (
+    With<ToolboxToggleSwitch>,
+    Or<(
+        Added<ToolboxToggleSwitch>,
+        Added<Checked>,
+        Changed<Hovered>,
+        Added<Pressed>,
+    )>,
+);
+
 /// Reactive system updating switch position and colors.
 fn update_switch_visuals(
-    q_switches: Query<
-        (Entity, Has<Checked>),
-        (
-            With<ToolboxToggleSwitch>,
-            Or<(
-                Added<ToolboxToggleSwitch>,
-                Added<Checked>,
-                Changed<Hovered>,
-                Added<Pressed>,
-            )>,
-        ),
-    >,
+    q_switches: Query<SwitchVisualsQueryData, SwitchVisualsFilter>,
     q_children: Query<&Children>,
     mut q_slides: Query<(&mut Node, &mut BackgroundColor), With<ToggleSwitchSlide>>,
 ) {

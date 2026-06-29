@@ -79,15 +79,11 @@ impl ListView {
 #[reflect(Component, Default)]
 pub struct ListRow;
 
+#[derive(Default)]
 pub struct ListRowProps {
     pub bg: Option<Color>,
 }
 
-impl Default for ListRowProps {
-    fn default() -> Self {
-        Self { bg: None }
-    }
-}
 
 impl ListRow {
     pub fn scene(props: ListRowProps) -> impl Scene {

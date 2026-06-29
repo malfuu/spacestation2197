@@ -1,8 +1,8 @@
-use crate::palette;
 use bevy::picking::hover::Hovered;
 use bevy::prelude::*;
 use bevy::ui::Pressed;
 use bevy::ui_widgets::Button as BevyButton;
+use crate::palette;
 
 /// Color & style variants for the button.
 #[derive(Component, Default, Clone, Copy, Debug, PartialEq, Eq, Reflect)]
@@ -90,13 +90,16 @@ impl ToolboxToolButton {
     }
 }
 
+type ButtonVisualsQueryData<'a> = (
+    &'a ButtonVariant,
+    &'a Hovered,
+    Has<Pressed>,
+    Mut<'a, BackgroundColor>,
+);
+type ButtonVisualsFilter = (With<ToolboxButton>, Or<(Changed<Hovered>, Added<Pressed>)>);
+
 /// Reactive system that updates background colors when hovered or pressed.
-fn update_button_visuals(
-    mut q_buttons: Query<
-        (&ButtonVariant, &Hovered, Has<Pressed>, &mut BackgroundColor),
-        (With<ToolboxButton>, Or<(Changed<Hovered>, Added<Pressed>)>),
-    >,
-) {
+fn update_button_visuals(mut q_buttons: Query<ButtonVisualsQueryData, ButtonVisualsFilter>) {
     for (variant, hovered, pressed, mut bg) in q_buttons.iter_mut() {
         let new_color = match (variant, pressed, hovered.0) {
             // Normal variant

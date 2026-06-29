@@ -72,20 +72,20 @@ impl ToolboxRadioButton {
     }
 }
 
+type RadioVisualsQueryData = (Entity, Has<Checked>);
+type RadioVisualsFilter = (
+    With<ToolboxRadioButton>,
+    Or<(
+        Added<ToolboxRadioButton>,
+        Added<Checked>,
+        Changed<Hovered>,
+        Added<Pressed>,
+    )>,
+);
+
 /// Reactive system updating radio dot visibility.
 fn update_radio_visuals(
-    q_radios: Query<
-        (Entity, Has<Checked>),
-        (
-            With<ToolboxRadioButton>,
-            Or<(
-                Added<ToolboxRadioButton>,
-                Added<Checked>,
-                Changed<Hovered>,
-                Added<Pressed>,
-            )>,
-        ),
-    >,
+    q_radios: Query<RadioVisualsQueryData, RadioVisualsFilter>,
     q_children: Query<&Children>,
     mut q_marks: Query<&mut Visibility, With<RadioMark>>,
 ) {

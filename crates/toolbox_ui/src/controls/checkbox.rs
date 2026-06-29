@@ -95,20 +95,20 @@ impl ToolboxCheckbox {
     }
 }
 
+type CheckboxVisualsQueryData<'a> = (Entity, Has<Checked>, &'a Hovered);
+type CheckboxVisualsFilter = (
+    With<CheckboxFrame>,
+    Or<(
+        Added<CheckboxFrame>,
+        Added<Checked>,
+        Changed<Hovered>,
+        Added<Pressed>,
+    )>,
+);
+
 /// Reactive system that updates checkmark visibility and colors based on checked/hover states.
 fn update_checkbox_visuals(
-    q_checkboxes: Query<
-        (Entity, Has<Checked>, &Hovered),
-        (
-            With<CheckboxFrame>,
-            Or<(
-                Added<CheckboxFrame>,
-                Added<Checked>,
-                Changed<Hovered>,
-                Added<Pressed>,
-            )>,
-        ),
-    >,
+    q_checkboxes: Query<CheckboxVisualsQueryData, CheckboxVisualsFilter>,
     q_children: Query<&Children>,
     mut q_marks: Query<&mut Visibility, With<CheckboxMark>>,
 ) {
