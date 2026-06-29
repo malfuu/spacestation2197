@@ -1,3 +1,4 @@
+use crate::palette;
 use bevy::ecs::lifecycle::RemovedComponents;
 use bevy::math::Rot2;
 use bevy::picking::hover::Hovered;
@@ -11,7 +12,6 @@ use bevy::ui_widgets::Checkbox as BevyCheckbox;
 #[reflect(Component, Default)]
 pub struct ToolboxCheckbox;
 
-/// Type alias for ease of use.
 pub type Checkbox = ToolboxCheckbox;
 
 /// Props used to construct a [`ToolboxCheckbox`] scene.
@@ -68,10 +68,9 @@ impl ToolboxCheckbox {
                     align_items: AlignItems::Center,
                 }
                 CheckboxOutline
-                BackgroundColor(Color::srgb(0.20, 0.20, 0.24))
-                BorderColor::all(Color::srgb(0.35, 0.35, 0.40))
+                BackgroundColor(palette::DEEP_SLATE_1)
+                BorderColor::all(palette::BORDER_STEEL)
                 Children [(
-                    // L-shaped checkmark: rotated node with bottom & right border
                     Node {
                         position_type: PositionType::Absolute,
                         left: px(4.0),
@@ -87,7 +86,7 @@ impl ToolboxCheckbox {
                     }
                     UiTransform::from_rotation(Rot2::FRAC_PI_4)
                     CheckboxMark
-                    BorderColor::all(Color::srgb(0.95, 0.95, 1.0))
+                    BorderColor::all(palette::ELECTRIC_BLUE)
                     Visibility::Hidden
                 )]),
                 {props.caption}

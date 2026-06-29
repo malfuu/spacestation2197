@@ -1,4 +1,5 @@
 use crate::controls::scrollbar::Scrollbar;
+use crate::palette;
 use bevy::picking::hover::Hovered;
 use bevy::prelude::*;
 use bevy::ui_widgets::{ControlOrientation, ListBox, ListItem, ScrollArea};
@@ -30,6 +31,9 @@ impl ListView {
                 flex_direction: FlexDirection::Column,
                 align_items: AlignItems::Stretch,
                 justify_content: JustifyContent::Start,
+                flex_grow: 1.0,
+                flex_shrink: 1.0,
+                min_height: px(0.0),
                 padding: UiRect {
                     right: px(10.0)
                 }
@@ -43,6 +47,9 @@ impl ListView {
                         flex_direction: FlexDirection::Column,
                         align_items: AlignItems::Stretch,
                         justify_content: JustifyContent::Start,
+                        flex_grow: 1.0,
+                        flex_shrink: 1.0,
+                        min_height: px(0.0),
                         overflow: Overflow::scroll_y(),
                     }
                     ScrollArea
@@ -68,23 +75,36 @@ impl ListView {
 
 /// The ListRow Scene Component.
 #[derive(SceneComponent, Default, Clone, Reflect)]
+#[scene(ListRowProps)]
 #[reflect(Component, Default)]
 pub struct ListRow;
 
+pub struct ListRowProps {
+    pub bg: Option<Color>,
+}
+
+impl Default for ListRowProps {
+    fn default() -> Self {
+        Self { bg: None }
+    }
+}
+
 impl ListRow {
-    pub fn scene() -> impl Scene {
+    pub fn scene(props: ListRowProps) -> impl Scene {
+        let initial_bg = props.bg.unwrap_or(palette::DEEP_SLATE_1);
         bsn! {
             Node {
                 min_height: px(24.0),
-                min_width: px(24.0),
+                width: percent(100.0),
+                flex_shrink: 0.0,
                 display: Display::Flex,
                 flex_direction: FlexDirection::Row,
                 justify_content: JustifyContent::Start,
                 align_items: AlignItems::Center,
                 padding: UiRect::axes(px(8.0), px(2.0)),
             }
-            TextColor(Color::srgb(0.90, 0.90, 0.95))
-            BackgroundColor(Color::srgb(0.18, 0.18, 0.22))
+            TextColor(palette::TEXT_PRIMARY)
+            BackgroundColor(initial_bg)
             Hovered
             ListItem
         }

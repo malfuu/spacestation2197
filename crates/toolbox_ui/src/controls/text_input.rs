@@ -46,7 +46,7 @@ impl TextInput {
             }
             TextInput
             EditableText {
-                cursor_width: 2.0,
+                cursor_width: 0.05,
                 visible_width: {props.visible_width},
                 max_characters: {props.max_characters},
             }

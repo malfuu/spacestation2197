@@ -1,3 +1,4 @@
+use crate::palette;
 use bevy::picking::hover::Hovered;
 use bevy::prelude::*;
 use bevy::ui::Pressed;
@@ -41,8 +42,8 @@ pub type Button = ToolboxButton;
 impl ToolboxButton {
     pub fn scene(props: ToolboxButtonProps) -> impl Scene {
         let initial_bg = match props.variant {
-            ButtonVariant::Normal => Color::srgb(0.25, 0.25, 0.28),
-            ButtonVariant::Primary => Color::srgb(0.15, 0.45, 0.85),
+            ButtonVariant::Normal => palette::DEEP_SLATE_2,
+            ButtonVariant::Primary => palette::ELECTRIC_BLUE,
             ButtonVariant::Plain => Color::NONE,
         };
 
@@ -99,14 +100,14 @@ fn update_button_visuals(
     for (variant, hovered, pressed, mut bg) in q_buttons.iter_mut() {
         let new_color = match (variant, pressed, hovered.0) {
             // Normal variant
-            (ButtonVariant::Normal, true, _) => Color::srgb(0.18, 0.18, 0.20),
-            (ButtonVariant::Normal, false, true) => Color::srgb(0.32, 0.32, 0.36),
-            (ButtonVariant::Normal, false, false) => Color::srgb(0.25, 0.25, 0.28),
+            (ButtonVariant::Normal, true, _) => palette::DEEP_SLATE_1,
+            (ButtonVariant::Normal, false, true) => palette::STEEL_SLATE,
+            (ButtonVariant::Normal, false, false) => palette::DEEP_SLATE_2,
 
             // Primary variant
-            (ButtonVariant::Primary, true, _) => Color::srgb(0.10, 0.35, 0.70),
-            (ButtonVariant::Primary, false, true) => Color::srgb(0.20, 0.55, 0.95),
-            (ButtonVariant::Primary, false, false) => Color::srgb(0.15, 0.45, 0.85),
+            (ButtonVariant::Primary, true, _) => palette::ELECTRIC_BLUE_PRESSED,
+            (ButtonVariant::Primary, false, true) => palette::ELECTRIC_BLUE_HOVER,
+            (ButtonVariant::Primary, false, false) => palette::ELECTRIC_BLUE,
 
             // Plain variant
             (ButtonVariant::Plain, true, _) => Color::srgba(1.0, 1.0, 1.0, 0.15),

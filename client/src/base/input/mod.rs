@@ -9,7 +9,7 @@ use shared::{
 
 use crate::{
     base::{
-        camera::{GameCamera, CameraState},
+        camera::{CameraState, GameCamera},
         windows::WindowStack,
     },
     game::examine::ExamineEntity,

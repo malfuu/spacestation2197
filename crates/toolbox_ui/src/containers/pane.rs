@@ -1,3 +1,5 @@
+use crate::theme::{ThemeBackgroundColor, ThemeBorderColor};
+use crate::tokens;
 use bevy::prelude::*;
 
 /// A standard pane container for windows or sidebars.
@@ -30,8 +32,8 @@ pub fn pane_header() -> impl Scene {
             column_gap: px(6.0),
             border_radius: BorderRadius::px(4.0, 4.0, 0.0, 0.0),
         }
-        BackgroundColor(Color::srgb(0.20, 0.20, 0.23))
-        BorderColor::all(Color::srgb(0.30, 0.30, 0.34))
+        ThemeBackgroundColor(tokens::PANE_HEADER_BG)
+        ThemeBorderColor(tokens::PANE_HEADER_BORDER)
     }
 }
 
@@ -50,7 +52,7 @@ pub fn pane_header_divider() -> impl Scene {
                 top: px(-6.0),
                 bottom: px(-6.0),
             }
-            BackgroundColor(Color::srgb(0.35, 0.35, 0.40))
+            ThemeBackgroundColor(tokens::PANE_HEADER_DIVIDER)
         )]
     }
 }
@@ -65,6 +67,6 @@ pub fn pane_body() -> impl Scene {
             padding: UiRect::all(px(6.0)),
             border_radius: BorderRadius::px(0.0, 0.0, 4.0, 4.0),
         }
-        BackgroundColor(Color::srgb(0.15, 0.15, 0.18))
+        ThemeBackgroundColor(tokens::PANE_BODY_BG)
     }
 }

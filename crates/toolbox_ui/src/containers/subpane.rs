@@ -1,3 +1,5 @@
+use crate::theme::{ThemeBackgroundColor, ThemeBorderColor};
+use crate::tokens;
 use bevy::prelude::*;
 
 /// Sub-pane container.
@@ -30,8 +32,8 @@ pub fn subpane_header() -> impl Scene {
             column_gap: px(4.0),
             border_radius: BorderRadius::px(4.0, 4.0, 0.0, 0.0),
         }
-        BackgroundColor(Color::srgb(0.18, 0.18, 0.21))
-        BorderColor::all(Color::srgb(0.28, 0.28, 0.32))
+        ThemeBackgroundColor(tokens::SUBPANE_HEADER_BG)
+        ThemeBorderColor(tokens::SUBPANE_HEADER_BORDER)
     }
 }
 
@@ -51,7 +53,7 @@ pub fn subpane_body() -> impl Scene {
             padding: UiRect::all(px(6.0)),
             border_radius: BorderRadius::px(0.0, 0.0, 4.0, 4.0),
         }
-        BackgroundColor(Color::srgb(0.13, 0.13, 0.16))
-        BorderColor::all(Color::srgb(0.28, 0.28, 0.32))
+        ThemeBackgroundColor(tokens::SUBPANE_BODY_BG)
+        ThemeBorderColor(tokens::SUBPANE_HEADER_BORDER)
     }
 }

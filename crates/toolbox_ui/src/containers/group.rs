@@ -1,3 +1,5 @@
+use crate::theme::{ThemeBackgroundColor, ThemeBorderColor};
+use crate::tokens;
 use bevy::prelude::*;
 
 /// Group container.
@@ -24,8 +26,8 @@ pub fn group_header() -> impl Scene {
             column_gap: px(4.0),
             border_radius: BorderRadius::px(4.0, 4.0, 0.0, 0.0),
         }
-        BackgroundColor(Color::srgb(0.22, 0.22, 0.25))
-        BorderColor::all(Color::srgb(0.32, 0.32, 0.36))
+        ThemeBackgroundColor(tokens::GROUP_HEADER_BG)
+        ThemeBorderColor(tokens::GROUP_HEADER_BORDER)
     }
 }
 
@@ -45,7 +47,7 @@ pub fn group_body() -> impl Scene {
             padding: UiRect::all(px(6.0)),
             border_radius: BorderRadius::px(0.0, 0.0, 4.0, 4.0),
         }
-        BackgroundColor(Color::srgb(0.16, 0.16, 0.19))
-        BorderColor::all(Color::srgb(0.32, 0.32, 0.36))
+        ThemeBackgroundColor(tokens::GROUP_BODY_BG)
+        ThemeBorderColor(tokens::GROUP_HEADER_BORDER)
     }
 }
